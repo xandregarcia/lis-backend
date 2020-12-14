@@ -5,8 +5,15 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
+use App\Customs\Messages;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Client\ConnectionException;
+
 class Handler extends ExceptionHandler
 {
+    use Messages;
+
     /**
      * A list of the exception types that are not reported.
      *
@@ -37,4 +44,43 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $exception)
+    {
+
+		/**
+		 * Use App\Traits\Messages@jsonErrorUnauthorizedAccess
+		 * for AuthorizationException exception
+		 */
+		if ($exception instanceof AuthorizationException) {
+			return $this->jsonErrorUnauthorizedAccess();
+		}
+		
+		/**
+		 * Use App\Traits\Messages@jsonErrorUnauthenticated
+		 * for AuthenticationException exception
+		 */
+		if ($exception instanceof AuthenticationException) {
+			return $this->jsonErrorUnauthenticated();
+        }
+
+		/**
+		 * Use App\Traits\Messages@jsonErrorUnauthenticated
+		 * for ConnectionException exception
+		 */
+		if ($exception instanceof ConnectionException) {
+			return $this->jsonFailedResponse(null, 500, $exception->getMessage());
+		}
+	
+        return parent::render($request, $exception);
+    }    
 }

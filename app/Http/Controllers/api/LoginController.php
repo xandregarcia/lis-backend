@@ -5,13 +5,20 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\User;
 use App\Customs\Messages;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\User\UserResource;
 
-class LoginApiController extends Controller
+class LoginController extends Controller
 {
+    use Messages;
+
+    public function __construct()
+    {
+        $this->middleware('auth:api')->only('logout');
+    }
 
     public function login(Request $request)
     {
@@ -30,8 +37,9 @@ class LoginApiController extends Controller
             return $this->jsonErrorInvalidCredentials();
         }
 
-        $access_token = Auth::user()->createToken('authToken')->accessToken;
+        $token = Auth::user()->createToken('authToken');
         $user = User::find(Auth::id());
+        $user->token = $token->accessToken;
 
         $data = new UserResource($user);
 
