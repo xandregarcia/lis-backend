@@ -22,7 +22,7 @@ Route::prefix('auth')->group(function() {
 });
 
 Route::middleware(['auth:api'])->group(function () {
-    Route::get('/test', function () {
+    Route::get('/test/{id}', function () {
         return "Hello, World!";
-    });
+    });     
 });

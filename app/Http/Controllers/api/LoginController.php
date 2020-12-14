@@ -20,6 +20,9 @@ class LoginController extends Controller
         $this->middleware('auth:api')->only('logout');
     }
 
+    /**
+     *
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
