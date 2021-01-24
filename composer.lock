@@ -1981,6 +1981,10 @@
                 "laravel-api-explorer",
                 "rest"
             ],
+            "support": {
+                "issues": "https://github.com/netojose/laravel-api-explorer/issues",
+                "source": "https://github.com/netojose/laravel-api-explorer/tree/v2.0.1"
+            },
             "time": "2019-12-12T11:28:24+00:00"
         },
         {
@@ -7854,5 +7858,5 @@
         "php": "^7.3|^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
