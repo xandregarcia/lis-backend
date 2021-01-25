@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Customs\Messages;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\User\UserResource;
+use App\Http\Resources\LoginResource;
 
 class LoginController extends Controller
 {
@@ -44,7 +44,7 @@ class LoginController extends Controller
         $user = User::find(Auth::id());
         $user->token = $token->accessToken;
 
-        $data = new UserResource($user);
+        $data = new LoginResource($user);
 
         return $this->jsonSuccessResponse($data, 200);
 

@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Customs\Messages;
 use App\Models\User;
 
+use App\Http\Resources\User\UserResource;
+use App\Http\Resources\User\UserResourceCollection;
+
 class UserController extends Controller
 {
     use Messages;
@@ -35,7 +38,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $users = User::paginate(20);
+
+        $data = new UserResourceCollection($users);
+
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);        
     }
 
     /**
@@ -56,7 +63,14 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), $this->rules());
+
+        $rules = [
+            'firstname' => 'string',
+            'lastname' => 'string',
+            'email' => ['string', 'email', 'unique:users'],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
@@ -84,7 +98,19 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+            return $this->jsonErrorInvalidParameters();
+        }
+
+        $user = User::find($id);
+
+        if (is_null($user)) {
+			return $this->jsonErrorResourceNotFound();
+        }
+
+		$data = new UserResource($user);
+
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
 
     /**
@@ -107,7 +133,34 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+            return $this->jsonErrorInvalidParameters();
+        }        
+
+        $rules = [
+            'firstname' => 'string',
+            'lastname' => 'string',
+        ];
+
+        $user = User::find($id);
+
+        if (is_null($user)) {
+			return $this->jsonErrorResourceNotFound();
+        }
+        
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->jsonErrorDataValidation();
+        }
+
+        $data = $validator->valid();
+        
+        $user = User::find($id);
+        $user->fill($data);
+        $user->save();
+
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User info succesfully updated");        
     }
 
     /**
@@ -118,7 +171,17 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+            return $this->jsonErrorInvalidParameters();
+        }
+
+        $user = User::find($id);
+
+        if (is_null($user)) {
+			return $this->jsonErrorResourceNotFound();
+        }  
+
+        $user->delete();
     }
 
     private function rules()
