@@ -46,7 +46,10 @@ trait ManageUsers
 
 			$user = new User;
 
+			$user->firstname = $details['firstname'];
+			$user->lastname = $details['lastname'];
 			$user->email = $details['email'];
+			$user->is_super_admin = $details['is_super_admin'];
 			$user->password = $details['password'];
 			$user->email_verified_at = now();
 			$user->created_at = now();
@@ -90,9 +93,10 @@ trait ManageUsers
     private function getDetails() : array
     {
 
-        // $details['firstname'] = $this->ask('Firstname');
-        // $details['lastname'] = $this->ask('Lastname');
+        $details['firstname'] = $this->ask('Firstname');
+        $details['lastname'] = $this->ask('Lastname');
         $details['email'] = $this->ask('Email');
+        $details['is_super_admin'] = $this->secret('Is Super Admin? [1=Yes, 0=No]');
         $details['password'] = $this->secret('Password');
         $details['confirm_password'] = $this->secret('Confirm password');
 

@@ -19,7 +19,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'firstname',
+        'middlename',
+        'lastname',
         'email',
+        'is_super_admin',
         'password',
     ];
 
@@ -40,6 +44,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_super_admin' => 'boolean'
     ];
 
     /**
