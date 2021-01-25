@@ -23,7 +23,7 @@ class UserController extends Controller
 
 	public function __construct()
 	{
-		// $this->middleware(['auth:api']);
+		$this->middleware(['auth:api']);
 		// $this->authorizeResource(User::class, User::class);
 		
         $this->http_code_ok = 200;
