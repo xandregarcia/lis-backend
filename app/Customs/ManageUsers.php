@@ -96,7 +96,7 @@ trait ManageUsers
         $details['firstname'] = $this->ask('Firstname');
         $details['lastname'] = $this->ask('Lastname');
         $details['email'] = $this->ask('Email');
-        $details['is_super_admin'] = $this->secret('Is Super Admin? [1=Yes, 0=No]');
+        $details['is_super_admin'] = $this->ask('Is Super Admin? [1=Yes, 0=No]');
         $details['password'] = $this->secret('Password');
         $details['confirm_password'] = $this->secret('Confirm password');
 
