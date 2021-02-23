@@ -12,7 +12,7 @@ use App\Customs\Messages;
 use App\Models\User;
 
 use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserResourceCollection;
+use App\Http\Resources\User\UserListResourceCollection;
 
 class UserController extends Controller
 {
@@ -38,11 +38,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(20);
+        $users = User::paginate(10);
 
-        $data = new UserResourceCollection($users);
+        $data = new UserListResourceCollection($users);
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
 
     /**
