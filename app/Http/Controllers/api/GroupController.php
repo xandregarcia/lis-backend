@@ -5,16 +5,13 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-
 use App\Customs\Messages;
-use App\Models\User;
+use App\Models\Group;
 
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserListResourceCollection;
+use App\Http\Resources\Group\GroupResource;
+use App\Http\Resources\Group\GroupListResourceCollection;
 
-class UserController extends Controller
+class GroupController extends Controller
 {
     use Messages;
 
@@ -24,7 +21,7 @@ class UserController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(User::class, User::class);
+		// $this->authorizeResource(Group::class, Group::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,12 +35,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $groups = Group::paginate(10);
 
-        $data = new UserListResourceCollection($users);
+        $data = new GroupListResourceCollection($groups);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
-    }
+    }    
 
     /**
      * Show the form for creating a new resource.
@@ -65,9 +62,8 @@ class UserController extends Controller
     {
 
         $rules = [
-            'firstname' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
+            'name' => 'string',
+            'description' => 'string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -78,16 +74,11 @@ class UserController extends Controller
 
         $data = $validator->valid();
         
-        $user = new User;
-        
-        $password = Hash::make(env('DEFAULT_PASSWORD','12345678'));
-        $data['password'] = $password;
+        $group = new Group;
+		$group->fill($data);
+        $group->save();
 
-		$user->fill($data);
-        
-        $user->save();
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User succesfully added");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
     }
 
     /**
@@ -102,13 +93,13 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $group = Group::find($id);
 
-        if (is_null($user)) {
+        if (is_null($group)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new UserResource($user);
+		$data = new GroupResource($group);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -138,13 +129,13 @@ class UserController extends Controller
         }        
 
         $rules = [
-            'firstname' => 'string',
-            'lastname' => 'string',
+            'name' => 'string',
+            'description' => 'string',
         ];
 
-        $user = User::find($id);
+        $group = Group::find($id);
 
-        if (is_null($user)) {
+        if (is_null($group)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -155,10 +146,10 @@ class UserController extends Controller
         }
 
         $data = $validator->valid();
-        $user->fill($data);
-        $user->save();
+        $group->fill($data);
+        $group->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
     }
 
     /**
@@ -173,22 +164,13 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $group = Group::find($id);
 
-        if (is_null($user)) {
+        if (is_null($group)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $user->delete();
+        $group->delete();
     }
 
-    private function rules()
-    {
-        return [
-            'firstname' => 'string',
-            // 'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-        ];
-    }
 }

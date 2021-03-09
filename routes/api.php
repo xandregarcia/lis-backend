@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\api\LoginController;
 use App\Http\Controllers\api\UserController;
+use App\Http\Controllers\api\GroupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,9 @@ Route::prefix('auth')->group(function() {
     Route::post('logout', [LoginController::class, 'logout']);
 });
 
+/**
+ * Users
+ */
 Route::apiResources([
     'users' => UserController::class,
 ],[
@@ -30,6 +34,21 @@ Route::apiResources([
 
 Route::apiResources([
     'user' => UserController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Users
+ */
+Route::apiResources([
+    'groups' => GroupController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'group' => GroupController::class,
 ],[
     'except' => ['index']
 ]);
