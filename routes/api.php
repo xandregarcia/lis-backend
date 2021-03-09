@@ -39,7 +39,7 @@ Route::apiResources([
 ]);
 
 /**
- * Users
+ * Groups
  */
 Route::apiResources([
     'groups' => GroupController::class,
