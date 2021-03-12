@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\LoginController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\GroupController;
+use App\Http\Controllers\api\OriginController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +51,21 @@ Route::apiResources([
 
 Route::apiResources([
     'group' => GroupController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Origins
+ */
+Route::apiResources([
+    'origins' => OriginController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'origin' => OriginController::class,
 ],[
     'except' => ['index']
 ]);
