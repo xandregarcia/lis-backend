@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\LoginController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\GroupController;
+use App\Http\Controllers\api\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,21 @@ Route::apiResources([
 
 Route::apiResources([
     'group' => GroupController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Categories
+ */
+Route::apiResources([
+    'categories' => CategoryController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'category' => CategoryController::class,
 ],[
     'except' => ['index']
 ]);
