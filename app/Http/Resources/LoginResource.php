@@ -19,6 +19,8 @@ class LoginResource extends JsonResource
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
             'token' => $this->token,
+            'group_id' => (is_null($this->group))?null:$this->group->id,
+            'group_name' => (is_null($this->group))?null:$this->group->name,
         ];
     }
 }
