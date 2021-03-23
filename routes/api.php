@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\LoginController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\GroupController;
+use App\Http\Controllers\api\OriginController;
 use App\Http\Controllers\api\AgencyController;
 use App\Http\Controllers\api\PublisherController;
 use App\Http\Controllers\api\BokalController;
@@ -53,6 +54,22 @@ Route::apiResources([
 
 Route::apiResources([
     'group' => GroupController::class,
+],[
+    'except' => ['index']
+]);
+
+
+/**
+ * Origins
+ */
+Route::apiResources([
+    'origins' => OriginController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'origin' => OriginController::class,
 ],[
     'except' => ['index']
 ]);
