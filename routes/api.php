@@ -10,6 +10,7 @@ use App\Http\Controllers\api\OriginController;
 use App\Http\Controllers\api\AgencyController;
 use App\Http\Controllers\api\PublisherController;
 use App\Http\Controllers\api\BokalController;
+use App\Http\Controllers\api\CommitteeController;
 
 
 /*
@@ -115,6 +116,21 @@ Route::apiResources([
 
 Route::apiResources([
     'bokal' => BokalController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Committees
+ */
+Route::apiResources([
+    'committees' => CommitteeController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'committee' => CommitteeController::class,
 ],[
     'except' => ['index']
 ]);
