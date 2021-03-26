@@ -65,22 +65,33 @@ class CommitteeController extends Controller
     {
         $rules = [
             'name' => 'string',
-            'chairman' => 'integer',
-            'vice_chairman' => 'integer',
-            'members' => 'string',
+            'bokals' => 'array'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
-        }
+        }        
 
         $data = $validator->valid();
         
         $committee = new Committee;
 		$committee->fill($data);
         $committee->save();
+
+        // Sync in pivot table
+        $bokals = $data['bokals'];
+        $syncs = [];
+        foreach ($bokals as $bokal) {
+            $syncs[$bokal['id']] = [
+                "chairman" => $bokal['chairman'],
+                "vice_chairman" => $bokal['vice_chairman'],
+                "member" => $bokal['member'],
+            ];
+        }
+
+        $committee->bokals()->sync($syncs);
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");
     }
@@ -134,9 +145,7 @@ class CommitteeController extends Controller
 
         $rules = [
             'name' => 'string',
-            'chairman' => 'integer',
-            'vice_chairman' => 'integer',
-            'members' => 'string',
+            'bokals' => 'array'
         ];
 
         $committee = Committee::find($id);
@@ -154,6 +163,19 @@ class CommitteeController extends Controller
         $data = $validator->valid();
         $committee->fill($data);
         $committee->save();
+
+        // Sync in pivot table
+        $bokals = $data['bokals'];
+        $syncs = [];
+        foreach ($bokals as $bokal) {
+            $syncs[$bokal['id']] = [
+                "chairman" => $bokal['chairman'],
+                "vice_chairman" => $bokal['vice_chairman'],
+                "member" => $bokal['member'],
+            ];
+        }
+
+        $committee->bokals()->sync($syncs);
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee info succesfully updated");        
     }
