@@ -27,5 +27,5 @@ class Agency extends Model
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
-    }     
+    }
 }

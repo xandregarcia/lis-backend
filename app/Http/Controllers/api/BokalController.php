@@ -65,13 +65,14 @@ class BokalController extends Controller
     {
         $rules = [
             'name' => 'string',
-            'active' => 'integer',
+            'active' => 'boolean',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
+            // return $validator->errors();
         }
 
         $data = $validator->valid();
@@ -132,7 +133,7 @@ class BokalController extends Controller
 
         $rules = [
             'name' => 'string',
-            'active' => 'integer',
+            'active' => 'boolean',
         ];
 
         $bokal = Bokal::find($id);

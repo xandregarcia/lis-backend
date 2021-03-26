@@ -30,21 +30,10 @@ class Committee extends Model
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
-    } 
-
-    public function bokal()
-    {
-        return $this->belongsTo(Bokal::class,'chairman','id');
-        // return $this->hasMany(Bokal::class);
-    }
-    public function bokal2()
-    {
-        return $this->belongsTo(Bokal::class,'vice_chairman','id');
-        // return $this->hasMany(Bokal::class);
     }
 
-    public function bokals3()
+    public function bokals()
     {
-        return $this->belongsTo(Bokal::class,'members','id');
+        return $this->belongsToMany(Bokal::class)->withPivot('chairman', 'vice_chairman', 'member');
     }
 }

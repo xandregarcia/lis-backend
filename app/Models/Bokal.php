@@ -19,6 +19,15 @@ class Bokal extends Model
     protected $fillable = [
         'name',
         'active'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'active' => 'boolean',
     ];    
 
     /**
@@ -28,5 +37,10 @@ class Bokal extends Model
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
+    }
+
+    public function committees()
+    {
+        return $this->belongsToMany(Committee::class);
     }
 }
