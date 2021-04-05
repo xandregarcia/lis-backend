@@ -163,7 +163,7 @@ class CategoryController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $category = Group::find($id);
+        $category = Category::find($id);
 
         if (is_null($category)) {
 			return $this->jsonErrorResourceNotFound();
