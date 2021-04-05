@@ -20,7 +20,8 @@ class UserListResource extends JsonResource
             'middlename' => $this->middlename,
             'lastname' => $this->lastname,
             'email' => $this->email,
-            'date_created' => $this->created_at
+            'group_name' => (is_null($this->group))?null:$this->group->name,
+            'date_created' => $this->created_at,
         ];
     }
 }

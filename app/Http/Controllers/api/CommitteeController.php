@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 
 use App\Customs\Messages;
-use App\Models\User;
+use App\Models\Committee;
 
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserListResourceCollection;
+use App\Http\Resources\Committee\CommitteeResource;
+use App\Http\Resources\Committee\CommitteeListResourceCollection;
 
-class UserController extends Controller
+class CommitteeController extends Controller
 {
+
     use Messages;
 
     private $http_code_ok;
@@ -24,7 +24,7 @@ class UserController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(User::class, User::class);
+		// $this->authorizeResource(Committee::class, Committee::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,9 +38,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $committees = Committee::paginate(10);
 
-        $data = new UserListResourceCollection($users);
+        $data = new CommitteeListResourceCollection($committees);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -63,33 +63,37 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
+            'name' => 'string',
+            'bokals' => 'array'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
-        }
+        }        
 
         $data = $validator->valid();
         
-        $user = new User;
-        
-        $password = Hash::make(env('DEFAULT_PASSWORD','12345678'));
-        $data['password'] = $password;
+        $committee = new Committee;
+		$committee->fill($data);
+        $committee->save();
 
-		$user->fill($data);
-        
-        $user->save();
+        // Sync in pivot table
+        $bokals = $data['bokals'];
+        $syncs = [];
+        foreach ($bokals as $bokal) {
+            $syncs[$bokal['id']] = [
+                "chairman" => $bokal['chairman'],
+                "vice_chairman" => $bokal['vice_chairman'],
+                "member" => $bokal['member'],
+            ];
+        }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User succesfully added");        
+        $committee->bokals()->sync($syncs);
+
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");
     }
 
     /**
@@ -104,13 +108,13 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $committee = Committee::find($id);
 
-        if (is_null($user)) {
+        if (is_null($committee)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new UserResource($user);
+		$data = new CommitteeResource($committee);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -140,16 +144,13 @@ class UserController extends Controller
         }        
 
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer'
+            'name' => 'string',
+            'bokals' => 'array'
         ];
 
-        $user = User::find($id);
+        $committee = Committee::find($id);
 
-        if (is_null($user)) {
+        if (is_null($committee)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -160,10 +161,23 @@ class UserController extends Controller
         }
 
         $data = $validator->valid();
-        $user->fill($data);
-        $user->save();
+        $committee->fill($data);
+        $committee->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User info succesfully updated");        
+        // Sync in pivot table
+        $bokals = $data['bokals'];
+        $syncs = [];
+        foreach ($bokals as $bokal) {
+            $syncs[$bokal['id']] = [
+                "chairman" => $bokal['chairman'],
+                "vice_chairman" => $bokal['vice_chairman'],
+                "member" => $bokal['member'],
+            ];
+        }
+
+        $committee->bokals()->sync($syncs);
+
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee info succesfully updated");        
     }
 
     /**
@@ -178,23 +192,12 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $committee = Committee::find($id);
 
-        if (is_null($user)) {
+        if (is_null($committee)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $user->delete();
-    }
-
-    private function rules()
-    {
-        return [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
-        ];
+        $committee->delete();
     }
 }

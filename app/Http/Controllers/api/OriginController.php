@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 
 use App\Customs\Messages;
-use App\Models\User;
+use App\Models\Origin;
 
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserListResourceCollection;
+use App\Http\Resources\Origin\OriginResource;
+use App\Http\Resources\Origin\OriginListResourceCollection;
 
-class UserController extends Controller
+class OriginController extends Controller
 {
+
     use Messages;
 
     private $http_code_ok;
@@ -24,7 +24,7 @@ class UserController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(User::class, User::class);
+		// $this->authorizeResource(Origin::class, Origin::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,11 +38,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $origins = Origin::paginate(10);
 
-        $data = new UserListResourceCollection($users);
+        $data = new OriginListResourceCollection($origins);
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);      
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
 
     /**
@@ -63,13 +63,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
+            'name' => 'string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -80,16 +75,11 @@ class UserController extends Controller
 
         $data = $validator->valid();
         
-        $user = new User;
-        
-        $password = Hash::make(env('DEFAULT_PASSWORD','12345678'));
-        $data['password'] = $password;
+        $origin = new Origin;
+		$origin->fill($data);
+        $origin->save();
 
-		$user->fill($data);
-        
-        $user->save();
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User succesfully added");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin succesfully added");
     }
 
     /**
@@ -104,13 +94,13 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $origin = Origin::find($id);
 
-        if (is_null($user)) {
+        if (is_null($origin)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new UserResource($user);
+		$data = new OriginResource($origin);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -140,16 +130,12 @@ class UserController extends Controller
         }        
 
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer'
+            'name' => 'string',
         ];
 
-        $user = User::find($id);
+        $origin = Origin::find($id);
 
-        if (is_null($user)) {
+        if (is_null($origin)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -160,10 +146,10 @@ class UserController extends Controller
         }
 
         $data = $validator->valid();
-        $user->fill($data);
-        $user->save();
+        $origin->fill($data);
+        $origin->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin info succesfully updated");  
     }
 
     /**
@@ -178,23 +164,12 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $origin = Origin::find($id);
 
-        if (is_null($user)) {
+        if (is_null($origin)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $user->delete();
-    }
-
-    private function rules()
-    {
-        return [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
-        ];
+        $origin->delete();
     }
 }

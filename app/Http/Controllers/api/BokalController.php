@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 
 use App\Customs\Messages;
-use App\Models\User;
+use App\Models\Bokal;
 
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserListResourceCollection;
+use App\Http\Resources\Bokal\BokalResource;
+use App\Http\Resources\Bokal\BokalListResourceCollection;
 
-class UserController extends Controller
+class BokalController extends Controller
 {
+
     use Messages;
 
     private $http_code_ok;
@@ -24,7 +24,7 @@ class UserController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(User::class, User::class);
+		// $this->authorizeResource(Group::class, Group::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,9 +38,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $bokals = Bokal::paginate(10);
 
-        $data = new UserListResourceCollection($users);
+        $data = new BokalListResourceCollection($bokals);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -63,33 +63,25 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
+            'name' => 'string',
+            'active' => 'boolean',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
+            // return $validator->errors();
         }
 
         $data = $validator->valid();
         
-        $user = new User;
-        
-        $password = Hash::make(env('DEFAULT_PASSWORD','12345678'));
-        $data['password'] = $password;
+        $bokal = new Bokal;
+		$bokal->fill($data);
+        $bokal->save();
 
-		$user->fill($data);
-        
-        $user->save();
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User succesfully added");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Bokal Member succesfully added");
     }
 
     /**
@@ -104,13 +96,13 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $bokal = Bokal::find($id);
 
-        if (is_null($user)) {
+        if (is_null($bokal)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new UserResource($user);
+		$data = new BokalResource($bokal);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -140,16 +132,13 @@ class UserController extends Controller
         }        
 
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer'
+            'name' => 'string',
+            'active' => 'boolean',
         ];
 
-        $user = User::find($id);
+        $bokal = Bokal::find($id);
 
-        if (is_null($user)) {
+        if (is_null($bokal)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -160,10 +149,10 @@ class UserController extends Controller
         }
 
         $data = $validator->valid();
-        $user->fill($data);
-        $user->save();
+        $bokal->fill($data);
+        $bokal->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Bokal Member info succesfully updated");        
     }
 
     /**
@@ -178,23 +167,12 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $bokal = Bokal::find($id);
 
-        if (is_null($user)) {
+        if (is_null($bokal)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $user->delete();
-    }
-
-    private function rules()
-    {
-        return [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
-        ];
+        $bokal->delete();
     }
 }

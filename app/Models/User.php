@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'is_super_admin',
         'password',
+        'group',
     ];
 
     /**
@@ -54,5 +55,11 @@ class User extends Authenticatable
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
-    }    
+    }
+
+    public function group()
+    {
+        // return $this->belongsTo(Group::class,'group_id','id');
+        return $this->belongsTo(Group::class);
+    }
 }

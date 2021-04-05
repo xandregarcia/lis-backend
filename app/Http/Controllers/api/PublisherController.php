@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 
 use App\Customs\Messages;
-use App\Models\User;
+use App\Models\Publisher;
 
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserListResourceCollection;
+use App\Http\Resources\Publisher\PublisherResource;
+use App\Http\Resources\Publisher\PublisherListResourceCollection;
 
-class UserController extends Controller
+class PublisherController extends Controller
 {
+
     use Messages;
 
     private $http_code_ok;
@@ -24,7 +24,7 @@ class UserController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(User::class, User::class);
+		// $this->authorizeResource(Group::class, Group::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,9 +38,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $publishers = Publisher::paginate(10);
 
-        $data = new UserListResourceCollection($users);
+        $data = new PublisherListResourceCollection($publishers);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -63,13 +63,9 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
+            'name' => 'string',
+            'head' => 'string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -80,16 +76,11 @@ class UserController extends Controller
 
         $data = $validator->valid();
         
-        $user = new User;
-        
-        $password = Hash::make(env('DEFAULT_PASSWORD','12345678'));
-        $data['password'] = $password;
+        $publisher = new Publisher;
+		$publisher->fill($data);
+        $publisher->save();
 
-		$user->fill($data);
-        
-        $user->save();
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User succesfully added");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Publisher succesfully added");
     }
 
     /**
@@ -104,13 +95,13 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $publisher = Publisher::find($id);
 
-        if (is_null($user)) {
+        if (is_null($publisher)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new UserResource($user);
+		$data = new PublisherResource($publisher);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -140,16 +131,13 @@ class UserController extends Controller
         }        
 
         $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer'
+            'name' => 'string',
+            'head' => 'string',
         ];
 
-        $user = User::find($id);
+        $publisher = Publisher::find($id);
 
-        if (is_null($user)) {
+        if (is_null($publisher)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -160,10 +148,10 @@ class UserController extends Controller
         }
 
         $data = $validator->valid();
-        $user->fill($data);
-        $user->save();
+        $publisher->fill($data);
+        $publisher->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "User info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Publisher info succesfully updated");        
     }
 
     /**
@@ -178,23 +166,12 @@ class UserController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $user = User::find($id);
+        $publisher = Publisher::find($id);
 
-        if (is_null($user)) {
+        if (is_null($publisher)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $user->delete();
-    }
-
-    private function rules()
-    {
-        return [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
-        ];
+        $publisher->delete();
     }
 }
