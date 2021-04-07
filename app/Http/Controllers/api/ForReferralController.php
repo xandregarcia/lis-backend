@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
-use App\Models\Committee;
+use App\Models\ForReferral;
 
-use App\Http\Resources\Committee\CommitteeResource;
-use App\Http\Resources\Committee\CommitteeListResourceCollection;
+use App\Http\Resources\ForReferral\ForReferralResource;
+use App\Http\Resources\ForReferral\ForReferralListResourceCollection;
 
-class CommitteeController extends Controller
+class ForReferralController extends Controller
 {
 
     use Messages;
@@ -24,12 +24,12 @@ class CommitteeController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(Committee::class, Committee::class);
+		// $this->authorizeResource(Group::class, Group::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
 
-	}
+    }
 
     /**
      * Display a listing of the resource.
@@ -38,9 +38,9 @@ class CommitteeController extends Controller
      */
     public function index()
     {
-        $committees = Committee::paginate(10);
+        $for_referrals = ForReferral::paginate(10);
 
-        $data = new CommitteeListResourceCollection($committees);
+        $data = new ForReferralListResourceCollection($for_referrals);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -64,36 +64,41 @@ class CommitteeController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
-            'groups' => 'array'
+            'id' => 'string',
+            'subject' => 'string',
+            'receiving_date' => 'date',
+            'category_id' => 'integer',
+            'origin_id' => 'integer',
+            'agenda_date' => 'date',
+            'committees' => 'array',
+            'file' => 'string'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
-        }        
+        }
 
         $data = $validator->valid();
         
-        $committee = new Committee;
-		$committee->fill($data);
-        $committee->save();
+        $for_referral = new ForReferral;
+		$for_referral->fill($data);
+        $for_referral->save();
 
         // Sync in pivot table
-        $groups = $data['groups'];
+        $committees = $data['committees'];
         $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
+        foreach ($committees as $committee) {
+            $syncs[$committee['id']] = [
+                "lead_committee" => $committee['lead_committee'],
+                "joint_committee" => $committee['joint_committee'],
             ];
         }
 
-        $committee->groups()->sync($syncs);
+        $for_referral->committees()->sync($syncs);
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully added");
     }
 
     /**
@@ -108,13 +113,13 @@ class CommitteeController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committee = Committee::find($id);
+        $for_referral = ForReferral::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($for_referral)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new CommitteeResource($committee);
+		$data = new ForReferralResource($for_referral);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -144,16 +149,22 @@ class CommitteeController extends Controller
         }        
 
         $rules = [
-            'name' => 'string',
-            'groups' => 'array'
+            'id' => 'string',
+            'subject' => 'string',
+            'receiving_date' => 'date',
+            'category_id' => 'integer',
+            'origin_id' => 'integer',
+            'agenda_date' => 'date',
+            'committees' => 'array',
+            'file' => 'string'
         ];
 
-        $committee = Committee::find($id);
+        $for_referral = ForReferral::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($for_referral)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -161,23 +172,22 @@ class CommitteeController extends Controller
         }
 
         $data = $validator->valid();
-        $committee->fill($data);
-        $committee->save();
+		$for_referral->fill($data);
+        $for_referral->save();
 
         // Sync in pivot table
-        $groups = $data['groups'];
+        $committees = $data['committees'];
         $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
+        foreach ($committees as $committee) {
+            $syncs[$committee['id']] = [
+                "lead_committee" => $committee['lead_committee'],
+                "joint_committee" => $committee['joint_committee'],
             ];
         }
 
-        $committee->groups()->sync($syncs);
+        $for_referral->committees()->sync($syncs);
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");        
     }
 
     /**
@@ -192,12 +202,12 @@ class CommitteeController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committee = Committee::find($id);
+        $for_referral = ForReferral::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($for_referral)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $committee->delete();
+        $for_referral->delete();
     }
 }
