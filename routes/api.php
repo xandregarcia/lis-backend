@@ -12,9 +12,20 @@ use App\Http\Controllers\api\AgencyController;
 use App\Http\Controllers\api\PublisherController;
 use App\Http\Controllers\api\BokalController;
 use App\Http\Controllers\api\CommitteeController;
+<<<<<<< Updated upstream
 use App\Http\Controllers\api\ForReferralController;
 use App\Http\Controllers\api\CommitteeReportController;
 use App\Http\Controllers\api\SecondReadingController;
+=======
+<<<<<<< Updated upstream
+=======
+use App\Http\Controllers\api\ForReferralController;
+use App\Http\Controllers\api\CommitteeReportController;
+use App\Http\Controllers\api\SecondReadingController;
+use App\Http\Controllers\api\ThirdReadingController;
+use App\Http\Controllers\api\SelectionsController;
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 
 /*
@@ -31,6 +42,22 @@ use App\Http\Controllers\api\SecondReadingController;
 Route::prefix('auth')->group(function() {
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LoginController::class, 'logout']);
+});
+
+
+/**
+ * Selections
+ */
+Route::prefix('selections')->group(function() {
+    Route::get('users', [SelectionsController::class, 'users']);
+    Route::get('groups', [SelectionsController::class, 'groups']);
+    Route::get('agencies', [SelectionsController::class, 'agencies']);
+    Route::get('committees', [SelectionsController::class, 'committees']);
+    Route::get('categories', [SelectionsController::class, 'categories']);
+    Route::get('publishers', [SelectionsController::class, 'publishers']);
+    Route::get('origins', [SelectionsController::class, 'origins']);
+    Route::get('all_bokals', [SelectionsController::class, 'allBokals']);
+    Route::get('active_bokals', [SelectionsController::class, 'activeBokals']);
 });
 
 /**
@@ -199,6 +226,24 @@ Route::apiResources([
     'except' => ['index']
 ]);
 
+<<<<<<< Updated upstream
+=======
+/**
+ * Third Reading
+ */
+Route::apiResources([
+    'third_readings' => ThirdReadingController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'third_reading' => ThirdReadingController::class,
+],[
+    'except' => ['index']
+]);
+
+>>>>>>> Stashed changes
 Route::middleware(['auth:api'])->group(function () {
     Route::get('/test/{id}', function () {
         return "Hello, World!";

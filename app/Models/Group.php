@@ -29,9 +29,16 @@ class Group extends Model
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
     }
+<<<<<<< Updated upstream
 
     public function committees()
     {
         return $this->belongsToMany(Committee::class);
+=======
+    
+    public function committees()
+    {
+        return $this->belongsToMany(Committee::class)->withPivot('chairman', 'vice_chairman', 'member');
+>>>>>>> Stashed changes
     }
 }
