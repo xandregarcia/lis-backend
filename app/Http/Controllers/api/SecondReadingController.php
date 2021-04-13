@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
-use App\Models\Committee;
+use App\Models\SecondReading;
 
-use App\Http\Resources\Committee\CommitteeResource;
-use App\Http\Resources\Committee\CommitteeListResourceCollection;
+use App\Http\Resources\SecondReading\SecondReadingResource;
+use App\Http\Resources\SecondReading\SecondReadingListResourceCollection;
 
-class CommitteeController extends Controller
+class SecondReadingController extends Controller
 {
 
     use Messages;
@@ -24,7 +24,7 @@ class CommitteeController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(Committee::class, Committee::class);
+		// $this->authorizeResource(Group::class, Group::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,9 +38,9 @@ class CommitteeController extends Controller
      */
     public function index()
     {
-        $committees = Committee::paginate(10);
+        $second_readings = SecondReading::paginate(10);
 
-        $data = new CommitteeListResourceCollection($committees);
+        $data = new SecondReadingListResourceCollection($second_readings);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -64,36 +64,25 @@ class CommitteeController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
-            'groups' => 'array'
+            'for_referral_id' => 'integer',
+            'date_received' => 'date',
+            'agenda_date' => 'date',
+            'file' => 'string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
-        }        
+        }
 
         $data = $validator->valid();
         
-        $committee = new Committee;
-		$committee->fill($data);
-        $committee->save();
+        $second_reading = new SecondReading;
+		$second_reading->fill($data);
+        $second_reading->save();
 
-        // Sync in pivot table
-        $groups = $data['groups'];
-        $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
-            ];
-        }
-
-        $committee->groups()->sync($syncs);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
     }
 
     /**
@@ -108,13 +97,13 @@ class CommitteeController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committee = Committee::find($id);
+        $second_reading = SecondReading::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($second_reading)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new CommitteeResource($committee);
+		$data = new SecondReadingResource($second_reading);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -144,13 +133,15 @@ class CommitteeController extends Controller
         }        
 
         $rules = [
-            'name' => 'string',
-            'groups' => 'array'
+            'for_referral_id' => 'integer',
+            'date_received' => 'date',
+            'agenda_date' => 'date',
+            'file' => 'string',
         ];
 
-        $committee = Committee::find($id);
+        $second_reading = SecondReading::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($second_reading)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -161,23 +152,10 @@ class CommitteeController extends Controller
         }
 
         $data = $validator->valid();
-        $committee->fill($data);
-        $committee->save();
+        $second_reading->fill($data);
+        $second_reading->save();
 
-        // Sync in pivot table
-        $groups = $data['groups'];
-        $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
-            ];
-        }
-
-        $committee->groups()->sync($syncs);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
     }
 
     /**
@@ -192,12 +170,12 @@ class CommitteeController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committee = Committee::find($id);
+        $second_reading = SecondReading::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($second_reading)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $committee->delete();
+        $second_reading->delete();
     }
 }

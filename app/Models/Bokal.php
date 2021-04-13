@@ -38,9 +38,4 @@ class Bokal extends Model
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
     }
-
-    public function committees()
-    {
-        return $this->belongsToMany(Committee::class);
-    }
 }

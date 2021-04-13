@@ -8,14 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
-use App\Models\Committee;
+use App\Models\Category;
 
-use App\Http\Resources\Committee\CommitteeResource;
-use App\Http\Resources\Committee\CommitteeListResourceCollection;
+use App\Http\Resources\Category\CategoryResource;
+use App\Http\Resources\Category\CategoryListResourceCollection;
 
-class CommitteeController extends Controller
+class CategoryController extends Controller
 {
-
     use Messages;
 
     private $http_code_ok;
@@ -24,7 +23,7 @@ class CommitteeController extends Controller
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
-		// $this->authorizeResource(Committee::class, Committee::class);
+		// $this->authorizeResource(Category::class, Category::class);
 		
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
@@ -38,11 +37,11 @@ class CommitteeController extends Controller
      */
     public function index()
     {
-        $committees = Committee::paginate(10);
+        $categories = Category::paginate(10);
 
-        $data = new CommitteeListResourceCollection($committees);
+        $data = new CategoryListResourceCollection($categories);
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);      
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
     /**
@@ -65,35 +64,21 @@ class CommitteeController extends Controller
     {
         $rules = [
             'name' => 'string',
-            'groups' => 'array'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return $this->jsonErrorDataValidation();
-        }        
+        }
 
         $data = $validator->valid();
         
-        $committee = new Committee;
-		$committee->fill($data);
-        $committee->save();
+        $category = new Category;
+		$category->fill($data);
+        $category->save();
 
-        // Sync in pivot table
-        $groups = $data['groups'];
-        $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
-            ];
-        }
-
-        $committee->groups()->sync($syncs);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Category succesfully added");
     }
 
     /**
@@ -108,13 +93,13 @@ class CommitteeController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committee = Committee::find($id);
+        $category = Category::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($category)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new CommitteeResource($committee);
+		$data = new CategoryResource($category);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -145,12 +130,11 @@ class CommitteeController extends Controller
 
         $rules = [
             'name' => 'string',
-            'groups' => 'array'
         ];
 
-        $committee = Committee::find($id);
+        $category = Category::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($category)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -161,23 +145,10 @@ class CommitteeController extends Controller
         }
 
         $data = $validator->valid();
-        $committee->fill($data);
-        $committee->save();
+        $category->fill($data);
+        $category->save();
 
-        // Sync in pivot table
-        $groups = $data['groups'];
-        $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
-            ];
-        }
-
-        $committee->groups()->sync($syncs);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Category info succesfully updated");
     }
 
     /**
@@ -192,12 +163,12 @@ class CommitteeController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committee = Committee::find($id);
+        $category = Category::find($id);
 
-        if (is_null($committee)) {
+        if (is_null($category)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $committee->delete();
+        $category->delete();
     }
 }

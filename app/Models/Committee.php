@@ -32,8 +32,13 @@ class Committee extends Model
         return Carbon::parse($value)->format('F j, Y h:i A');
     }
 
-    public function bokals()
+    public function groups()
     {
-        return $this->belongsToMany(Bokal::class)->withPivot('chairman', 'vice_chairman', 'member');
+        return $this->belongsToMany(Group::class)->withPivot('chairman', 'vice_chairman', 'member');
+    }
+
+    public function forReferrals()
+    {
+        return $this->belongsToMany(ForReferral::class);
     }
 }

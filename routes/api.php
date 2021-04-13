@@ -6,11 +6,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\LoginController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\GroupController;
+use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\OriginController;
 use App\Http\Controllers\api\AgencyController;
 use App\Http\Controllers\api\PublisherController;
 use App\Http\Controllers\api\BokalController;
 use App\Http\Controllers\api\CommitteeController;
+use App\Http\Controllers\api\ForReferralController;
+use App\Http\Controllers\api\CommitteeReportController;
+use App\Http\Controllers\api\SecondReadingController;
 
 
 /*
@@ -58,7 +62,6 @@ Route::apiResources([
 ],[
     'except' => ['index']
 ]);
-
 
 /**
  * Origins
@@ -131,6 +134,67 @@ Route::apiResources([
 
 Route::apiResources([
     'committee' => CommitteeController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Categories
+ */
+Route::apiResources([
+    'categories' => CategoryController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'category' => CategoryController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * For Referral
+ */
+Route::apiResources([
+    'for_referrals' => ForReferralController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'for_referral' => ForReferralController::class,
+],[
+    'except' => ['index']
+]);
+
+
+/**
+ * Committeee Reports
+ */
+Route::apiResources([
+    'committee_reports' => CommitteeReportController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'committee_report' => CommitteeReportController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Second Reading
+ */
+Route::apiResources([
+    'second_readings' => SecondReadingController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'second_reading' => SecondReadingController::class,
 ],[
     'except' => ['index']
 ]);

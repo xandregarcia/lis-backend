@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class Group extends Model
+class Category extends Model
 {
     use HasFactory;
 
@@ -18,7 +18,6 @@ class Group extends Model
      */
     protected $fillable = [
         'name',
-        'description'
     ];    
 
     /**
@@ -28,10 +27,5 @@ class Group extends Model
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
-    }
-
-    public function committees()
-    {
-        return $this->belongsToMany(Committee::class);
-    }
+    }    
 }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class Group extends Model
+class SecondReading extends Model
 {
     use HasFactory;
 
@@ -17,8 +17,10 @@ class Group extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
-        'description'
+        'for_referral_id',
+        'date_received',
+        'agenda_date',
+        'file'
     ];    
 
     /**
@@ -30,8 +32,8 @@ class Group extends Model
         return Carbon::parse($value)->format('F j, Y h:i A');
     }
 
-    public function committees()
+    public function for_referral()
     {
-        return $this->belongsToMany(Committee::class);
+        return $this->belongsTo(ForReferral::class);
     }
 }
