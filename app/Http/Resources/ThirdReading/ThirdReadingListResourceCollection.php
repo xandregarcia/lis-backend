@@ -12,11 +12,6 @@ class ThirdReadingListResourceCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-<<<<<<< Updated upstream
-    public function toArray($request)
-    {
-        return parent::toArray($request);
-=======
     
     public function __construct($resource)
     {
@@ -46,6 +41,5 @@ class ThirdReadingListResourceCollection extends ResourceCollection
             'data' => $this->collection,
             'pagination' => $this->pagination
         ];        
->>>>>>> Stashed changes
     }
 }

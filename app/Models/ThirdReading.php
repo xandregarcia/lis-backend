@@ -5,11 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-<<<<<<< Updated upstream
-class ThirdReading extends Model
-{
-    use HasFactory;
-=======
 use Carbon\Carbon;
 
 class ThirdReading extends Model
@@ -41,5 +36,4 @@ class ThirdReading extends Model
     {
         return $this->belongsTo(ForReferral::class);
     }
->>>>>>> Stashed changes
 }

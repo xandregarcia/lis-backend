@@ -14,9 +14,6 @@ class ThirdReadingResource extends JsonResource
      */
     public function toArray($request)
     {
-<<<<<<< Updated upstream
-        return parent::toArray($request);
-=======
         return[
             'id' => $this->id,
             'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
@@ -24,6 +21,5 @@ class ThirdReadingResource extends JsonResource
             'agenda_date' => $this->agenda_date,
             'file' => $this->file,
         ];
->>>>>>> Stashed changes
     }
 }
