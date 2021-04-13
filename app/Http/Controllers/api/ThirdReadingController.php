@@ -5,10 +5,6 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-<<<<<<< Updated upstream
-class ThirdReadingController extends Controller
-{
-=======
 use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
@@ -35,7 +31,6 @@ class ThirdReadingController extends Controller
 
 	}
 
->>>>>>> Stashed changes
     /**
      * Display a listing of the resource.
      *
@@ -43,15 +38,11 @@ class ThirdReadingController extends Controller
      */
     public function index()
     {
-<<<<<<< Updated upstream
-        //
-=======
         $third_readings = ThirdReading::paginate(10);
 
         $data = new ThirdReadingListResourceCollection($third_readings);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
->>>>>>> Stashed changes
     }
 
     /**
@@ -72,9 +63,6 @@ class ThirdReadingController extends Controller
      */
     public function store(Request $request)
     {
-<<<<<<< Updated upstream
-        //
-=======
         $rules = [
             'for_referral_id' => 'integer',
             'date_received' => 'date',
@@ -95,7 +83,6 @@ class ThirdReadingController extends Controller
         $third_reading->save();
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
->>>>>>> Stashed changes
     }
 
     /**
@@ -106,9 +93,6 @@ class ThirdReadingController extends Controller
      */
     public function show($id)
     {
-<<<<<<< Updated upstream
-        //
-=======
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
         }
@@ -122,7 +106,6 @@ class ThirdReadingController extends Controller
 		$data = new ThirdReadingResource($third_reading);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
->>>>>>> Stashed changes
     }
 
     /**
@@ -145,9 +128,6 @@ class ThirdReadingController extends Controller
      */
     public function update(Request $request, $id)
     {
-<<<<<<< Updated upstream
-        //
-=======
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
         }        
@@ -176,7 +156,6 @@ class ThirdReadingController extends Controller
         $third_reading->save();
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
->>>>>>> Stashed changes
     }
 
     /**
@@ -187,9 +166,6 @@ class ThirdReadingController extends Controller
      */
     public function destroy($id)
     {
-<<<<<<< Updated upstream
-        //
-=======
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
         }
@@ -201,6 +177,5 @@ class ThirdReadingController extends Controller
         }  
 
         $third_reading->delete();
->>>>>>> Stashed changes
     }
 }

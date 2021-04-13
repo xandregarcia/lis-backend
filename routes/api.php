@@ -12,20 +12,12 @@ use App\Http\Controllers\api\AgencyController;
 use App\Http\Controllers\api\PublisherController;
 use App\Http\Controllers\api\BokalController;
 use App\Http\Controllers\api\CommitteeController;
-<<<<<<< Updated upstream
-use App\Http\Controllers\api\ForReferralController;
-use App\Http\Controllers\api\CommitteeReportController;
-use App\Http\Controllers\api\SecondReadingController;
-=======
-<<<<<<< Updated upstream
-=======
 use App\Http\Controllers\api\ForReferralController;
 use App\Http\Controllers\api\CommitteeReportController;
 use App\Http\Controllers\api\SecondReadingController;
 use App\Http\Controllers\api\ThirdReadingController;
 use App\Http\Controllers\api\SelectionsController;
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+
 
 
 /*
@@ -226,8 +218,6 @@ Route::apiResources([
     'except' => ['index']
 ]);
 
-<<<<<<< Updated upstream
-=======
 /**
  * Third Reading
  */
@@ -243,7 +233,6 @@ Route::apiResources([
     'except' => ['index']
 ]);
 
->>>>>>> Stashed changes
 Route::middleware(['auth:api'])->group(function () {
     Route::get('/test/{id}', function () {
         return "Hello, World!";
