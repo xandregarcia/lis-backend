@@ -41,4 +41,9 @@ class Committee extends Model
     {
         return $this->belongsToMany(ForReferral::class);
     }
+
+    public function forCommitteeReports()
+    {
+        return $this->belongsToMany(forCommitteeReport::class);
+    }
 }

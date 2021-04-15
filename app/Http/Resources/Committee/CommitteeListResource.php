@@ -24,7 +24,7 @@ class CommitteeListResource extends JsonResource
         })->values()->first();
         $members = $groups->filter(function ($group) {
             return $group->pivot->member === 1;
-        })->values();
+        })->values()->toArray();
 
         return [
             'id' => $this->id,

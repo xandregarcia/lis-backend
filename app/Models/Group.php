@@ -32,6 +32,6 @@ class Group extends Model
     
     public function committees()
     {
-        return $this->belongsToMany(Committee::class)->withPivot('chairman', 'vice_chairman', 'member');
+        return $this->belongsToMany(Committee::class);
     }
 }
