@@ -14,10 +14,18 @@ class BokalResource extends JsonResource
      */
     public function toArray($request)
     {
+
+        $active = "";
+        if($this->active === 'true'){
+            $active = 'Active';
+        }else{
+            $active = 'Inactive';
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'active' => $this->active,
+            'active' => $active,
         ];
     }
 }

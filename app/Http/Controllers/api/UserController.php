@@ -69,7 +69,7 @@ class UserController extends Controller
             'middlename' => 'string',
             'lastname' => 'string',
             'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
+            'group_id' => 'integer',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -144,7 +144,7 @@ class UserController extends Controller
             'middlename' => 'string',
             'lastname' => 'string',
             'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer'
+            'group_id' => 'integer'
         ];
 
         $user = User::find($id);
@@ -194,7 +194,7 @@ class UserController extends Controller
             'middlename' => 'string',
             'lastname' => 'string',
             'email' => ['string', 'email', 'unique:users'],
-            'group' => 'integer',
+            'group_id' => 'integer',
         ];
     }
 }

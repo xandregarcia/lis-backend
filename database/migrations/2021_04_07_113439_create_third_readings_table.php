@@ -15,6 +15,11 @@ class CreateThirdReadingsTable extends Migration
     {
         Schema::create('third_readings', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('for_referral_id')->nullable();
+            $table->foreign('for_referral_id')->references('id')->on('for_referrals');
+            $table->date('date_received')->nullable();
+            $table->date('agenda_date')->nullable();
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }
