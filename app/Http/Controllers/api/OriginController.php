@@ -171,5 +171,7 @@ class OriginController extends Controller
         }  
 
         $origin->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }

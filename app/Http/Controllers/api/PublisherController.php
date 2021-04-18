@@ -173,5 +173,7 @@ class PublisherController extends Controller
         }  
 
         $publisher->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }

@@ -177,5 +177,7 @@ class SecondReadingController extends Controller
         }  
 
         $second_reading->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }

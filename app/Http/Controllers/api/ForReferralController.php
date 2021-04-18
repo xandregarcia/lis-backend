@@ -209,5 +209,7 @@ class ForReferralController extends Controller
         }  
 
         $for_referral->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }

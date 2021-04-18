@@ -199,5 +199,7 @@ class CommitteeController extends Controller
         }  
 
         $committee->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }

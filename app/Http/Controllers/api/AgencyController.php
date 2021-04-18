@@ -168,8 +168,10 @@ class AgencyController extends Controller
 
         if (is_null($agency)) {
 			return $this->jsonErrorResourceNotFound();
-        }  
+        }
 
         $agency->delete();
+
+        return $this->jsonDeleteSuccessResponse();        
     }
 }

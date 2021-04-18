@@ -174,5 +174,7 @@ class BokalController extends Controller
         }  
 
         $bokal->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }
