@@ -177,5 +177,7 @@ class ThirdReadingController extends Controller
         }  
 
         $third_reading->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 }

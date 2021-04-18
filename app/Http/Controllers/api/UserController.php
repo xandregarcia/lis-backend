@@ -185,6 +185,8 @@ class UserController extends Controller
         }  
 
         $user->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 
     private function rules()

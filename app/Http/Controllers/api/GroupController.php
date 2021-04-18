@@ -173,6 +173,8 @@ class GroupController extends Controller
         }  
 
         $group->delete();
+
+        return $this->jsonDeleteSuccessResponse();         
     }
 
 }
