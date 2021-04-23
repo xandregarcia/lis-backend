@@ -23,15 +23,22 @@ class ForReferralResource extends JsonResource
             return $committee->pivot->joint_committee === 1;
         })->values();
 
+        $joint_committee = $joint_committee->map(function ($joint_committees) {
+            return [
+                'id' => $joint_committees['id'],
+                'name' => $joint_committees['name'],
+            ];
+        });
+
         return [
             'id' => $this->id,
             'subject' => $this->subject,
             'receiving_date' => $this->receiving_date,
-            'category' => (is_null($this->category))?null:$this->category->name,
-            'origin' => (is_null($this->origin))?null:$this->origin->name,
+            'category_id' => (is_null($this->category))?null:$this->category->id,
+            'origin_id' => (is_null($this->origin))?null:$this->origin->id,
             'agenda_date' => $this->agenda_date,
-            'lead_committee' => $lead_committee,
-            'joint_committee' => $joint_committee,
+            'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
+            'joint_committee' => (is_null($joint_committee))?null:$joint_committee,
             'file' => $this->file,
         ];
     }

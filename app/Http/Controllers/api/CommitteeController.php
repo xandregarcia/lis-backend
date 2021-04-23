@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 use App\Customs\Messages;
 use App\Models\Committee;
@@ -65,7 +66,9 @@ class CommitteeController extends Controller
     {
         $rules = [
             'name' => 'string',
-            'groups' => 'array'
+            'chairman' => 'integer',
+            'vice_chairman' => 'integer',
+            'members' => 'array'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -76,24 +79,50 @@ class CommitteeController extends Controller
 
         $data = $validator->valid();
         
-        $committee = new Committee;
-		$committee->fill($data);
-        $committee->save();
+        try {
 
-        // Sync in pivot table
-        $groups = $data['groups'];
-        $syncs = [];
-        foreach ($groups as $group) {
-            $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
+            DB::beginTransaction();
+
+            $committee = new Committee;
+            $committee->fill($data);
+            $committee->save();
+
+            $groups = $data['members'];        
+            // Sync in pivot table
+            $syncs = [];
+            // Chairman
+            $syncs[$data['chairman']] = [
+                "chairman" => true,
+                "vice_chairman" => false,
+                "member" => false,
             ];
+            // Vice Chairman
+            $syncs[$data['vice_chairman']] = [
+                "chairman" => false,
+                "vice_chairman" => true,
+                "member" => false,
+            ];        
+            foreach ($groups as $group) {
+                $syncs[$group['id']] = [
+                    "chairman" => false,
+                    "vice_chairman" => false,
+                    "member" => true,
+                ];
+            }
+
+            $committee->groups()->sync($syncs);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");            
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+
         }
-
-        $committee->groups()->sync($syncs);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee succesfully added");
     }
 
     /**
@@ -165,13 +194,25 @@ class CommitteeController extends Controller
         $committee->save();
 
         // Sync in pivot table
-        $groups = $data['groups'];
+        $groups = $data['members'];
         $syncs = [];
+        // Chairman
+        $syncs[$data['chairman']] = [
+            "chairman" => true,
+            "vice_chairman" => false,
+            "member" => false,
+        ];
+        // Vice Chairman
+        $syncs[$data['vice_chairman']] = [
+            "chairman" => false,
+            "vice_chairman" => true,
+            "member" => false,
+        ]; 
         foreach ($groups as $group) {
             $syncs[$group['id']] = [
-                "chairman" => $group['chairman'],
-                "vice_chairman" => $group['vice_chairman'],
-                "member" => $group['member'],
+                "chairman" => false,
+                "vice_chairman" => false,
+                "member" => true,
             ];
         }
 

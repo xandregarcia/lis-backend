@@ -144,7 +144,7 @@ class UserController extends Controller
             'middlename' => 'string',
             'lastname' => 'string',
             'email' => ['string', 'email', 'unique:users'],
-            'group_id' => 'integer'
+            'group_id' => 'integer',
         ];
 
         $user = User::find($id);

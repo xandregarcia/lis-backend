@@ -18,9 +18,6 @@ class Committee extends Model
      */
     protected $fillable = [
         'name',
-        'chairman',
-        'vice_chairman',
-        'members'
     ];    
 
     /**
