@@ -205,7 +205,8 @@ class ForReferralController extends Controller
             'category_id' => 'integer',
             'origin_id' => 'integer',
             'agenda_date' => 'date',
-            'committees' => 'array',
+            'lead_committee' => 'integer',
+            'joint_committee' => 'array',
             'file' => 'string'
         ];
 
@@ -226,10 +227,11 @@ class ForReferralController extends Controller
         $for_referral->save();
 
         // Sync in pivot table
-        $committees = $data['committees'];
+        $committees = $data['joint_committee'];
+        $syncs = [];
         //lead committee
-        $syncs[$data['lead_committe']] = [
-            "lead_committe" => true,
+        $syncs[$data['lead_committee']] = [
+            "lead_committee" => true,
             "joint_committee" => false,
         ];
 
@@ -239,9 +241,7 @@ class ForReferralController extends Controller
                 "joint_committee" =>true,
             ];
         }
-
         $for_referral->committees()->sync($syncs);
-
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");        
     }
 
