@@ -24,13 +24,19 @@ class CommitteeResource extends JsonResource
         $members = $groups->filter(function ($group) {
             return $group->pivot->member === 1;
         })->values();
+        $members = $members->map(function ($member) {
+            return [
+                'id' => $member['id'],
+                'name' => $member['name']
+            ];
+        });
 
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'chairman' => $chairman,
-            'vice_chairman' => $vice_chairman,
-            'members' => $members,
+            'chairman' => (is_null($chairman))?null:$chairman['id'],
+            'vice_chairman' => (is_null($vice_chairman))?null:$vice_chairman['id'],
+            'members' => (is_null($members))?null:$members,
         ];
     }
 }

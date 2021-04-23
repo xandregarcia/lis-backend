@@ -17,14 +17,11 @@ class ForReferral extends Model
      * @var array
      */
     protected $fillable = [
-        'id',
         'subject',
         'receiving_date',
         'category_id',
         'origin_id',
         'agenda_date',
-        'lead_committee',
-        'joint_committee',
         'file'
     ];    
 
@@ -52,6 +49,11 @@ class ForReferral extends Model
     public function committees()
     {
         return $this->belongsToMany(Committee::class)->withPivot('lead_committee', 'joint_committee');
+    }
+
+    public function comm_status()
+    {
+        return $this->hasOne(CommunicationStatus::class, 'communication', 'id');
     }
 
 }

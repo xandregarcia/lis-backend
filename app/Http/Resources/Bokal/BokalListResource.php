@@ -14,9 +14,7 @@ class BokalListResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        $active = "";
-        if($this->active === 'true'){
+        if($this->active === true){
             $active = 'Active';
         }else{
             $active = 'Inactive';

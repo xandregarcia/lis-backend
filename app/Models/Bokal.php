@@ -28,7 +28,7 @@ class Bokal extends Model
      */
     protected $casts = [
         'active' => 'boolean',
-    ];    
+    ];
 
     /**
      * @param $value
