@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Str;
 
 use App\Customs\Messages;
 use App\Models\ForReferral;
@@ -100,24 +100,39 @@ class ForReferralController extends Controller
             'agenda_date' => 'date',
             'lead_committee' => 'integer',
             'joint_committee' => 'array',
-            'file' => 'string'
+            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
         $data = $validator->valid();
 
-        try{
+        try {
 
             DB::beginTransaction();
         
             $for_referral = new ForReferral;
             $for_referral->fill($data);
             $for_referral->save();
+
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.for_referral');
+                $path = "{$folder}/{$for_referral->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $for_referral->file = $pdf;
+                $for_referral->save();
+            }
 
             $status = new CommunicationStatus;
             $status->fill([
@@ -150,7 +165,7 @@ class ForReferralController extends Controller
 
             return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully added");
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             DB::rollBack();
 
@@ -213,8 +228,9 @@ class ForReferralController extends Controller
             'category_id' => 'integer',
             'origin_id' => 'integer',
             'agenda_date' => 'date',
-            'committees' => 'array',
-            'file' => 'string'
+            'lead_committee' => 'integer',
+            'joint_committee' => 'array',
+            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $for_referral = ForReferral::find($id);
@@ -230,6 +246,7 @@ class ForReferralController extends Controller
         }
 
         $data = $validator->valid();
+        return $data;
 		$for_referral->fill($data);
         $for_referral->save();
 
@@ -248,10 +265,11 @@ class ForReferralController extends Controller
         }
 
         // Sync in pivot table
-        $committees = $data['committees'];
+        $committees = $data['joint_committee'];
+        $syncs = [];
         //lead committee
-        $syncs[$data['lead_committe']] = [
-            "lead_committe" => true,
+        $syncs[$data['lead_committee']] = [
+            "lead_committee" => true,
             "joint_committee" => false,
         ];
 
@@ -261,9 +279,7 @@ class ForReferralController extends Controller
                 "joint_committee" =>true,
             ];
         }
-
         $for_referral->committees()->sync($syncs);
-
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");        
     }
 
