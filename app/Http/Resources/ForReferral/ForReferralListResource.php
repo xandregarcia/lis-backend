@@ -4,6 +4,8 @@ namespace App\Http\Resources\ForReferral;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use Illuminate\Support\Facades\Storage;
+
 class ForReferralListResource extends JsonResource
 {
     /**
@@ -39,7 +41,7 @@ class ForReferralListResource extends JsonResource
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee,
             'joint_committee' => (is_null($joint_committees))?null:$joint_committees,
             'file' => $this->file,
-            'date_created' => $this->created_at,
+            'file' => env('APP_URL').Storage::url($this->file),
         ];
     }
 }

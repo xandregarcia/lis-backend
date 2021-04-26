@@ -42,21 +42,29 @@ class ForReferralController extends Controller
     public function index(Request $request)
     {
         $filters = $request->all();
-        $subject = null;
-        // $subject = (is_null($filters['subject']))?null:$filters['subject'];
-        // $receiving_date = (is_null($filters['receiving_date']))?null:$filters['receiving_date'];
-        // $category_id = $filters['category_id'];
-        // $origin_id = $filters['origin_id'];
-        // $agenda_date = $filters['agenda_date'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $receiving_date = (is_null($filters['receiving_date']))?null:$filters['receiving_date'];
+        $category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
+        $origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
         // $lead_committee = $filters['lead_committee'];
 
         $wheres = [];
         if ($subject!=null) {
             $wheres[] = ['subject', 'LIKE', "{$subject}%"];
         }
-        // if ($receiving_date!=null) {
-        //     $wheres[] = ['receiving_date', $receiving_date];
-        // }
+        if ($receiving_date!=null) {
+            $wheres[] = ['receiving_date', $receiving_date];
+        }
+        if ($category_id!=null) {
+            $wheres[] = ['category_id', $category_id];
+        }
+        if ($origin_id!=null) {
+            $wheres[] = ['origin_id', $origin_id];
+        }
+        if ($agenda_date!=null) {
+            $wheres[] = ['agenda_date', $agenda_date];
+        }
 
         $for_referrals = ForReferral::where($wheres)->paginate(10);
 
@@ -196,7 +204,7 @@ class ForReferralController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
+        }
 
         $rules = [
             'id' => 'string',
@@ -224,6 +232,20 @@ class ForReferralController extends Controller
         $data = $validator->valid();
 		$for_referral->fill($data);
         $for_referral->save();
+
+        /**
+         * Upload Attachment
+         */
+        if (isset($data['pdf'])) {
+            $folder = config('folders.for_referral');
+            $path = "{$folder}/{$for_referral->id}";
+            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+            $filename = $request->file('pdf')->getClientOriginalName();
+            $request->file('pdf')->storeAs("public/{$path}", $filename);
+            $pdf = "{$path}/{$filename}";
+            $for_referral->file = $pdf;
+            $for_referral->save();
+        }
 
         // Sync in pivot table
         $committees = $data['committees'];
