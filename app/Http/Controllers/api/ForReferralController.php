@@ -133,13 +133,22 @@ class ForReferralController extends Controller
                 $for_referral->file = $pdf;
                 $for_referral->save();
             }
-
+            $type = null;
+            if($data['category_id'] == 4) {
+                $type = 2;
+            }else if($data['category_id'] == 6) {
+                $type = 3;
+            }else {
+                $type = 1;
+            }
             $status = new CommunicationStatus;
             $status->fill([
-                "endorsement" => false,
-                "committee_report" => false,
-                "second_reading" => false,
-                "third_reading" => false
+                'approve' => false,
+                'endorsement' => false,
+                'committee_report' => false,
+                'second_reading' => false,
+                'third_reading' => false,
+                'type' => $type
             ]);
 
             $for_referral->comm_status()->save($status);
@@ -149,14 +158,14 @@ class ForReferralController extends Controller
             $syncs = [];
             //lead committee
             $syncs[$data['lead_committee']] = [
-                "lead_committee" => true,
-                "joint_committee" => false,
+                'lead_committee' => true,
+                'joint_committee' => false,
             ];
 
             foreach ($committees as $committee) {
                 $syncs[$committee['id']] = [
-                    "lead_committee" => false,
-                    "joint_committee" =>true,
+                    'lead_committee' => false,
+                    'joint_committee' =>true,
                 ];
             }
             $for_referral->committees()->sync($syncs);
@@ -246,7 +255,6 @@ class ForReferralController extends Controller
         }
 
         $data = $validator->valid();
-        return $data;
 		$for_referral->fill($data);
         $for_referral->save();
 

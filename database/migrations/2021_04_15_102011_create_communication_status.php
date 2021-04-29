@@ -15,12 +15,15 @@ class CreateCommunicationStatus extends Migration
     {
         Schema::create('communication_status', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('communication');
-            $table->foreign('communication')->references('id')->on('for_referrals');
+            $table->unsignedBigInteger('for_referral_id');
+            $table->foreign('for_referral_id')->references('id')
+            ->on('for_referrals')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->tinyInteger('approve')->nullable();
             $table->tinyInteger('endorsement')->nullable();
             $table->tinyInteger('committee_report')->nullable();
             $table->tinyInteger('second_reading')->nullable();
             $table->tinyInteger('third_reading')->nullable();
+            $table->integer('type')->nullable();
             $table->timestamps();
         });
     }

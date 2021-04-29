@@ -17,6 +17,7 @@ use App\Http\Controllers\api\CommitteeReportController;
 use App\Http\Controllers\api\SecondReadingController;
 use App\Http\Controllers\api\ThirdReadingController;
 use App\Http\Controllers\api\SelectionsController;
+use App\Http\Controllers\api\CommunicationStatusController;
 
 
 
@@ -50,6 +51,21 @@ Route::prefix('selections')->group(function() {
     Route::get('origins', [SelectionsController::class, 'origins']);
     Route::get('all_bokals', [SelectionsController::class, 'allBokals']);
     Route::get('active_bokals', [SelectionsController::class, 'activeBokals']);
+});
+
+/**
+ * Communication Status
+ */
+Route::prefix('communication-status')->group(function () {
+    Route::get('{id}', [CommunicationStatusController::class, 'show']);
+    Route::get('approve-refer', [CommunicationStatusController::class, 'approveRef']);
+    Route::get('endorsements', [CommunicationStatusController::class, 'endorsements']);
+    Route::get('committee-reports', [CommunicationStatusController::class, 'committeeReports']);
+    Route::get('resolutions', [CommunicationStatusController::class, 'resolutions']);
+    Route::get('ordinances', [CommunicationStatusController::class, 'ordinances']);
+    Route::get('appropriation-ordinances', [CommunicationStatusController::class, 'appropriation']);
+    Route::put('/approve/{id}', [CommunicationStatusController::class, 'approve']);
+    Route::put('/endorse/{id}', [CommunicationStatusController::class, 'endorse']);
 });
 
 /**

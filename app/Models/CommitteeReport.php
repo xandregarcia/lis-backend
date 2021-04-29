@@ -39,4 +39,9 @@ class CommitteeReport extends Model
         // return $this->belongsTo(Group::class,'group_id','id');
         return $this->belongsTo(ForReferral::class);
     }
+
+    public function comm_status()
+    {
+        return $this->hasOne(CommunicationStatus::class,'for_referral_id','for_referral_id');
+    }
 }

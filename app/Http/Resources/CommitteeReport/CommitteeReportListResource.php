@@ -4,8 +4,6 @@ namespace App\Http\Resources\CommitteeReport;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-use Illuminate\Support\Facades\DB;
-
 class CommitteeReportListResource extends JsonResource
 {
 
@@ -34,13 +32,12 @@ class CommitteeReportListResource extends JsonResource
             'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
-            'lead_committee' => $lead_committee,
+            'lead_committee' => $lead_committee->name,
             'joint_committees'=> $joint_committees,
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
             'file' => $this->file,
             'date_created' => $this->created_at,
-            'committees' => $committees,
         ];
     }
 }
