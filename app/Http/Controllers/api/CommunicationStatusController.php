@@ -33,8 +33,7 @@ class CommunicationStatusController extends Controller
     {
         $comm_status = CommunicationStatus::with('for_referrals')->where('approve',0)->where('endorsement',0)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
-        
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
     public function endorsements()
@@ -132,7 +131,7 @@ class CommunicationStatusController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function endorse(Request $request, $id)
+    public function refer(Request $request, $id)
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();

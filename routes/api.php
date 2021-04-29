@@ -57,7 +57,6 @@ Route::prefix('selections')->group(function() {
  * Communication Status
  */
 Route::prefix('communication-status')->group(function () {
-    Route::get('{id}', [CommunicationStatusController::class, 'show']);
     Route::get('approve-refer', [CommunicationStatusController::class, 'approveRef']);
     Route::get('endorsements', [CommunicationStatusController::class, 'endorsements']);
     Route::get('committee-reports', [CommunicationStatusController::class, 'committeeReports']);
@@ -65,7 +64,8 @@ Route::prefix('communication-status')->group(function () {
     Route::get('ordinances', [CommunicationStatusController::class, 'ordinances']);
     Route::get('appropriation-ordinances', [CommunicationStatusController::class, 'appropriation']);
     Route::put('/approve/{id}', [CommunicationStatusController::class, 'approve']);
-    Route::put('/endorse/{id}', [CommunicationStatusController::class, 'endorse']);
+    Route::put('/refer/{id}', [CommunicationStatusController::class, 'refer']);
+    Route::get('/{id}', [CommunicationStatusController::class, 'show']);
 });
 
 /**

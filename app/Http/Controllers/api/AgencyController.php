@@ -149,7 +149,7 @@ class AgencyController extends Controller
         $agency->fill($data);
         $agency->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Agency info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Agency info succesfully updated");      
     }
 
     /**
