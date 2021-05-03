@@ -91,7 +91,7 @@ class CommitteeReportController extends Controller
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.committee-reports');
+            $folder = config('folders.committee_reports');
             $path = "{$folder}/{$committeeReport->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
@@ -111,7 +111,7 @@ class CommitteeReportController extends Controller
                 'second_reading' => true,
             ]);
         }
-        return $this->jsonSuccessResponse($status, $this->http_code_ok, "Committee Report succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
     }
 
     /**
@@ -190,7 +190,7 @@ class CommitteeReportController extends Controller
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.committee-reports');
+            $folder = config('folders.committee_reports');
             $path = "{$folder}/{$committeeReport->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
