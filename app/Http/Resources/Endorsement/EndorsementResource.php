@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Resources\CommitteeReport;
+namespace App\Http\Resources\Endorsement;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
 use Illuminate\Support\Facades\Storage;
 
-class CommitteeReportListResource extends JsonResource
+class EndorsementResource extends JsonResource
 {
-
     /**
      * Transform the resource into an array.
      *
@@ -17,7 +16,6 @@ class CommitteeReportListResource extends JsonResource
      */
     public function toArray($request)
     {
-
         $committees = $this->for_referral->committees; # All
         $lead_committee = $committees->filter(function ($committee) {
             return $committee->pivot->lead_committee === 1;
@@ -32,18 +30,14 @@ class CommitteeReportListResource extends JsonResource
             ];
         });
 
-
         return [
             'id' => $this->id,
-            'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
-            'date_received' => $this->date_received,
-            'date_agenda' => $this->agenda_date,
-            'lead_committee' => (is_null($lead_committee))?null:$lead_committee,
+            'for_referral_id'=> $this->for_referral_id,
+            'subject' => $this->for_referral->subject,
+            'date_referred' => $this->date_referred,
+            'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
-            'remarks' => $this->remarks,
-            'meeting_date' => $this->meeting_date,
             'file' => env('APP_URL').Storage::url($this->file),
-            'date_created' => $this->created_at,
         ];
     }
 }

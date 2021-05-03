@@ -56,4 +56,9 @@ class ForReferral extends Model
         return $this->hasOne(CommunicationStatus::class);
     }
 
+    public function endorsement()
+    {
+        return $this->hasOne(Endorsement::class);
+    }
+
 }

@@ -134,12 +134,13 @@ class ForReferralController extends Controller
                 $for_referral->save();
             }
             $type = null;
+            
             if($data['category_id'] == 4) {
-                $type = 2;
+                $type = 2;//Draft Ordinance
             }else if($data['category_id'] == 6) {
-                $type = 3;
+                $type = 3;//Appropriation Ordinance
             }else {
-                $type = 1;
+                $type = 1;//Resolution
             }
             $status = new CommunicationStatus;
             $status->fill([
