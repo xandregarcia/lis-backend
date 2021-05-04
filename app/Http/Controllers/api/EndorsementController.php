@@ -9,14 +9,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 use App\Customs\Messages;
-use App\Models\CommitteeReport;
-use App\Models\ForReferral;
+use App\Models\Endorsement;
 use App\Models\CommunicationStatus;
 
-use App\Http\Resources\CommitteeReport\CommitteeReportResource;
-use App\Http\Resources\CommitteeReport\CommitteeReportListResourceCollection;
+use App\Http\Resources\Endorsement\EndorsementResource;
+use App\Http\Resources\Endorsement\EndorsementListResourceCollection;
 
-class CommitteeReportController extends Controller
+class EndorsementController extends Controller
 {
 
     use Messages;
@@ -32,7 +31,7 @@ class CommitteeReportController extends Controller
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
 
-	}
+    }
 
     /**
      * Display a listing of the resource.
@@ -41,11 +40,11 @@ class CommitteeReportController extends Controller
      */
     public function index()
     {
-        $committeeReports = CommitteeReport::paginate(10);
+        $endorsements = Endorsement::paginate(10);
 
-        $data = new CommitteeReportListResourceCollection($committeeReports);
+        $data = new EndorsementListResourceCollection($endorsements);
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);      
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
 
     /**
@@ -67,11 +66,9 @@ class CommitteeReportController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'id' => 'string',
             'for_referral_id' => 'integer',
-            'date_received' => 'date ',
-            'agenda_date' => 'date',
-            'remarks' => 'string',
-            'meeting_date' => 'date',
+            'date_referred' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -82,36 +79,30 @@ class CommitteeReportController extends Controller
         }
 
         $data = $validator->valid();
-        
-        $committeeReport = new CommitteeReport;
-		$committeeReport->fill($data);
-        $committeeReport->save();
+
+        $endorsement = new Endorsement;
+        $endorsement->fill($data);
+        $endorsement->save();
 
         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.committee_reports');
-            $path = "{$folder}/{$committeeReport->id}";
+            $folder = config('folders.endorsements');
+            $path = "{$folder}/{$endorsement->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $committeeReport->file = $pdf;
-            $committeeReport->save();
+            $endorsement->file = $pdf;
+            $endorsement->save();
         }
-        $status = CommunicationStatus::where('for_referral_id',$committeeReport->for_referral_id)->get();
-        $type = $status->first()->type;
-        if($type == 1) {
-            $status->toQuery()->update([
-                'approve' => true,
-            ]);
-        }else {
-            $status->toQuery()->update([
-                'second_reading' => true,
-            ]);
-        }
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
+
+        $status = CommunicationStatus::where('for_referral_id',$endorsement->for_referral_id)->get();
+        $status->toQuery()->update([
+            'committee_report' => true,
+        ]);
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully added");
     }
 
     /**
@@ -126,13 +117,13 @@ class CommitteeReportController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committeeReport = CommitteeReport::find($id);
+        $endorsement = Endorsement::find($id);
 
-        if (is_null($committeeReport)) {
+        if (is_null($endorsement)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new CommitteeReportResource($committeeReport);
+		$data = new EndorsementResource($endorsement);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -159,23 +150,21 @@ class CommitteeReportController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
+        }
 
         $rules = [
+            'id' => 'string',
             'for_referral_id' => 'integer',
-            'date_received' => 'date ',
-            'agenda_date' => 'date',
-            'remarks' => 'string',
-            'meeting_date' => 'date',
+            'date_referred' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $committeeReport = CommitteeReport::find($id);
+        $endorsement = Endorsement::find($id);
 
-        if (is_null($committeeReport)) {
+        if (is_null($endorsement)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -183,24 +172,24 @@ class CommitteeReportController extends Controller
         }
 
         $data = $validator->valid();
-        $committeeReport->fill($data);
-        $committeeReport->save();
+		$endorsement->fill($data);
+        $endorsement->save();
 
-         /**
+        /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.committee_reports');
-            $path = "{$folder}/{$committeeReport->id}";
+            $folder = config('folders.endorsements');
+            $path = "{$folder}/{$endorsement->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $committeeReport->file = $pdf;
-            $committeeReport->save();
+            $endorsement->file = $pdf;
+            $endorsement->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");         
     }
 
     /**
@@ -215,13 +204,13 @@ class CommitteeReportController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $committeeReport = CommitteeReport::find($id);
+        $endorsement = Endorsement::find($id);
 
-        if (is_null($committeeReport)) {
+        if (is_null($endorsement)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $committeeReport->delete();
+        $endorsement->delete();
 
         return $this->jsonDeleteSuccessResponse();         
     }

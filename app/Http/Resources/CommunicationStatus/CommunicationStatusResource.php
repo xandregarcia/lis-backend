@@ -17,7 +17,7 @@ class CommunicationStatusResource extends JsonResource
         return [
             'id' => $this->id,
             'approve' => $this->approve,
-            'endorsement' => $this->endorsement,
+            'indorsement' => $this->endorsement,
             'committee_report' => $this->committee_report,
             'second_reading' => $this->second_reading,
             'third_reading' => $this->third_reading
