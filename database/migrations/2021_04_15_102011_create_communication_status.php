@@ -18,11 +18,13 @@ class CreateCommunicationStatus extends Migration
             $table->unsignedBigInteger('for_referral_id')->nullable();
             $table->foreign('for_referral_id')->references('id')
             ->on('for_referrals')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->tinyInteger('approve')->nullable();
             $table->tinyInteger('endorsement')->nullable();
             $table->tinyInteger('committee_report')->nullable();
             $table->tinyInteger('second_reading')->nullable();
             $table->tinyInteger('third_reading')->nullable();
+            $table->tinyInteger('passed')->nullable();
+            $table->tinyInteger('approved')->nullable();
+            $table->tinyInteger('furnish')->nullable();
             $table->integer('type')->nullable();
             $table->timestamps();
         });

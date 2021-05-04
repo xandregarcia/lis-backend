@@ -5,16 +5,14 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\Validator;
-
 use App\Customs\Messages;
-use App\Models\ThirdReading;
+use App\Models\Resolutions;
 use App\Models\CommunicationStatus;
 
-use App\Http\Resources\ThirdReading\ThirdReadingResource;
-use App\Http\Resources\ThirdReading\ThirdReadingListResourceCollection;
+use App\Http\Resources\Resolution\ResolutionResource;
+use App\Http\Resources\Resolution\ResolutionListResourceCollection;
 
-class ThirdReadingController extends Controller
+class ResolutionController extends Controller
 {
 
     use Messages;
@@ -39,9 +37,9 @@ class ThirdReadingController extends Controller
      */
     public function index()
     {
-        $third_readings = ThirdReading::paginate(10);
+        $resolutions = Resolution::paginate(10);
 
-        $data = new ThirdReadingListResourceCollection($third_readings);
+        $data = new ResolutionListResourceCollection($resolutions);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -66,8 +64,8 @@ class ThirdReadingController extends Controller
     {
         $rules = [
             'for_referral_id' => 'integer',
-            'date_received' => 'date',
-            'agenda_date' => 'date',
+            'author' => 'integer ',
+            'date_passed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -79,30 +77,30 @@ class ThirdReadingController extends Controller
 
         $data = $validator->valid();
         
-        $third_reading = new ThirdReading;
-		$third_reading->fill($data);
-        $third_reading->save();
+        $resolution = new Resolution;
+		$resolution->fill($data);
+        $resolution->save();
 
         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.third_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $folder = config('folders.resolutions');
+            $path = "{$folder}/{$resolution->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $third_reading->file = $pdf;
-            $third_reading->save();
+            $resolution->file = $pdf;
+            $resolution->save();
         }
 
-        $status = CommunicationStatus::where('for_referral_id',$third_reading->for_referral_id)->get();
-        $status->toQuery()->update([
-            'approve' => true,
-        ]);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
+        // $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
+        // $type = $status->first()->type;
+        // $status->toQuery()->update([
+        //     'passed' => true,
+        // ]);
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
     }
 
     /**
@@ -117,13 +115,13 @@ class ThirdReadingController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $third_reading = ThirdReading::find($id);
+        $resolution = Resolution::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($resolution)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new ThirdReadingResource($third_reading);
+		$data = new ResolutionResource($resolution);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -154,14 +152,14 @@ class ThirdReadingController extends Controller
 
         $rules = [
             'for_referral_id' => 'integer',
-            'date_received' => 'date',
-            'agenda_date' => 'date',
+            'author' => 'integer ',
+            'date_passed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $third_reading = ThirdReading::find($id);
+        $resolution = Resolution::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($resolution)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
@@ -172,21 +170,21 @@ class ThirdReadingController extends Controller
         }
 
         $data = $validator->valid();
-        $third_reading->fill($data);
-        $third_reading->save();
+        $resolution->fill($data);
+        $resolution->save();
 
-        /**
+         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.third_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $folder = config('folders.resolutions');
+            $path = "{$folder}/{$resolution->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $third_reading->file = $pdf;
-            $third_reading->save();
+            $resolution->file = $pdf;
+            $resolution->save();
         }
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
@@ -204,13 +202,13 @@ class ThirdReadingController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $third_reading = ThirdReading::find($id);
+        $resolutions = CommitteeReport::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($resolutions)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $third_reading->delete();
+        $resolutions->delete();
 
         return $this->jsonDeleteSuccessResponse();         
     }

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class CommitteeReport extends Model
+class Resolution extends Model
 {
     use HasFactory;
 
@@ -17,12 +17,11 @@ class CommitteeReport extends Model
      * @var array
      */
     protected $fillable = [
-        'for_referral_id',
-        'date_received',
-        'agenda_date',
-        'remarks',
-        'meeting_date',
-        'file'
+        'resolution_no',
+        'author',
+        'date_passed',
+        'file',
+        
     ];    
 
     /**
@@ -32,6 +31,12 @@ class CommitteeReport extends Model
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('F j, Y h:i A');
+    }
+
+    public function bokals()
+    {
+        // return $this->belongsTo(Group::class,'group_id','id');
+        return $this->belongsTo(Bokal::class);
     }
 
     public function for_referral()

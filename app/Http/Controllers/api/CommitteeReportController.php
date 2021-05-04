@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 
 use App\Customs\Messages;
 use App\Models\CommitteeReport;
-use App\Models\ForReferral;
 use App\Models\CommunicationStatus;
 
 use App\Http\Resources\CommitteeReport\CommitteeReportResource;
