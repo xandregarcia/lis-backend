@@ -32,7 +32,7 @@ class CommitteeReportListResource extends JsonResource
             'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
-            'lead_committee' => $lead_committee->name,
+            'lead_committee' => $lead_committee,
             'joint_committees'=> $joint_committees,
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
