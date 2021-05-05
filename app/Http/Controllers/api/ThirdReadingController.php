@@ -99,7 +99,7 @@ class ThirdReadingController extends Controller
 
         $status = CommunicationStatus::where('for_referral_id',$third_reading->for_referral_id)->get();
         $status->toQuery()->update([
-            'approve' => true,
+            'passed' => true,
         ]);
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading succesfully added");
@@ -156,7 +156,6 @@ class ThirdReadingController extends Controller
             'for_referral_id' => 'integer',
             'date_received' => 'date',
             'agenda_date' => 'date',
-            'pdf' => 'mimes:pdf|max:10000000'
         ];
 
         $third_reading = ThirdReading::find($id);
@@ -190,7 +189,7 @@ class ThirdReadingController extends Controller
             $third_reading->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading succesfully updated");        
     }
 
     /**

@@ -14,10 +14,11 @@ class BokalResource extends JsonResource
      */
     public function toArray($request)
     {
-
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'firstname' => $this->firstname,
+            'middlename' => $this->middlename,
+            'lastname' => $this->lastname,
             'active' => $this->active,
         ];
     }

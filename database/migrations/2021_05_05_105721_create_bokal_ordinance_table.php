@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateResolutionsTable extends Migration
+class CreateBokalOrdinanceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateResolutionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('resolutions', function (Blueprint $table) {
+        Schema::create('bokal_ordinance', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('for_referral_id')->nullable();
-            $table->foreign('for_referral_id')->references('id')->on('for_referrals');
+            $table->unsignedBigInteger('ordinance_id')->nullable();
+            $table->foreign('ordinance_id')->references('id')->on('ordinances');
             $table->unsignedBigInteger('bokal_id')->nullable();
             $table->foreign('bokal_id')->references('id')->on('bokals');
-            $table->date('date_passed')->nullable();
-            $table->string('file')->nullable();
+            $table->tinyInteger('author')->nullable();
+            $table->tinyInteger('co_author')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ class CreateResolutionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('resolutions');
+        Schema::dropIfExists('bokal_ordinance');
     }
 }

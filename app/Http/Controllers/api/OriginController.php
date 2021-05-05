@@ -64,7 +64,7 @@ class OriginController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'string', 'unique:origins'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -149,7 +149,7 @@ class OriginController extends Controller
         $origin->fill($data);
         $origin->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin info succesfully updated");  
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin succesfully updated");  
     }
 
     /**

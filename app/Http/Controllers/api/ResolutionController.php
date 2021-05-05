@@ -66,7 +66,7 @@ class ResolutionController extends Controller
     {
         $rules = [
             'for_referral_id' => 'integer',
-            'author_id' => 'integer ',
+            'bokal_id' => 'integer ',
             'date_passed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
@@ -97,11 +97,12 @@ class ResolutionController extends Controller
             $resolution->save();
         }
 
-        // $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
-        // $type = $status->first()->type;
-        // $status->toQuery()->update([
-        //     'passed' => true,
-        // ]);
+        $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
+        $type = $status->first()->type;
+        $status->toQuery()->update([
+            'approved' => true,
+        ]);
+
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully added");
     }
 
@@ -154,9 +155,8 @@ class ResolutionController extends Controller
 
         $rules = [
             'for_referral_id' => 'integer',
-            'author' => 'integer ',
+            'bokal_id' => 'integer ',
             'date_passed' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $resolution = Resolution::find($id);

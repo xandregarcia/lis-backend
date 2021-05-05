@@ -34,7 +34,7 @@ class EndorsementResource extends JsonResource
             'id' => $this->id,
             'for_referral_id'=> $this->for_referral_id,
             'subject' => $this->for_referral->subject,
-            'date_referred' => $this->date_referred,
+            'date_endorsed' => $this->date_endorsed,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
             'file' => env('APP_URL').Storage::url($this->file),

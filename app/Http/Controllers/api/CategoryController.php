@@ -63,7 +63,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'string', 'unique:categories'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -148,7 +148,7 @@ class CategoryController extends Controller
         $category->fill($data);
         $category->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Category info succesfully updated");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Category succesfully updated");
     }
 
     /**

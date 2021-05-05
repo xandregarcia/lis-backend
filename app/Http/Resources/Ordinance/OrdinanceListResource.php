@@ -4,8 +4,6 @@ namespace App\Http\Resources\Ordinance;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-use Illuminate\Support\Facades\Storage;
-
 class OrdinanceListResource extends JsonResource
 {
     /**
@@ -16,14 +14,42 @@ class OrdinanceListResource extends JsonResource
      */
     public function toArray($request)
     {
+
+        $bokals = $this->bokals()->get(['bokals.id', 'bokals.name']);
+
+        $authors = $bokals->filter(function ($bokal) {
+            return $bokal->pivot->author === 1;
+        })->values();
+        $authors = $authors->map(function ($author) {
+            return [
+                'id' => $author['id'],
+                'name' => $author['name'],
+            ];
+        });
+
+        $co_authors = $bokals->filter(function ($bokal) {
+            return $bokal->pivot->co_author === 1;
+        })->values();
+        $co_authors = $co_authors->map(function ($co_author) {
+            return [
+                'id' => $co_author['id'],
+                'name' => $co_author['name'],
+            ];
+        });
+
         return [
             'ordinance_no' => $this->id,
             'title' => $this->title,
             'amending' => $this->amending,
-            // 'author' => $this->author,
+            'date_endorsed' => (is_null($this->for_referral->endorsement))?null:$this->for_referral->endorsement->date_endorsed,
+            'meeting_date' => (is_null($this->for_referral->committee_report))?null:$this->for_referral->committee_report->meeting_date,
+            'committee_report' => (is_null($this->for_referral->committee_report))?null:$this->for_referral->committee_report->agenda_date,
+            'second_reading' => (is_null($this->for_referral->second_reading))?null:$this->for_referral->second_reading->agenda_date,
+            'third_reading' => (is_null($this->for_referral->third_reading))?null:$this->for_referral->third_reading->agenda_date,
+            'authors' => $authors,
+            'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,
             'date_signed' => $this->date_signed,
-            'file' => env('APP_URL').Storage::url($this->file),
             'date_created' => $this->created_at
         ];
     }

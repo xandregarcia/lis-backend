@@ -64,13 +64,13 @@ class AgencyController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'string', 'unique:agencies'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $validator->errors();
         }
 
         $data = $validator->valid();
@@ -149,7 +149,7 @@ class AgencyController extends Controller
         $agency->fill($data);
         $agency->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Agency info succesfully updated");      
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Agency succesfully updated");      
     }
 
     /**

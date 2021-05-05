@@ -18,7 +18,7 @@ class Endorsement extends Model
      */
     protected $fillable = [
         'for_referral_id',
-        'date_referred',
+        'date_endorsed',
         'file'
     ];    
 

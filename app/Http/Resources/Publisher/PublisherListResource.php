@@ -17,7 +17,6 @@ class PublisherListResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'head' => $this->head,
             'date_created' => $this->created_at
         ];
     }

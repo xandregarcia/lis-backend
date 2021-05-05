@@ -22,6 +22,7 @@ use App\Http\Controllers\api\CommunicationStatusController;
 use App\Http\Controllers\api\EndorsementController;
 use App\Http\Controllers\api\ResolutionController;
 use App\Http\Controllers\api\OrdinanceController;
+use App\Http\Controllers\api\AppropriationController;
 
 
 
@@ -294,6 +295,21 @@ Route::apiResources([
 
 Route::apiResources([
     'ordinance' => OrdinanceController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Appropriation Ordinances
+ */
+Route::apiResources([
+    'appropriations' => AppropriationController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'appropriation' => AppropriationController::class,
 ],[
     'except' => ['index']
 ]);

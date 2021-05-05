@@ -18,7 +18,7 @@ class Resolution extends Model
      */
     protected $fillable = [
         'for_referral_id',
-        'author_id',
+        'bokal_id',
         'date_passed',
         'file',
         
@@ -36,7 +36,7 @@ class Resolution extends Model
     public function bokals()
     {
         // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(Bokal::class);
+        return $this->belongsTo(Bokal::class,'bokal_id','id');
     }
 
     public function for_referral()

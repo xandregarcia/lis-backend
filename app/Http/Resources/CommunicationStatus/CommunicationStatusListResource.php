@@ -18,7 +18,7 @@ class CommunicationStatusListResource extends JsonResource
             'comm_status_id' => $this->id,
             'for_referral_id' => $this->for_referrals->id,
             'subject' => $this->for_referrals->subject,
-            'date_agenda' => $this->for_referrals->agenda_date,
+            'agenda_date' => $this->for_referrals->agenda_date,
             'date_created' => $this->created_at,
         ];
     }

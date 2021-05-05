@@ -64,7 +64,7 @@ class GroupController extends Controller
     {
 
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'string', 'unique:agencies'],
             'description' => 'string',
         ];
 
@@ -151,7 +151,7 @@ class GroupController extends Controller
         $group->fill($data);
         $group->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully updated");        
     }
 
     /**

@@ -41,7 +41,8 @@ class ForReferralResource extends JsonResource
             'agenda_date' => $this->agenda_date,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
             'joint_committee' => (is_null($joint_committee))?null:$joint_committee,
-            'file' => env('APP_URL').Storage::url($this->file),
+            'file' => $this->file,
+            'view' => "http://sp.dts/".Storage::url($this->file),
         ];
     }
 }

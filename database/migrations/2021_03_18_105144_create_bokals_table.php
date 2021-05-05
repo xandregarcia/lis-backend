@@ -15,7 +15,9 @@ class CreateBokalsTable extends Migration
     {
         Schema::create('bokals', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('first_name')->nullable();
+            $table->string('middle_name')->nullable();
+            $table->string('last_name')->nullable();
             $table->tinyInteger('active')->nullable();
             $table->timestamps();
         });

@@ -100,10 +100,12 @@ class CommitteeReportController extends Controller
             $committeeReport->save();
         }
         $status = CommunicationStatus::where('for_referral_id',$committeeReport->for_referral_id)->get();
+        
         $type = $status->first()->type;
+
         if($type == 1) {
             $status->toQuery()->update([
-                'approve' => true,
+                'passed' => true,
             ]);
         }else {
             $status->toQuery()->update([
@@ -165,8 +167,7 @@ class CommitteeReportController extends Controller
             'date_received' => 'date ',
             'agenda_date' => 'date',
             'remarks' => 'string',
-            'meeting_date' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'meeting_date' => 'date'
         ];
 
         $committeeReport = CommitteeReport::find($id);
@@ -199,7 +200,7 @@ class CommitteeReportController extends Controller
             $committeeReport->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully updated");        
     }
 
     /**

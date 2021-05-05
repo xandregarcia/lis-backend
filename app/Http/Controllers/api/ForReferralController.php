@@ -91,9 +91,8 @@ class ForReferralController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'id' => 'string',
             'subject' => 'string',
-            'receiving_date' => 'date',
+            'date_received' => 'date',
             'category_id' => 'integer',
             'origin_id' => 'integer',
             'agenda_date' => 'date',
@@ -143,19 +142,23 @@ class ForReferralController extends Controller
             }
             $status = new CommunicationStatus;
             $status->fill([
-                'approve' => false,
                 'endorsement' => false,
                 'committee_report' => false,
                 'second_reading' => false,
                 'third_reading' => false,
+                'passed' => false,
+                'approved' => false,
+                'furnished' => false,
+                'published' => false,
                 'type' => $type
             ]);
 
             $for_referral->comm_status()->save($status);
 
             // Sync in pivot table
-            $committees = $data['joint_committee'];
+            $joint_committees = $data['joint_committee'];
             $syncs = [];
+
             //lead committee
             $syncs[$data['lead_committee']] = [
                 'lead_committee' => true,
@@ -163,8 +166,8 @@ class ForReferralController extends Controller
             ];
 
             //joint_committees
-            foreach ($committees as $committee) {
-                $syncs[$committee['id']] = [
+            foreach ($joint_committees as $joint_committee) {
+                $syncs[$joint_committee['id']] = [
                     'lead_committee' => false,
                     'joint_committee' =>true,
                 ];
@@ -232,15 +235,13 @@ class ForReferralController extends Controller
         }
 
         $rules = [
-            'id' => 'string',
             'subject' => 'string',
-            'receiving_date' => 'date',
+            'date_received' => 'date',
             'category_id' => 'integer',
             'origin_id' => 'integer',
             'agenda_date' => 'date',
             'lead_committee' => 'integer',
-            'joint_committee' => 'array',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'joint_committee' => 'array'
         ];
 
         $for_referral = ForReferral::find($id);
@@ -256,40 +257,56 @@ class ForReferralController extends Controller
         }
 
         $data = $validator->valid();
-		$for_referral->fill($data);
-        $for_referral->save();
+        try {
 
-        /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.for_referral');
-            $path = "{$folder}/{$for_referral->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $for_referral->file = $pdf;
+            DB::beginTransaction();
+            $for_referral->fill($data);
             $for_referral->save();
-        }
 
-        // Sync in pivot table
-        $committees = $data['joint_committee'];
-        $syncs = [];
-        //lead committee
-        $syncs[$data['lead_committee']] = [
-            "lead_committee" => true,
-            "joint_committee" => false,
-        ];
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.for_referral');
+                $path = "{$folder}/{$for_referral->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $for_referral->file = $pdf;
+                $for_referral->save();
+            }
 
-        foreach ($committees as $committee) {
-            $syncs[$committee['id']] = [
-                "lead_committee" => false,
-                "joint_committee" =>true,
+            // Sync in pivot table
+            $joint_committees = $data['joint_committee'];
+            $syncs = [];
+
+            //lead committee
+            $syncs[$data['lead_committee']] = [
+                "lead_committee" => true,
+                "joint_committee" => false,
             ];
+
+            foreach ($joint_committees as $joint_committee) {
+                $syncs[$joint_committee['id']] = [
+                    "lead_committee" => false,
+                    "joint_committee" =>true,
+                ];
+            }
+
+            $for_referral->committees()->sync($syncs);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully updated");
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
         }
-        $for_referral->committees()->sync($syncs);
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");        
+                    
     }
 
     /**

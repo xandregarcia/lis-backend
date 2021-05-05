@@ -66,7 +66,7 @@ class EndorsementController extends Controller
     {   
         $rules = [
             'for_referral_id' => 'integer',
-            'date_referred' => 'date',
+            'date_endorsed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -154,8 +154,7 @@ class EndorsementController extends Controller
 
         $rules = [
             'for_referral_id' => 'integer',
-            'date_referred' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'date_endorsed' => 'date'
         ];
         
         $endorsement = Endorsement::find($id);
@@ -167,7 +166,7 @@ class EndorsementController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $validator->errors();    
+            // return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
@@ -189,7 +188,7 @@ class EndorsementController extends Controller
             $endorsement->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Succesfully updated");         
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully updated");         
     }
 
     /**

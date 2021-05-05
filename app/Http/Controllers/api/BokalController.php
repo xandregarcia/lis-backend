@@ -64,7 +64,9 @@ class BokalController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'first_name' => 'string',
+            'middle_name' => 'string',
+            'last_name' => 'string',
             'active' => 'boolean',
         ];
 
@@ -132,7 +134,9 @@ class BokalController extends Controller
         }        
 
         $rules = [
-            'name' => 'string',
+            'first_name' => 'string',
+            'middle_name' => 'string',
+            'last_name' => 'string',
             'active' => 'boolean',
         ];
 
@@ -152,7 +156,7 @@ class BokalController extends Controller
         $bokal->fill($data);
         $bokal->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Bokal Member info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Bokal Member succesfully updated");        
     }
 
     /**

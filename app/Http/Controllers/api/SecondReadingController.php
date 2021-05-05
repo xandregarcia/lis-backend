@@ -158,7 +158,6 @@ class SecondReadingController extends Controller
             'for_referral_id' => 'integer',
             'date_received' => 'date',
             'agenda_date' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $second_reading = SecondReading::find($id);
@@ -191,7 +190,7 @@ class SecondReadingController extends Controller
             $second_reading->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Second Reading info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Second Reading succesfully updated");        
     }
 
     /**

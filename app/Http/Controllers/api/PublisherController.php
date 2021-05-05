@@ -64,8 +64,7 @@ class PublisherController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
-            'head' => 'string',
+            'name' => ['string', 'string', 'unique:publishers'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -132,7 +131,6 @@ class PublisherController extends Controller
 
         $rules = [
             'name' => 'string',
-            'head' => 'string',
         ];
 
         $publisher = Publisher::find($id);
@@ -151,7 +149,7 @@ class PublisherController extends Controller
         $publisher->fill($data);
         $publisher->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Publisher info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Publisher succesfully updated");        
     }
 
     /**

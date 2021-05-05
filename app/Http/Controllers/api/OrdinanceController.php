@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 use App\Customs\Messages;
 use App\Models\Ordinance;
@@ -71,40 +72,80 @@ class OrdinanceController extends Controller
             'amending' => 'integer',
             'date_passed' => 'date',
             'date_signed' => 'date',
+            'authors' => 'array',
+            'co_authors' => 'array',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
         $data = $validator->valid();
-        
-        $oridnance = new Ordinance;
-		$oridnance->fill($data);
-        $oridnance->save();
 
-        /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.oridnances');
-            $path = "{$folder}/{$oridnance->id}";
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $oridnance->file = $pdf;
-            $oridnance->save();
+        try{
+            DB::beginTransaction();
+
+            $ordinance = new Ordinance;
+            $ordinance->fill($data);
+            $ordinance->save();
+    
+            // /**
+            //  * Upload Attachment
+            //  */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.ordinances');
+                $path = "{$folder}/{$ordinance->id}";
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $ordinance->file = $pdf;
+                $ordinance->save();
+            }
+
+            $status = CommunicationStatus::where('for_referral_id',$ordinance->for_referral_id)->get();
+            $status->toQuery()->update([
+                'approved' => true,
+            ]);
+
+            // Sync in pivot table
+            $authors = $data['authors'];
+            $co_authors = $data['co_authors'];
+            $syncs = [];
+
+            //authors
+            foreach ($authors as $author) {
+                $syncs[$author['id']] = [
+                    'author' => true,
+                    'co_author' =>false,
+                ];
+            }
+
+            //co-authors
+            foreach ($co_authors as $co_author) {
+                $syncs[$co_author['id']] = [
+                    'author' => false,
+                    'co_author' =>true,
+                ];
+            }
+
+            $ordinance->bokals()->sync($syncs);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Ordinance succesfully added");
+
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+
         }
-
-        // $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
-        // $type = $status->first()->type;
-        // $status->toQuery()->update([
-        //     'passed' => true,
-        // ]);
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Ordinance succesfully added");
+        
     }
 
     /**
@@ -160,7 +201,8 @@ class OrdinanceController extends Controller
             'amending' => 'integer',
             'date_passed' => 'date',
             'date_signed' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'authors' => 'array',
+            'co_authors' => 'array',
         ];
 
         $ordinance = Ordinance::find($id);
@@ -176,24 +218,61 @@ class OrdinanceController extends Controller
         }
 
         $data = $validator->valid();
-        $ordinance->fill($data);
-        $ordinance->save();
 
-         /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.ordinances');
-            $path = "{$folder}/{$ordinance->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $ordinance->file = $pdf;
+        try{
+
+            DB::beginTransaction();
+            $ordinance->fill($data);
             $ordinance->save();
-        }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.ordinances');
+                $path = "{$folder}/{$ordinance->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $ordinance->file = $pdf;
+                $ordinance->save();
+            }
+
+            // Sync in pivot table
+            $authors = $data['authors'];
+            $co_authors = $data['co_authors'];
+            $syncs = [];
+
+            //authors
+            foreach ($authors as $author) {
+                $syncs[$author['id']] = [
+                    'author' => true,
+                    'co_author' =>false,
+                ];
+            }
+
+            //co-authors
+            foreach ($co_authors as $co_author) {
+                $syncs[$co_author['id']] = [
+                    'author' => false,
+                    'co_author' =>true,
+                ];
+            }
+
+            $ordinance->bokals()->sync($syncs);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Ordinance succesfully updated");
+
+        }catch (\Exception $e) {
+            
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+
+        }             
     }
 
     /**

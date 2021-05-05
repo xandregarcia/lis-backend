@@ -31,14 +31,14 @@ class CommunicationStatusController extends Controller
 
     public function approveRef()
     {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',0)->where('endorsement',0)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('endorsement',0)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
     public function endorsements()
     {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',0)->where('endorsement',1)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('endorsement',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -46,7 +46,7 @@ class CommunicationStatusController extends Controller
 
     public function committeeReports()
     {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',0)->where('committee_report',1)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('committee_report',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -54,7 +54,7 @@ class CommunicationStatusController extends Controller
 
     public function secondReadings()
     {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',0)->where('second_reading',1)->where('type','>',1)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('second_reading',1)->where('type','>',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -63,7 +63,7 @@ class CommunicationStatusController extends Controller
     public function thirdReadings()
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',0)->where('third_reading',1)->where('type','>',1)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('third_reading',1)->where('type','>',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -72,7 +72,7 @@ class CommunicationStatusController extends Controller
     public function resolutions()
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',1)->where('type',1)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',1)->where('type',3)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -81,7 +81,7 @@ class CommunicationStatusController extends Controller
     public function ordinances()
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',1)->where('type',2)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',1)->where('type',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -90,7 +90,7 @@ class CommunicationStatusController extends Controller
     public function appropriations()
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('approve',1)->where('type',3)->paginate(10);
+        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',1)->where('type',2)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 

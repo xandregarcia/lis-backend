@@ -42,7 +42,6 @@ class CommitteeReportListResource extends JsonResource
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
-            'file' => env('APP_URL').Storage::url($this->file),
             'date_created' => $this->created_at,
         ];
     }

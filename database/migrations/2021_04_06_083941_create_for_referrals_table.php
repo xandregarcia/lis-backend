@@ -16,7 +16,7 @@ class CreateForReferralsTable extends Migration
         Schema::create('for_referrals', function (Blueprint $table) {
             $table->id();
             $table->string('subject')->nullable();
-            $table->date('receiving_date')->nullable();
+            $table->date('date_received')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories');
             $table->unsignedBigInteger('origin_id')->nullable();

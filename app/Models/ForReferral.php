@@ -18,7 +18,7 @@ class ForReferral extends Model
      */
     protected $fillable = [
         'subject',
-        'receiving_date',
+        'date_received',
         'category_id',
         'origin_id',
         'agenda_date',
@@ -51,14 +51,29 @@ class ForReferral extends Model
         return $this->belongsToMany(Committee::class)->withPivot('lead_committee', 'joint_committee');
     }
 
-    public function comm_status()
-    {
-        return $this->hasOne(CommunicationStatus::class);
-    }
-
     public function endorsement()
     {
         return $this->hasOne(Endorsement::class);
+    }
+
+    public function committee_report()
+    {
+        return $this->hasOne(CommitteeReport::class);
+    }
+
+    public function second_reading()
+    {
+        return $this->hasOne(SecondReading::class);
+    }
+
+    public function third_reading()
+    {
+        return $this->hasOne(ThirdReading::class);
+    }
+
+    public function comm_status()
+    {
+        return $this->hasOne(CommunicationStatus::class);
     }
 
 }
