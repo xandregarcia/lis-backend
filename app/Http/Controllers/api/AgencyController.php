@@ -127,7 +127,7 @@ class AgencyController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
+        }
 
         $rules = [
             'name' => 'string',

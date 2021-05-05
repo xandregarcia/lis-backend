@@ -75,6 +75,7 @@ class SecondReadingController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();  
             return $this->jsonErrorDataValidation();
         }
 
@@ -89,7 +90,7 @@ class SecondReadingController extends Controller
          */
         if (isset($data['pdf'])) {
             $folder = config('folders.second_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $path = "{$folder}/{$second_reading->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
@@ -103,7 +104,7 @@ class SecondReadingController extends Controller
             'third_reading' => true,
         ]);
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Second Reading succesfully added");
     }
 
     /**
@@ -181,7 +182,7 @@ class SecondReadingController extends Controller
          */
         if (isset($data['pdf'])) {
             $folder = config('folders.second_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $path = "{$folder}/{$second_reading->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
@@ -190,7 +191,7 @@ class SecondReadingController extends Controller
             $second_reading->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Second Reading info succesfully updated");        
     }
 
     /**

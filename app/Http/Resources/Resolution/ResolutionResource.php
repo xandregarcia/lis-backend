@@ -19,7 +19,7 @@ class ResolutionResource extends JsonResource
         return [
             'resolution_no' => $this->id,
             'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
-            'author' => $this->bokals->name,
+            'author_id' => $this->author_id,
             'date_passed' => $this->date_passed,
             'file' => env('APP_URL').Storage::url($this->file),
         ];

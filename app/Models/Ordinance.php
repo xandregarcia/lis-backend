@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class Resolution extends Model
+class Ordinance extends Model
 {
     use HasFactory;
 
@@ -18,8 +18,10 @@ class Resolution extends Model
      */
     protected $fillable = [
         'for_referral_id',
-        'author_id',
+        'title',
+        'amending',
         'date_passed',
+        'date_signed',
         'file',
         
     ];    
@@ -35,8 +37,7 @@ class Resolution extends Model
 
     public function bokals()
     {
-        // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(Bokal::class);
+        return $this->belongsToMany(Bokal::class)->withPivot('author', 'co_author');
     }
 
     public function for_referral()

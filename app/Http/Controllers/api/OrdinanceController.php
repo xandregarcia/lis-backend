@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
-use App\Models\ThirdReading;
+use App\Models\Ordinance;
 use App\Models\CommunicationStatus;
 
-use App\Http\Resources\ThirdReading\ThirdReadingResource;
-use App\Http\Resources\ThirdReading\ThirdReadingListResourceCollection;
+use App\Http\Resources\Ordinance\OrdinanceResource;
+use App\Http\Resources\Ordinance\OrdinanceListResourceCollection;
 
-class ThirdReadingController extends Controller
+
+class OrdinanceController extends Controller
 {
 
     use Messages;
@@ -39,9 +40,9 @@ class ThirdReadingController extends Controller
      */
     public function index()
     {
-        $third_readings = ThirdReading::paginate(10);
+        $ordinances = Ordinance::paginate(10);
 
-        $data = new ThirdReadingListResourceCollection($third_readings);
+        $data = new OrdinanceListResourceCollection($ordinances);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
     }
@@ -66,8 +67,10 @@ class ThirdReadingController extends Controller
     {
         $rules = [
             'for_referral_id' => 'integer',
-            'date_received' => 'date',
-            'agenda_date' => 'date',
+            'title' => 'string',
+            'amending' => 'integer',
+            'date_passed' => 'date',
+            'date_signed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -79,30 +82,29 @@ class ThirdReadingController extends Controller
 
         $data = $validator->valid();
         
-        $third_reading = new ThirdReading;
-		$third_reading->fill($data);
-        $third_reading->save();
+        $oridnance = new Ordinance;
+		$oridnance->fill($data);
+        $oridnance->save();
 
         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.third_reading');
-            $path = "{$folder}/{$third_reading->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+            $folder = config('folders.oridnances');
+            $path = "{$folder}/{$oridnance->id}";
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $third_reading->file = $pdf;
-            $third_reading->save();
+            $oridnance->file = $pdf;
+            $oridnance->save();
         }
 
-        $status = CommunicationStatus::where('for_referral_id',$third_reading->for_referral_id)->get();
-        $status->toQuery()->update([
-            'approve' => true,
-        ]);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading succesfully added");
+        // $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
+        // $type = $status->first()->type;
+        // $status->toQuery()->update([
+        //     'passed' => true,
+        // ]);
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Ordinance succesfully added");
     }
 
     /**
@@ -117,13 +119,13 @@ class ThirdReadingController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $third_reading = ThirdReading::find($id);
+        $ordinance = Ordinance::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($ordinance)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new ThirdReadingResource($third_reading);
+		$data = new OrdinanceResource($ordinance);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -154,43 +156,44 @@ class ThirdReadingController extends Controller
 
         $rules = [
             'for_referral_id' => 'integer',
-            'date_received' => 'date',
-            'agenda_date' => 'date',
-            'pdf' => 'mimes:pdf|max:10000000'
+            'title' => 'string',
+            'amending' => 'integer',
+            'date_passed' => 'date',
+            'date_signed' => 'date',
+            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $third_reading = ThirdReading::find($id);
+        $ordinance = Ordinance::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($ordinance)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
         $data = $validator->valid();
-        $third_reading->fill($data);
-        $third_reading->save();
+        $ordinance->fill($data);
+        $ordinance->save();
 
-        /**
+         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.third_reading');
-            $path = "{$folder}/{$third_reading->id}";
+            $folder = config('folders.ordinances');
+            $path = "{$folder}/{$ordinance->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $third_reading->file = $pdf;
-            $third_reading->save();
+            $ordinance->file = $pdf;
+            $ordinance->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
     }
 
     /**
@@ -205,13 +208,13 @@ class ThirdReadingController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $third_reading = ThirdReading::find($id);
+        $ordinance = Ordinance::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($ordinance)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $third_reading->delete();
+        $ordinance->delete();
 
         return $this->jsonDeleteSuccessResponse();         
     }

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Validator;
+
 use App\Customs\Messages;
-use App\Models\Resolutions;
+use App\Models\Resolution;
 use App\Models\CommunicationStatus;
 
 use App\Http\Resources\Resolution\ResolutionResource;
@@ -64,7 +66,7 @@ class ResolutionController extends Controller
     {
         $rules = [
             'for_referral_id' => 'integer',
-            'author' => 'integer ',
+            'author_id' => 'integer ',
             'date_passed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
@@ -100,7 +102,7 @@ class ResolutionController extends Controller
         // $status->toQuery()->update([
         //     'passed' => true,
         // ]);
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully added");
     }
 
     /**
@@ -187,7 +189,7 @@ class ResolutionController extends Controller
             $resolution->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully updated");        
     }
 
     /**
@@ -202,13 +204,13 @@ class ResolutionController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $resolutions = CommitteeReport::find($id);
+        $resolution = Resolution::find($id);
 
-        if (is_null($resolutions)) {
+        if (is_null($resolution)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $resolutions->delete();
+        $resolution->delete();
 
         return $this->jsonDeleteSuccessResponse();         
     }

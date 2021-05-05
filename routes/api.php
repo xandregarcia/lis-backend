@@ -20,6 +20,8 @@ use App\Http\Controllers\api\SelectionsController;
 use App\Http\Controllers\api\CommunicationStatusController;
 
 use App\Http\Controllers\api\EndorsementController;
+use App\Http\Controllers\api\ResolutionController;
+use App\Http\Controllers\api\OrdinanceController;
 
 
 
@@ -262,6 +264,36 @@ Route::apiResources([
 
 Route::apiResources([
     'endorsement' => EndorsementController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Resolutions
+ */
+Route::apiResources([
+    'resolutions' => ResolutionController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'resolution' => ResolutionController::class,
+],[
+    'except' => ['index']
+]);
+
+/**
+ * Ordinances
+ */
+Route::apiResources([
+    'ordinances' => OrdinanceController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'ordinance' => OrdinanceController::class,
 ],[
     'except' => ['index']
 ]);

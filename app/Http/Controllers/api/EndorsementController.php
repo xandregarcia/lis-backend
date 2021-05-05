@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 use App\Customs\Messages;
 use App\Models\Endorsement;
@@ -64,9 +63,8 @@ class EndorsementController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
+    {   
         $rules = [
-            'id' => 'string',
             'for_referral_id' => 'integer',
             'date_referred' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
@@ -148,17 +146,18 @@ class EndorsementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // return $request;
+
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
         }
 
         $rules = [
-            'id' => 'string',
             'for_referral_id' => 'integer',
             'date_referred' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
-
+        
         $endorsement = Endorsement::find($id);
 
         if (is_null($endorsement)) {
@@ -168,6 +167,7 @@ class EndorsementController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();    
             return $this->jsonErrorDataValidation();
         }
 
@@ -189,7 +189,7 @@ class EndorsementController extends Controller
             $endorsement->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");         
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Succesfully updated");         
     }
 
     /**

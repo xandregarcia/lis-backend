@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 use App\Customs\Messages;
 use App\Models\ForReferral;
@@ -163,6 +162,7 @@ class ForReferralController extends Controller
                 'joint_committee' => false,
             ];
 
+            //joint_committees
             foreach ($committees as $committee) {
                 $syncs[$committee['id']] = [
                     'lead_committee' => false,
