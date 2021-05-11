@@ -42,7 +42,7 @@ class ForReferralController extends Controller
     {
         $filters = $request->all();
         $subject = (is_null($filters['subject']))?null:$filters['subject'];
-        $receiving_date = (is_null($filters['receiving_date']))?null:$filters['receiving_date'];
+        $date_received = (is_null($filters['receiving_date']))?null:$filters['receiving_date'];
         $category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
         $origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
@@ -50,10 +50,10 @@ class ForReferralController extends Controller
 
         $wheres = [];
         if ($subject!=null) {
-            $wheres[] = ['subject', 'LIKE', "{$subject}%"];
+            $wheres[] = ['subject', 'LIKE', "%{$subject}%"];
         }
-        if ($receiving_date!=null) {
-            $wheres[] = ['receiving_date', $receiving_date];
+        if ($date_received!=null) {
+            $wheres[] = ['date_received', $date_received];
         }
         if ($category_id!=null) {
             $wheres[] = ['category_id', $category_id];

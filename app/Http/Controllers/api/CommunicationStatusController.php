@@ -29,68 +29,105 @@ class CommunicationStatusController extends Controller
 
 	}
 
-    public function approveRef()
+    public function approveRef(Request $request)
     {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('endorsement',0)->paginate(10);
+
+        // $filters = $request->all();
+        // $subject = (is_null($filters['subject']))?null:$filters['subject'];
+
+        $wheres = [];
+
+        // if ($subject!=null) {
+        //     $wheres[] = ['subject', 'LIKE', "%{$subject}%"];
+        // }
+
+        $comm_status = CommunicationStatus::where('passed',0)->where('endorsement',0)->where($wheres)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
-    public function endorsements()
+    public function endorsements(Request $request)
     {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('endorsement',1)->paginate(10);
-        $data = new CommunicationStatusListResourceCollection($comm_status);
-        
-        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
-    }
-
-    public function committeeReports()
-    {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('committee_report',1)->paginate(10);
-        $data = new CommunicationStatusListResourceCollection($comm_status);
-        
-        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
-    }
-
-    public function secondReadings()
-    {
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('second_reading',1)->where('type','>',1)->paginate(10);
+        $comm_status = CommunicationStatus::where('passed',0)->where('endorsement',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
-    public function thirdReadings()
+    public function committeeReports(Request $request)
+    {
+        $comm_status = CommunicationStatus::where('passed',0)->where('committee_report',1)->paginate(10);
+        $data = new CommunicationStatusListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
+    }
+
+    public function secondReadings(Request $request)
+    {
+        $comm_status = CommunicationStatus::where('passed',0)->where('second_reading',1)->where('type','>',1)->paginate(10);
+        $data = new CommunicationStatusListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
+    }
+
+    public function thirdReadings(Request $request)
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',0)->where('third_reading',1)->where('type','>',1)->paginate(10);
+        $comm_status = CommunicationStatus::where('passed',0)->where('third_reading',1)->where('type','>',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
-    public function resolutions()
+    public function resolutions(Request $request)
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',1)->where('type',3)->paginate(10);
+        $comm_status = CommunicationStatus::where('passed',1)->where('approved',0)->where('type',3)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
-    public function ordinances()
+    public function ordinances(Request $request)
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',1)->where('type',1)->paginate(10);
+        $comm_status = CommunicationStatus::where('passed',1)->where('approved',0)->where('type',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
-    public function appropriations()
+    public function appropriations(Request $request)
     {
     
-        $comm_status = CommunicationStatus::with('for_referrals')->where('passed',1)->where('type',2)->paginate(10);
+        $comm_status = CommunicationStatus::where('passed',1)->where('approved',0)->where('type',2)->paginate(10);
+        $data = new CommunicationStatusListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
+    }
+
+    public function publish(Request $request)
+    {
+    
+        $comm_status = CommunicationStatus::where('approved',1)->where('type',1)->paginate(10);
+        $data = new CommunicationStatusListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
+    }
+
+    public function furnishResolution(Request $request)
+    {
+    
+        $comm_status = CommunicationStatus::where('approved',1)->where('type',3)->paginate(10);
+        $data = new CommunicationStatusListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
+    }
+
+    public function furnishOrdinance(Request $request)
+    {
+    
+        $comm_status = CommunicationStatus::where('approved',1)->where('type',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -116,7 +153,7 @@ class CommunicationStatusController extends Controller
         }
         
         $comm_status->fill([
-            'approve' => true,
+            'passed' => true,
         ]);
 
         $comm_status->save();

@@ -37,8 +37,23 @@ class ThirdReadingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
+        $filters = $request->all();
+        $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+
+        $wheres = [];
+
+        if ($date_received!=null) {
+            $wheres[] = ['date_received', $date_received];
+        }
+
+        if ($agenda_date!=null) {
+            $wheres[] = ['agenda_date', $agenda_date];
+        }
+
         $third_readings = ThirdReading::paginate(10);
 
         $data = new ThirdReadingListResourceCollection($third_readings);

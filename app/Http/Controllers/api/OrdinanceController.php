@@ -39,9 +39,38 @@ class OrdinanceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $ordinances = Ordinance::paginate(10);
+        $filters = $request->all();
+        $id = (is_null($filters['id']))?null:$filters['id'];
+        $title = (is_null($filters['title']))?null:$filters['title'];
+        $amending = (is_null($filters['amending']))?null:$filters['amending'];
+        $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
+        $date_signed = (is_null($filters['date_signed']))?null:$filters['date_signed'];
+
+        $wheres = [];
+
+        if($id!=null) {
+            $wheres[] = ['id', 'LIKE', "%{$id}%"];
+        }
+
+        if($title!=null) {
+            $wheres[] = ['title', 'LIKE', "%{$title}%"];
+        }
+
+        if($amending!=null) {
+            $wheres[] = ['amending', 'LIKE', "%{$amending}%"];
+        }
+
+        if($date_passed!=null) {
+            $wheres[] = ['date_passed', $date_passed];
+        }
+
+        if($date_signed!=null) {
+            $wheres[] = ['date_signed', $date_signed];
+        }
+
+        $ordinances = Ordinance::where($wheres)->paginate(10);
 
         $data = new OrdinanceListResourceCollection($ordinances);
 

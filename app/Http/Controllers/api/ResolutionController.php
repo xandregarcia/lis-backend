@@ -37,9 +37,24 @@ class ResolutionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $resolutions = Resolution::paginate(10);
+
+        $filters = $request->all();
+        $bokal_id = (is_null($filters['bokal_id']))?null:$filters['bokal_id'];
+        $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
+
+        $wheres = [];
+
+        if ($bokal_id!=null) {
+            $wheres[] = ['bokal_id', $bokal_id];
+        }
+
+        if ($date_passed!=null) {
+            $wheres[] = ['date_passed', $date_passed];
+        }
+
+        $resolutions = Resolution::where($wheres)->paginate(10);
 
         $data = new ResolutionListResourceCollection($resolutions);
 

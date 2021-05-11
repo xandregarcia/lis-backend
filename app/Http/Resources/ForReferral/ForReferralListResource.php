@@ -40,7 +40,6 @@ class ForReferralListResource extends JsonResource
             'agenda_date' => $this->agenda_date,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
-            'file' => env('APP_URL').Storage::url($this->file),
             'date_created' => $this->created_at
         ];
     }

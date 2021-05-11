@@ -24,6 +24,10 @@ use App\Http\Controllers\api\ResolutionController;
 use App\Http\Controllers\api\OrdinanceController;
 use App\Http\Controllers\api\AppropriationController;
 
+//others
+use App\Http\Controllers\api\PublicationController;
+
+
 
 
 /*
@@ -68,6 +72,9 @@ Route::prefix('communication_status')->group(function () {
     Route::get('resolutions', [CommunicationStatusController::class, 'resolutions']);
     Route::get('ordinances', [CommunicationStatusController::class, 'ordinances']);
     Route::get('appropriation_ordinances', [CommunicationStatusController::class, 'appropriation']);
+    Route::get('furnish_ordinance', [CommunicationStatusController::class, 'furnishOrdinance']);
+    Route::get('furnish_resolution', [CommunicationStatusController::class, 'furnishResolution']);
+    Route::get('publish', [CommunicationStatusController::class, 'publish']);
     Route::put('/approve/{id}', [CommunicationStatusController::class, 'approve']);
     Route::put('/refer/{id}', [CommunicationStatusController::class, 'refer']);
     Route::get('/{id}', [CommunicationStatusController::class, 'show']);
@@ -310,6 +317,27 @@ Route::apiResources([
 
 Route::apiResources([
     'appropriation' => AppropriationController::class,
+],[
+    'except' => ['index']
+]);
+
+Route::prefix('publication')->group(function() {
+    Route::get('first_publication', [PublicationController::class, 'first_publication']);
+    Route::get('second_publication', [PublicationController::class, 'second_publication']);
+    Route::get('third_publication', [PublicationController::class, 'third_publication']);
+});
+
+/**
+ * Appropriation Ordinances
+ */
+Route::apiResources([
+    'publications' => PublicationController::class,
+],[
+    'only' => ['index']
+]);
+
+Route::apiResources([
+    'publications' => PublicationController::class,
 ],[
     'except' => ['index']
 ]);

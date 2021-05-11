@@ -37,9 +37,19 @@ class EndorsementController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $endorsements = Endorsement::paginate(10);
+
+        $filters = $request->all();
+        $date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
+
+        $wheres = [];
+
+        if ($date_endorsed!=null) {
+            $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
+        }
+
+        $endorsements = Endorsement::where($wheres)->paginate(10);
 
         $data = new EndorsementListResourceCollection($endorsements);
 

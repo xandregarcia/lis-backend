@@ -38,9 +38,28 @@ class CommitteeReportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $committeeReports = CommitteeReport::paginate(10);
+        $filters = $request->all();
+        $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+        $meeting_date = (is_null($filters['meeting_date']))?null:$filters['meeting_date'];
+
+        $wheres = [];
+
+        if ($date_received!=null) {
+            $wheres[] = ['date_received', $date_received];
+        }
+
+        if ($agenda_date!=null) {
+            $wheres[] = ['agenda_date', $agenda_date];
+        }
+
+        if ($meeting_date!=null) {
+            $wheres[] = ['meeting_date', $meeting_date];
+        }
+
+        $committeeReports = CommitteeReport::where($wheres)->paginate(10);
 
         $data = new CommitteeReportListResourceCollection($committeeReports);
 

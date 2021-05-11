@@ -36,9 +36,24 @@ class BokalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bokals = Bokal::paginate(10);
+
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+        $active = (is_null($filters['active']))?null:$filters['active'];
+
+        $wheres = [];
+
+        if ($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        if ($active!=null) {
+            $wheres[] = ['active', $active];
+        }
+
+        $bokals = Bokal::where($wheres)->paginate(10);
 
         $data = new BokalListResourceCollection($bokals);
 

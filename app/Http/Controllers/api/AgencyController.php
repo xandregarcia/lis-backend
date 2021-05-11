@@ -36,9 +36,17 @@ class AgencyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $agencies = Agency::paginate(10);
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+
+        $wheres = [];
+        if ($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        $agencies = Agency::where($wheres)->paginate(10);
 
         $data = new AgencyListResourceCollection($agencies);
 

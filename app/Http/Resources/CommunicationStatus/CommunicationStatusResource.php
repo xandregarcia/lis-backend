@@ -16,11 +16,9 @@ class CommunicationStatusResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'approve' => $this->approve,
-            'indorsement' => $this->endorsement,
-            'committee_report' => $this->committee_report,
-            'second_reading' => $this->second_reading,
-            'third_reading' => $this->third_reading
+            'for_referral_id' => $this->for_referral_id,
+            'subject' => (is_null($this->for_referrals))?null:$this->for_referrals->subject,
+            'agenda_date' => (is_null($this->for_referrals))?null:$this->for_referrals->agenda_date,
         ];
     }
 }

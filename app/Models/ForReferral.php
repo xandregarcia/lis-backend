@@ -71,6 +71,21 @@ class ForReferral extends Model
         return $this->hasOne(ThirdReading::class);
     }
 
+    public function resolutions()
+    {
+        return $this->hasOne(Resolution::class);
+    }
+
+    public function ordinances()
+    {
+        return $this->hasOne(Ordinance::class);
+    }
+
+    public function appropriations()
+    {
+        return $this->hasOne(Appropriation::class);
+    }
+
     public function comm_status()
     {
         return $this->hasOne(CommunicationStatus::class);

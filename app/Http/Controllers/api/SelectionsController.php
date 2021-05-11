@@ -85,13 +85,31 @@ class SelectionsController extends Controller
 
     public function allBokals()
     {
-        $bokals = Bokal::all(['id','name']);
+        $all = Bokal::all();
+
+        $bokals = $all->map(function($bokal) {
+            $row = [
+                "id" => $bokal->id,
+                "name" => "Hon. {$bokal->first_name} {$bokal->middle_name} {$bokal->last_name}",
+            ];
+            return $row;
+        });
+
         return $this->jsonSuccessResponse($bokals, $this->http_code_ok); 
     }
 
     public function activeBokals()
     {
-        $bokals = Bokal::where('active',1)->get(['id','name']);
+        $all = Bokal::where('active',1)->get();
+
+        $bokals = $all->map(function($bokal) {
+            $row = [
+                "id" => $bokal->id,
+                "name" => "Hon. {$bokal->first_name} {$bokal->middle_name} {$bokal->last_name}",
+            ];
+            return $row;
+        });
+
         return $this->jsonSuccessResponse($bokals, $this->http_code_ok); 
     }
 
