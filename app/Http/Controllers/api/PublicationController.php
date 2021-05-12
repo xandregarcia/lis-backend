@@ -31,34 +31,6 @@ class PublicationController extends Controller
 
 	}
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function first_publication(Request $request)
-    {
-        $filters = $request->all();
-        $ordinance_id = (is_null($filters['ordinance_id']))?null:$filters['ordinance_id'];
-        $publisher_id = (is_null($filters['publisher_id']))?null:$filters['publisher_id'];
-
-        $wheres = [];
-
-        if($ordinance_id!=null) {
-            $wheres[] = ['ordinance_id',$ordinance_id];
-        }
-
-        if($publisher_id!=null) {
-            $wheres[] = ['publisher_id',$publisher_id];
-        }
-
-        $publications = Publication::whereNull('first_publication')->where($wheres)->paginate(10);
-
-        $data = new PublicationListResourceCollection($publications);
-
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);
-    }
-
     public function second_publication(Request $request)
     {
         $filters = $request->all();

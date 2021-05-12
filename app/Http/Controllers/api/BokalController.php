@@ -39,19 +39,19 @@ class BokalController extends Controller
     public function index(Request $request)
     {
 
-        $filters = $request->all();
-        $name = (is_null($filters['name']))?null:$filters['name'];
-        $active = (is_null($filters['active']))?null:$filters['active'];
+        // $filters = $request->all();
+        // $name = (is_null($filters['name']))?null:$filters['name'];
+        // $active = (is_null($filters['active']))?null:$filters['active'];
 
         $wheres = [];
 
-        if ($name!=null) {
-            $wheres[] = ['name', 'LIKE', "%{$name}%"];
-        }
+        // if ($name!=null) {
+        //     $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        // }
 
-        if ($active!=null) {
-            $wheres[] = ['active', $active];
-        }
+        // if ($active!=null) {
+        //     $wheres[] = ['active', $active];
+        // }
 
         $bokals = Bokal::where($wheres)->paginate(10);
 

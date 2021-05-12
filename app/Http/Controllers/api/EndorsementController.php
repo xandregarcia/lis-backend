@@ -40,14 +40,14 @@ class EndorsementController extends Controller
     public function index(Request $request)
     {
 
-        $filters = $request->all();
-        $date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
+        // $filters = $request->all();
+        // $date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
 
         $wheres = [];
 
-        if ($date_endorsed!=null) {
-            $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
-        }
+        // if ($date_endorsed!=null) {
+        //     $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
+        // }
 
         $endorsements = Endorsement::where($wheres)->paginate(10);
 
