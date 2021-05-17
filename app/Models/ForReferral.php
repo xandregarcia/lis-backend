@@ -51,10 +51,10 @@ class ForReferral extends Model
         return $this->belongsToMany(Committee::class)->withPivot('lead_committee', 'joint_committee');
     }
 
-    public function endorsement()
-    {
-        return $this->hasOne(Endorsement::class);
-    }
+    // public function endorsement()
+    // {
+    //     return $this->belongsTo(Endorsement::class);
+    // }
 
     public function committee_report()
     {

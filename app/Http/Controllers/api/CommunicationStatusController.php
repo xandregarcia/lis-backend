@@ -48,7 +48,7 @@ class CommunicationStatusController extends Controller
 
     public function endorsements(Request $request)
     {
-        $comm_status = CommunicationStatus::where('passed',0)->where('endorsement',1)->paginate(10);
+        $comm_status = CommunicationStatus::where('endorsement',1)->where('committee_report',0)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -56,7 +56,7 @@ class CommunicationStatusController extends Controller
 
     public function committeeReports(Request $request)
     {
-        $comm_status = CommunicationStatus::where('passed',0)->where('committee_report',1)->paginate(10);
+        $comm_status = CommunicationStatus::where('passed',0)->where('committee_report',1)->where('second_reading',0)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -64,7 +64,7 @@ class CommunicationStatusController extends Controller
 
     public function secondReadings(Request $request)
     {
-        $comm_status = CommunicationStatus::where('passed',0)->where('second_reading',1)->where('type','>',1)->paginate(10);
+        $comm_status = CommunicationStatus::where('second_reading',1)->where('third_reading',0)->where('type','>',1)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 

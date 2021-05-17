@@ -96,6 +96,7 @@ class CommitteeReportController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            // return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
@@ -122,7 +123,7 @@ class CommitteeReportController extends Controller
         
         $type = $status->first()->type;
 
-        if($type == 1) {
+        if($type == 3) {
             $status->toQuery()->update([
                 'passed' => true,
             ]);

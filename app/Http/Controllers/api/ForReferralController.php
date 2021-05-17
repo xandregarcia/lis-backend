@@ -156,7 +156,7 @@ class ForReferralController extends Controller
             $for_referral->comm_status()->save($status);
 
             // Sync in pivot table
-            $joint_committees = $data['joint_committee'];
+            
             $syncs = [];
 
             //lead committee
@@ -165,13 +165,17 @@ class ForReferralController extends Controller
                 'joint_committee' => false,
             ];
 
-            //joint_committees
-            foreach ($joint_committees as $joint_committee) {
-                $syncs[$joint_committee['id']] = [
-                    'lead_committee' => false,
-                    'joint_committee' =>true,
-                ];
+            if(isset($data['joint_committee'])) {
+                $joint_committees = $data['joint_committee'];
+                //joint_committees
+                foreach ($joint_committees as $joint_committee) {
+                    $syncs[$joint_committee['id']] = [
+                        'lead_committee' => false,
+                        'joint_committee' =>true,
+                    ];
+                }
             }
+
             $for_referral->committees()->sync($syncs);
 
             DB::commit();
@@ -278,7 +282,6 @@ class ForReferralController extends Controller
             }
 
             // Sync in pivot table
-            $joint_committees = $data['joint_committee'];
             $syncs = [];
 
             //lead committee
@@ -287,11 +290,15 @@ class ForReferralController extends Controller
                 "joint_committee" => false,
             ];
 
-            foreach ($joint_committees as $joint_committee) {
-                $syncs[$joint_committee['id']] = [
-                    "lead_committee" => false,
-                    "joint_committee" =>true,
-                ];
+            if(isset($data['joint_committee'])) {
+                $joint_committees = $data['joint_committee'];
+                //joint_committees
+                foreach ($joint_committees as $joint_committee) {
+                    $syncs[$joint_committee['id']] = [
+                        'lead_committee' => false,
+                        'joint_committee' =>true,
+                    ];
+                }
             }
 
             $for_referral->committees()->sync($syncs);

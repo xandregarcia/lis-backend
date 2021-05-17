@@ -33,7 +33,6 @@ class Endorsement extends Model
 
     public function for_referral()
     {
-        // return $this->belongsTo(Group::class,'group_id','id');
         return $this->belongsTo(ForReferral::class);
     }
 }

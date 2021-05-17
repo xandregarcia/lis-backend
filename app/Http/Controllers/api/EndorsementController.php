@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 use App\Customs\Messages;
 use App\Models\Endorsement;
@@ -83,34 +84,46 @@ class EndorsementController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
         $data = $validator->valid();
+        try {
 
-        $endorsement = new Endorsement;
-        $endorsement->fill($data);
-        $endorsement->save();
-
-        /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.endorsements');
-            $path = "{$folder}/{$endorsement->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $endorsement->file = $pdf;
+            DB::beginTransaction();
+            $endorsement = new Endorsement;
+            $endorsement->fill($data);
             $endorsement->save();
-        }
 
-        $status = CommunicationStatus::where('for_referral_id',$endorsement->for_referral_id)->get();
-        $status->toQuery()->update([
-            'committee_report' => true,
-        ]);
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully added");
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.endorsements');
+                $path = "{$folder}/{$endorsement->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $endorsement->file = $pdf;
+                $endorsement->save();
+            }
+
+            $status = CommunicationStatus::where('for_referral_id',$endorsement->for_referral_id)->get();
+            $status->toQuery()->update([
+                'committee_report' => true,
+            ]);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully added");
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+        }
     }
 
     /**

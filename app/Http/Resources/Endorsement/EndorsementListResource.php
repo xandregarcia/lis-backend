@@ -33,10 +33,11 @@ class EndorsementListResource extends JsonResource
         return [
             'id' => $this->id,
             'for_referral_id'=> $this->for_referral_id,
-            'subject' => $this->for_referral->subject,
+            'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
             'date_endorsed' => $this->date_endorsed,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
+            'committees' =>  $committees,
             'file' => env('APP_URL').Storage::url($this->file),
             'date_created' => $this->created_at
         ];

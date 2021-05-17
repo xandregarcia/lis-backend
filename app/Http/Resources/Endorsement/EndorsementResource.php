@@ -33,11 +33,14 @@ class EndorsementResource extends JsonResource
         return [
             'id' => $this->id,
             'for_referral_id'=> $this->for_referral_id,
-            'subject' => $this->for_referral->subject,
+            'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
             'date_endorsed' => $this->date_endorsed,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
+            'lead_committee_name' => (is_null($lead_committee))?null:$lead_committee->name,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
-            'file' => env('APP_URL').Storage::url($this->file),
+            'committees' =>  $committees,
+            'file' => $this->file,
+            'view' => "http://sp.dts/".Storage::url($this->file),
         ];
     }
 }

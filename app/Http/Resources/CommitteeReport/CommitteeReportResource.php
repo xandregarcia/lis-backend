@@ -41,7 +41,8 @@ class CommitteeReportResource extends JsonResource
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
-            'file' => "http://sp.dts/".Storage::url($this->file),
+            'file' => $this->file,
+            'view' => "http://sp.dts/".Storage::url($this->file),
         ];
     }
 }
