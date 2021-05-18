@@ -40,6 +40,11 @@ class Ordinance extends Model
         return $this->belongsToMany(Bokal::class)->withPivot('author', 'co_author');
     }
 
+    public function agencies()
+    {
+        return $this->belongsToMany(Agency::class);
+    }
+
     public function for_referral()
     {
         // return $this->belongsTo(Group::class,'group_id','id');

@@ -23,6 +23,7 @@ class OrdinanceResource extends JsonResource
             'date_endorsed' => (is_null($this->for_referral->endorsement))?null:$this->for_referral->endorsement->date_endorsed,
             'meeting_date' => (is_null($this->for_referral->committee_report))?null:$this->for_referral->committee_report->meeting_date,
             'committee_report' => (is_null($this->for_referral->committee_report))?null:$this->for_referral->committee_report->agenda_date,
+            'first_reading' => (is_null($this->for_referral))?null:$this->for_referral->agenda_date,
             'second_reading' => (is_null($this->for_referral->second_reading))?null:$this->for_referral->second_reading->agenda_date,
             'third_reading' => (is_null($this->for_referral->endorsement))?null:$this->for_referral->third_reading->agenda_date,
             'authors' => $authors,

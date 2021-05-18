@@ -60,6 +60,7 @@ Route::prefix('selections')->group(function() {
     Route::get('origins', [SelectionsController::class, 'origins']);
     Route::get('all_bokals', [SelectionsController::class, 'allBokals']);
     Route::get('active_bokals', [SelectionsController::class, 'activeBokals']);
+    Route::get('ordinances', [SelectionsController::class, 'ordinances']);
 });
 
 /**

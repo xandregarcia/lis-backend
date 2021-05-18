@@ -23,7 +23,17 @@ class ForReferral extends Model
         'origin_id',
         'agenda_date',
         'file'
-    ];    
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        // 'agenda_date' => 'date:Y/m/d',
+    ];
+
 
     /**
      * @param $value
@@ -51,12 +61,12 @@ class ForReferral extends Model
         return $this->belongsToMany(Committee::class)->withPivot('lead_committee', 'joint_committee');
     }
 
-    // public function endorsement()
-    // {
-    //     return $this->belongsTo(Endorsement::class);
-    // }
+    public function endorsements()
+    {
+        return $this->hasOne(Endorsement::class);
+    }
 
-    public function committee_report()
+    public function committee_reports()
     {
         return $this->hasOne(CommitteeReport::class);
     }

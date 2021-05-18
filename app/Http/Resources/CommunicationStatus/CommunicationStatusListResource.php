@@ -21,11 +21,12 @@ class CommunicationStatusListResource extends JsonResource
             'agenda_date' => (is_null($this->for_referrals))?null:$this->for_referrals->agenda_date,
             'date_received' => (is_null($this->for_referrals))?null:$this->for_referrals->date_received,
             
+            'resolution_no' => (is_null($this->for_referrals->resolutions))?null:$this->for_referrals->resolutions->id,
+
             //details for publication and furnishing of ordinace
-            'ordinance_id' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->id,
+            'ordianance_no' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->id,
             'title' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->title,
             'date_passed' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->date_passed,
-
             'date_created' => $this->created_at,
         ];
     }

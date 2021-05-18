@@ -97,7 +97,7 @@ class ForReferralController extends Controller
             'origin_id' => 'integer',
             'agenda_date' => 'date',
             'lead_committee' => 'integer',
-            'joint_committee' => 'array',
+            'joint_committees' => 'array',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -165,8 +165,8 @@ class ForReferralController extends Controller
                 'joint_committee' => false,
             ];
 
-            if(isset($data['joint_committee'])) {
-                $joint_committees = $data['joint_committee'];
+            if(isset($data['joint_committees'])) {
+                $joint_committees = $data['joint_committees'];
                 //joint_committees
                 foreach ($joint_committees as $joint_committee) {
                     $syncs[$joint_committee['id']] = [
@@ -245,7 +245,7 @@ class ForReferralController extends Controller
             'origin_id' => 'integer',
             'agenda_date' => 'date',
             'lead_committee' => 'integer',
-            'joint_committee' => 'array'
+            'joint_committees' => 'array'
         ];
 
         $for_referral = ForReferral::find($id);
@@ -290,8 +290,8 @@ class ForReferralController extends Controller
                 "joint_committee" => false,
             ];
 
-            if(isset($data['joint_committee'])) {
-                $joint_committees = $data['joint_committee'];
+            if(isset($data['joint_committees'])) {
+                $joint_committees = $data['joint_committees'];
                 //joint_committees
                 foreach ($joint_committees as $joint_committee) {
                     $syncs[$joint_committee['id']] = [

@@ -14,6 +14,7 @@ use App\Models\Origin;
 use App\Models\Publisher;
 use App\Models\Category;
 use App\Models\Committee;
+use App\Models\Ordinance;
 
 class SelectionsController extends Controller
 {
@@ -111,6 +112,12 @@ class SelectionsController extends Controller
         });
 
         return $this->jsonSuccessResponse($bokals, $this->http_code_ok); 
+    }
+
+    public function ordinances()
+    {
+        $ordinances = Ordinance::all(['id','title']);
+        return $this->jsonSuccessResponse($ordinances, $this->http_code_ok); 
     }
 
 }

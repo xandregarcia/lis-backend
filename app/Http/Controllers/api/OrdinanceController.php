@@ -122,9 +122,9 @@ class OrdinanceController extends Controller
             $ordinance->fill($data);
             $ordinance->save();
     
-            // /**
-            //  * Upload Attachment
-            //  */
+            /**
+             * Upload Attachment
+             */
             if (isset($data['pdf'])) {
                 $folder = config('folders.ordinances');
                 $path = "{$folder}/{$ordinance->id}";
@@ -142,7 +142,6 @@ class OrdinanceController extends Controller
 
             // Sync in pivot table
             $authors = $data['authors'];
-            $co_authors = $data['co_authors'];
             $syncs = [];
 
             //authors
@@ -154,12 +153,16 @@ class OrdinanceController extends Controller
             }
 
             //co-authors
-            foreach ($co_authors as $co_author) {
-                $syncs[$co_author['id']] = [
-                    'author' => false,
-                    'co_author' =>true,
-                ];
+            if(isset($data['co_authors'])) {
+                $co_authors = $data['co_authors'];
+                foreach ($co_authors as $co_author) {
+                    $syncs[$co_author['id']] = [
+                        'author' => false,
+                        'co_author' =>true,
+                    ];
+                }
             }
+            
 
             $ordinance->bokals()->sync($syncs);
 

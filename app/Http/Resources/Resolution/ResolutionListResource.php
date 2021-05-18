@@ -16,12 +16,12 @@ class ResolutionListResource extends JsonResource
     {
 
         return [
-            'resolution_no' => $this->id,
-            'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
+            'id' => $this->id,
+            'title' => (is_null($this->for_referral))?null:$this->for_referral->subject,
             'date_endorsed' => (is_null($this->for_referral->endorsement))?null:$this->for_referral->endorsement->date_endorsed,
             'meeting_date' => (is_null($this->for_referral->committee_report))?null:$this->for_referral->committee_report->meeting_date,
             'date_reported' => (is_null($this->for_referral->committee_report))?null:$this->for_referral->committee_report->agenda_date,
-            'author' => $this->bokals,
+            'author' => "Hon. ".$this->bokals->first_name." ".$this->bokals->middle_name." ".$this->bokals->last_name,
             'date_passed' => $this->date_passed,
             'date_created' => $this->created_at
         ];

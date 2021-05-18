@@ -15,7 +15,7 @@ class OrdinanceListResource extends JsonResource
     public function toArray($request)
     {
 
-        $bokals = $this->bokals()->get(['bokals.id', 'bokals.name']);
+        $bokals = $this->bokals()->get();
 
         $authors = $bokals->filter(function ($bokal) {
             return $bokal->pivot->author === 1;
@@ -23,7 +23,6 @@ class OrdinanceListResource extends JsonResource
         $authors = $authors->map(function ($author) {
             return [
                 'id' => $author['id'],
-                'name' => $author['name'],
             ];
         });
 
@@ -33,12 +32,11 @@ class OrdinanceListResource extends JsonResource
         $co_authors = $co_authors->map(function ($co_author) {
             return [
                 'id' => $co_author['id'],
-                'name' => $co_author['name'],
             ];
         });
 
         return [
-            'ordinance_no' => $this->id,
+            'id' => $this->id,
             'title' => $this->title,
             'amending' => $this->amending,
             'date_endorsed' => (is_null($this->for_referral->endorsement))?null:$this->for_referral->endorsement->date_endorsed,

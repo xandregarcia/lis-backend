@@ -38,6 +38,7 @@ class CommitteeReportResource extends JsonResource
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
+            'lead_committee_name' => (is_null($lead_committee))?null:$lead_committee->name,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
