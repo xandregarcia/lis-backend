@@ -23,7 +23,8 @@ class BokalListResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => "Hon. ".$this->first_name." ".$this->middle_name." ".$this->last_name,
-            'active' => $active,
+            'status' => $active,
+            'active' => $this->active,
             'date_created' => $this->created_at
         ];
     }

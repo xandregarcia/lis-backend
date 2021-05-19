@@ -18,324 +18,327 @@ use App\Http\Resources\ForReferral\ForReferralListResourceCollection;
 class ForReferralController extends Controller
 {
 
-    use Messages;
+	use Messages;
 
-    private $http_code_ok;
-    private $http_code_error;    
+	private $http_code_ok;
+	private $http_code_error;    
 
 	public function __construct()
 	{
 		$this->middleware(['auth:api']);
 		// $this->authorizeResource(Group::class, Group::class);
 		
-        $this->http_code_ok = 200;
-        $this->http_code_error = 500;
+		$this->http_code_ok = 200;
+		$this->http_code_error = 500;
+	}
 
-    }
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function index(Request $request)
+	{
+		$filters = $request->all();
+		$id = (is_null($filters['id']))?null:$filters['id'];
+		$subject = (is_null($filters['subject']))?null:$filters['subject'];
+		$date_received = (is_null($filters['date_received']))?$filters['date_received']:null;
+		$category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
+		$origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
+		$agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+		// $lead_committee = $filters['lead_committee'];
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
-    {
-        $filters = $request->all();
-        $subject = (is_null($filters['subject']))?null:$filters['subject'];
-        $date_received = (is_null($filters['receiving_date']))?null:$filters['receiving_date'];
-        $category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
-        $origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
-        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
-        // $lead_committee = $filters['lead_committee'];
+		$wheres = [];
+		if ($id!=null) {
+			$wheres[] = ['id', $id];
+		}
+		if ($subject!=null) {
+			$wheres[] = ['subject', 'LIKE', "%{$subject}%"];
+		}
+		if ($date_received!=null) {
+			$wheres[] = ['date_received','LIKE', "%{$date_received}%"];
+		}
+		if ($category_id!=null) {
+			$wheres[] = ['category_id', $category_id];
+		}
+		if ($origin_id!=null) {
+			$wheres[] = ['origin_id', $origin_id];
+		}
+		if ($agenda_date!=null) {
+			$wheres[] = ['agenda_date', $agenda_date];
+		}
 
-        $wheres = [];
-        if ($subject!=null) {
-            $wheres[] = ['subject', 'LIKE', "%{$subject}%"];
-        }
-        if ($date_received!=null) {
-            $wheres[] = ['date_received', $date_received];
-        }
-        if ($category_id!=null) {
-            $wheres[] = ['category_id', $category_id];
-        }
-        if ($origin_id!=null) {
-            $wheres[] = ['origin_id', $origin_id];
-        }
-        if ($agenda_date!=null) {
-            $wheres[] = ['agenda_date', $agenda_date];
-        }
+		$for_referrals = ForReferral::where($wheres)->paginate(10);
 
-        $for_referrals = ForReferral::where($wheres)->paginate(10);
+		$data = new ForReferralListResourceCollection($for_referrals);
 
-        $data = new ForReferralListResourceCollection($for_referrals);
+		return $this->jsonSuccessResponse($data, $this->http_code_ok);      
+	}
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);      
-    }
+	/**
+	 * Show the form for creating a new resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function create()
+	{
+		//
+	}
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+	/**
+	 * Store a newly created resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request  $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function store(Request $request)
+	{
+		$rules = [
+			'subject' => 'string',
+			'date_received' => 'date',
+			'category_id' => 'integer',
+			'origin_id' => 'integer',
+			'agenda_date' => 'date',
+			'lead_committee' => 'integer',
+			'joint_committees' => 'array',
+			'pdf' => 'required|mimes:pdf|max:10000000'
+		];
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $rules = [
-            'subject' => 'string',
-            'date_received' => 'date',
-            'category_id' => 'integer',
-            'origin_id' => 'integer',
-            'agenda_date' => 'date',
-            'lead_committee' => 'integer',
-            'joint_committees' => 'array',
-            'pdf' => 'required|mimes:pdf|max:10000000'
-        ];
+		$validator = Validator::make($request->all(), $rules);
 
-        $validator = Validator::make($request->all(), $rules);
+		if ($validator->fails()) {
+			return $validator->errors();
+			return $this->jsonErrorDataValidation();
+		}
 
-        if ($validator->fails()) {
-            return $validator->errors();
-            return $this->jsonErrorDataValidation();
-        }
+		$data = $validator->valid();
 
-        $data = $validator->valid();
+		try {
 
-        try {
+			DB::beginTransaction();
+		
+			$for_referral = new ForReferral;
+			$for_referral->fill($data);
+			$for_referral->save();
 
-            DB::beginTransaction();
-        
-            $for_referral = new ForReferral;
-            $for_referral->fill($data);
-            $for_referral->save();
+			/**
+			 * Upload Attachment
+			 */
+			if (isset($data['pdf'])) {
+				$folder = config('folders.for_referral');
+				$path = "{$folder}/{$for_referral->id}";
+				// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+				$filename = $request->file('pdf')->getClientOriginalName();
+				$request->file('pdf')->storeAs("public/{$path}", $filename);
+				$pdf = "{$path}/{$filename}";
+				$for_referral->file = $pdf;
+				$for_referral->save();
+			}
+			$type = null;
+			
+			if($data['category_id'] == 1) {
+				$type = 1;//Draft Ordinance
+			}else if($data['category_id'] == 2) {
+				$type = 2;//Appropriation Ordinance
+			}else {
+				$type = 3;//Resolution
+			}
+			$status = new CommunicationStatus;
+			$status->fill([
+				'endorsement' => false,
+				'committee_report' => false,
+				'second_reading' => false,
+				'third_reading' => false,
+				'passed' => false,
+				'approved' => false,
+				'furnished' => false,
+				'published' => false,
+				'type' => $type
+			]);
 
-            /**
-             * Upload Attachment
-             */
-            if (isset($data['pdf'])) {
-                $folder = config('folders.for_referral');
-                $path = "{$folder}/{$for_referral->id}";
-                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-                $filename = $request->file('pdf')->getClientOriginalName();
-                $request->file('pdf')->storeAs("public/{$path}", $filename);
-                $pdf = "{$path}/{$filename}";
-                $for_referral->file = $pdf;
-                $for_referral->save();
-            }
-            $type = null;
-            
-            if($data['category_id'] == 1) {
-                $type = 1;//Draft Ordinance
-            }else if($data['category_id'] == 2) {
-                $type = 2;//Appropriation Ordinance
-            }else {
-                $type = 3;//Resolution
-            }
-            $status = new CommunicationStatus;
-            $status->fill([
-                'endorsement' => false,
-                'committee_report' => false,
-                'second_reading' => false,
-                'third_reading' => false,
-                'passed' => false,
-                'approved' => false,
-                'furnished' => false,
-                'published' => false,
-                'type' => $type
-            ]);
+			$for_referral->comm_status()->save($status);
 
-            $for_referral->comm_status()->save($status);
+			// Sync in pivot table
+			
+			$syncs = [];
 
-            // Sync in pivot table
-            
-            $syncs = [];
+			//lead committee
+			$syncs[$data['lead_committee']] = [
+				'lead_committee' => true,
+				'joint_committee' => false,
+			];
+			
+			//joint_committees
+			if(isset($data['joint_committees'])) {
+				$joint_committees = $data['joint_committees'];
+				foreach ($joint_committees as $joint_committee) {
+					$syncs[$joint_committee['id']] = [
+						'lead_committee' => false,
+						'joint_committee' =>true,
+					];
+				}
+			}
 
-            //lead committee
-            $syncs[$data['lead_committee']] = [
-                'lead_committee' => true,
-                'joint_committee' => false,
-            ];
+			$for_referral->committees()->sync($syncs);
 
-            if(isset($data['joint_committees'])) {
-                $joint_committees = $data['joint_committees'];
-                //joint_committees
-                foreach ($joint_committees as $joint_committee) {
-                    $syncs[$joint_committee['id']] = [
-                        'lead_committee' => false,
-                        'joint_committee' =>true,
-                    ];
-                }
-            }
+			DB::commit();
 
-            $for_referral->committees()->sync($syncs);
+			return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully added");
 
-            DB::commit();
+		} catch (\Exception $e) {
 
-            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully added");
+			DB::rollBack();
 
-        } catch (\Exception $e) {
+			return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
 
-            DB::rollBack();
+		}
+	}
 
-            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function show($id)
+	{
+		if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+			return $this->jsonErrorInvalidParameters();
+		}
 
-        }
-    }
+		$for_referral = ForReferral::find($id);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
-            return $this->jsonErrorInvalidParameters();
-        }
-
-        $for_referral = ForReferral::find($id);
-
-        if (is_null($for_referral)) {
+		if (is_null($for_referral)) {
 			return $this->jsonErrorResourceNotFound();
-        }
+		}
 
 		$data = new ForReferralResource($for_referral);
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);
-    }
+		return $this->jsonSuccessResponse($data, $this->http_code_ok);
+	}
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+	/**
+	 * Show the form for editing the specified resource.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function edit($id)
+	{
+		//
+	}
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
-            return $this->jsonErrorInvalidParameters();
-        }
+	/**
+	 * Update the specified resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request  $request
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function update(Request $request, $id)
+	{
+		if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+			return $this->jsonErrorInvalidParameters();
+		}
 
-        $rules = [
-            'subject' => 'string',
-            'date_received' => 'date',
-            'category_id' => 'integer',
-            'origin_id' => 'integer',
-            'agenda_date' => 'date',
-            'lead_committee' => 'integer',
-            'joint_committees' => 'array'
-        ];
+		$rules = [
+			'subject' => 'string',
+			'date_received' => 'date',
+			'category_id' => 'integer',
+			'origin_id' => 'integer',
+			'agenda_date' => 'date',
+			'lead_committee' => 'integer',
+			'joint_committees' => 'array'
+		];
 
-        $for_referral = ForReferral::find($id);
+		$for_referral = ForReferral::find($id);
 
-        if (is_null($for_referral)) {
+		if (is_null($for_referral)) {
 			return $this->jsonErrorResourceNotFound();
-        }
+		}
 
-        $validator = Validator::make($request->all(), $rules);
+		$validator = Validator::make($request->all(), $rules);
 
-        if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
-        }
+		if ($validator->fails()) {
+			return $this->jsonErrorDataValidation();
+		}
 
-        $data = $validator->valid();
-        try {
+		$data = $validator->valid();
+		try {
 
-            DB::beginTransaction();
-            $for_referral->fill($data);
-            $for_referral->save();
+			DB::beginTransaction();
+			$for_referral->fill($data);
+			$for_referral->save();
 
-            /**
-             * Upload Attachment
-             */
-            if (isset($data['pdf'])) {
-                $folder = config('folders.for_referral');
-                $path = "{$folder}/{$for_referral->id}";
-                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-                $filename = $request->file('pdf')->getClientOriginalName();
-                $request->file('pdf')->storeAs("public/{$path}", $filename);
-                $pdf = "{$path}/{$filename}";
-                $for_referral->file = $pdf;
-                $for_referral->save();
-            }
+			/**
+			 * Upload Attachment
+			 */
+			if (isset($data['pdf'])) {
+				$folder = config('folders.for_referral');
+				$path = "{$folder}/{$for_referral->id}";
+				// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+				$filename = $request->file('pdf')->getClientOriginalName();
+				$request->file('pdf')->storeAs("public/{$path}", $filename);
+				$pdf = "{$path}/{$filename}";
+				$for_referral->file = $pdf;
+				$for_referral->save();
+			}
 
-            // Sync in pivot table
-            $syncs = [];
+			// Sync in pivot table
+			$syncs = [];
 
-            //lead committee
-            $syncs[$data['lead_committee']] = [
-                "lead_committee" => true,
-                "joint_committee" => false,
-            ];
+			//lead committee
+			$syncs[$data['lead_committee']] = [
+				"lead_committee" => true,
+				"joint_committee" => false,
+			];
 
-            if(isset($data['joint_committees'])) {
-                $joint_committees = $data['joint_committees'];
-                //joint_committees
-                foreach ($joint_committees as $joint_committee) {
-                    $syncs[$joint_committee['id']] = [
-                        'lead_committee' => false,
-                        'joint_committee' =>true,
-                    ];
-                }
-            }
+			//joint_committees
+			if(isset($data['joint_committees'])) {
+				$joint_committees = $data['joint_committees'];
+				foreach ($joint_committees as $joint_committee) {
+					$syncs[$joint_committee['id']] = [
+						'lead_committee' => false,
+						'joint_committee' =>true,
+					];
+				}
+			}
 
-            $for_referral->committees()->sync($syncs);
+			$for_referral->committees()->sync($syncs);
 
-            DB::commit();
+			DB::commit();
 
-            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully updated");
+			return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully updated");
 
-        } catch (\Exception $e) {
+		} catch (\Exception $e) {
 
-            DB::rollBack();
+			DB::rollBack();
 
-            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
-        }
-                    
-    }
+			return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+		}
+					
+	}
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
-            return $this->jsonErrorInvalidParameters();
-        }
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param  int  $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function destroy($id)
+	{
+		if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+			return $this->jsonErrorInvalidParameters();
+		}
 
-        $for_referral = ForReferral::find($id);
+		$for_referral = ForReferral::find($id);
 
-        if (is_null($for_referral)) {
+		if (is_null($for_referral)) {
 			return $this->jsonErrorResourceNotFound();
-        }  
+		}  
 
-        $for_referral->delete();
+		$for_referral->delete();
 
-        return $this->jsonDeleteSuccessResponse();         
-    }
+		return $this->jsonDeleteSuccessResponse();         
+	}
 }

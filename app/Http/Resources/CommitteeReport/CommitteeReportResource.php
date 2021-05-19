@@ -17,8 +17,7 @@ class CommitteeReportResource extends JsonResource
     public function toArray($request)
     {
 
-        $committee_report = $this->for_referral->with(['committees'])->first();
-        $committees = $committee_report->committees;
+        $committees = $this->for_referral->committees; 
         $lead_committee = $committees->filter(function ($committee) {
              return $committee->pivot->lead_committee === 1;
         })->values()->first();

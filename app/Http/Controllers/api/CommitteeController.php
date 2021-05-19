@@ -42,6 +42,7 @@ class CommitteeController extends Controller
 
         $filters = $request->all();
         $name = (is_null($filters['name']))?null:$filters['name'];
+        // $chairman = (is_null($filters['chairman']))?null:$filters['chairman'];
 
         $wheres = [];
 
@@ -49,7 +50,7 @@ class CommitteeController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $committees = Committee::paginate(10);
+        $committees = Committee::where($wheres)->paginate(10);
 
         $data = new CommitteeListResourceCollection($committees);
 
