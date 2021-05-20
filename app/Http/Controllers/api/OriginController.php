@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Origin;
@@ -137,18 +138,18 @@ class OriginController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-        ];
-
+        }
+        
         $origin = Origin::find($id);
 
         if (is_null($origin)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
+        $rules = [
+            'name' => ['string', Rule::unique('origins')->ignore($origin),],
+        ];
+ 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {

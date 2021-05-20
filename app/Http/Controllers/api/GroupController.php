@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Group;
@@ -138,18 +139,18 @@ class GroupController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-            'description' => 'string',
-        ];
+        }
 
         $group = Group::find($id);
 
         if (is_null($group)) {
 			return $this->jsonErrorResourceNotFound();
         }
+
+        $rules = [
+            'name' => ['string', Rule::unique('groups')->ignore($group),],
+            'description' => 'string',
+        ];
         
         $validator = Validator::make($request->all(), $rules);
 

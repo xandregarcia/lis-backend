@@ -45,10 +45,10 @@ class ForReferralController extends Controller
 		$id = (is_null($filters['id']))?null:$filters['id'];
 		$subject = (is_null($filters['subject']))?null:$filters['subject'];
 		$date_received = (is_null($filters['date_received']))?$filters['date_received']:null;
-		$category_id = (isset($filters['category_id']))?(is_null($filters['category_id']))?null:$filters['category_id']:null;
-		$origin_id = (isset($filters['origin_id']))?(is_null($filters['origin_id']))?null:$filters['origin_id']:null;
-		$lead_committee_id = (isset($filters['lead_committee_id']))?(is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id']:null;
-		$joint_committee_id = (isset($filters['joint_committee_id']))?(is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id']:null;
+		$category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
+		$origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
+		$lead_committee_id = (is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id'];
+		$joint_committee_id = (is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id'];
 		$agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 		// $lead_committee = $filters['lead_committee'];
 
@@ -122,7 +122,7 @@ class ForReferralController extends Controller
 		$validator = Validator::make($request->all(), $rules);
 
 		if ($validator->fails()) {
-			return $validator->errors();
+			// return $validator->errors();
 			return $this->jsonErrorDataValidation();
 		}
 

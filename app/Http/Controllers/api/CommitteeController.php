@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 
 use App\Customs\Messages;
@@ -95,7 +96,7 @@ class CommitteeController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => ['string', 'string', 'unique:committees'],
+            'name' => ['string', 'unique:committees'],
             'chairman' => 'integer',
             'vice_chairman' => 'integer',
             'members' => 'array'
@@ -203,18 +204,18 @@ class CommitteeController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-            'groups' => 'array'
-        ];
-
+        }
+        
         $committee = Committee::find($id);
 
         if (is_null($committee)) {
 			return $this->jsonErrorResourceNotFound();
         }
+
+        $rules = [
+            'name' => ['string', Rule::unique('committees')->ignore($committee),],
+            'groups' => 'array'
+        ];
         
         $validator = Validator::make($request->all(), $rules);
 

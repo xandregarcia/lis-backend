@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Category;
@@ -73,7 +74,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => ['string', 'string', 'unique:categories'],
+            'name' => ['string', 'unique:categories'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -138,16 +139,16 @@ class CategoryController extends Controller
             return $this->jsonErrorInvalidParameters();
         }        
 
-        $rules = [
-            'name' => 'string',
-        ];
-
         $category = Category::find($id);
-
+        
         if (is_null($category)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
+        $rules = [
+            'name' => ['string', Rule::unique('categories')->ignore($category),]
+        ];
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {

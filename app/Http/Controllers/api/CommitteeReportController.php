@@ -44,6 +44,8 @@ class CommitteeReportController extends Controller
         $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
         $meeting_date = (is_null($filters['meeting_date']))?null:$filters['meeting_date'];
+        $lead_committee_id = (is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id'];
+		$joint_committee_id = (is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id'];
 
         $wheres = [];
 
@@ -59,8 +61,20 @@ class CommitteeReportController extends Controller
             $wheres[] = ['meeting_date', $meeting_date];
         }
 
-        $committeeReports = CommitteeReport::where($wheres)->paginate(10);
+        $committeeReports = CommitteeReport::where($wheres);
 
+        if ($lead_committee_id!=null) {
+			$committeeReports->whereHas('committees', function(Builder $query) use ($lead_committee_id) {
+				$query->where([['committee_for_referral.committee_id', $lead_committee_id],['committee_for_referral.lead_committee',true]]);
+			});
+		}
+		if ($joint_committee_id!=null) {
+			$committeeReports->whereHas('committees', function(Builder $query) use ($joint_committee_id) {
+				$query->where([['committee_for_referral.committee_id', $joint_committee_id],['committee_for_referral.joint_committee',true]]);
+			});
+		}
+
+        $committeeReports = $committeeReports->paginate(10);
         $data = new CommitteeReportListResourceCollection($committeeReports);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Publisher;
@@ -137,18 +138,18 @@ class PublisherController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-        ];
-
+        }
+        
         $publisher = Publisher::find($id);
 
         if (is_null($publisher)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
+        $rules = [
+            'name' => ['string', Rule::unique('publishers')->ignore($publisher),],
+        ];
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {

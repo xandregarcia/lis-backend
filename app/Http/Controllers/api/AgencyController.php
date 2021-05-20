@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Agency;
@@ -72,13 +73,13 @@ class AgencyController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => ['string', 'string', 'unique:agencies'],
+            'name' => ['string', 'unique:agencies'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $validator->errors();
+            return $this->jsonErrorDataValidation();
         }
 
         $data = $validator->valid();
@@ -137,16 +138,16 @@ class AgencyController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $rules = [
-            'name' => 'string',
-        ];
-
         $agency = Agency::find($id);
 
         if (is_null($agency)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
+        $rules = [
+            'name' => ['string', Rule::unique('agencies')->ignore($agency),]
+        ];
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
