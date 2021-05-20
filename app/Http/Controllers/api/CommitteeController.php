@@ -42,7 +42,9 @@ class CommitteeController extends Controller
 
         $filters = $request->all();
         $name = (is_null($filters['name']))?null:$filters['name'];
-        // $chairman = (is_null($filters['chairman']))?null:$filters['chairman'];
+        $chairman_id = (isset($filters['chairman_id']))?(is_null($filters['chairman_id']))?null:$filters['chairman_id']:null;
+        $vice_chairman_id = (isset($filters['vice_chairman_id']))?(is_null($filters['vice_chairman_id']))?null:$filters['vice_chairman_id']:null;
+        $member_id = (isset($filters['member_id']))?(is_null($filters['member_id']))?null:$filters['member_id']:null;
 
         $wheres = [];
 
@@ -50,7 +52,24 @@ class CommitteeController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $committees = Committee::where($wheres)->paginate(10);
+        $committees = Committee::where($wheres);
+        if ($chairman_id!=null) {
+			$committees->whereHas('groups', function(Builder $query) use ($chairman_id) {
+				$query->where([['committee_group.group_id', $chairman_id],['committee_group.chairman',true]]);
+			});
+		}
+        if ($vice_chairman_id!=null) {
+			$committees->whereHas('groups', function(Builder $query) use ($vice_chairman_id) {
+				$query->where([['committee_group.group_id', $vice_chairman_id],['committee_group.vice_chairman',true]]);
+			});
+		}
+        if ($member_id!=null) {
+			$committees->whereHas('groups', function(Builder $query) use ($member_id) {
+				$query->where([['committee_group.group_id', $member_id],['committee_group.member',true]]);
+			});
+		}
+
+        $committees = $committees->paginate(10);
 
         $data = new CommitteeListResourceCollection($committees);
 

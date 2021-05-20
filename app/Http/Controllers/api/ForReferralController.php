@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Customs\Messages;
 use App\Models\ForReferral;
@@ -40,11 +41,14 @@ class ForReferralController extends Controller
 	public function index(Request $request)
 	{
 		$filters = $request->all();
+		// return $filters;
 		$id = (is_null($filters['id']))?null:$filters['id'];
 		$subject = (is_null($filters['subject']))?null:$filters['subject'];
 		$date_received = (is_null($filters['date_received']))?$filters['date_received']:null;
-		$category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
-		$origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
+		$category_id = (isset($filters['category_id']))?(is_null($filters['category_id']))?null:$filters['category_id']:null;
+		$origin_id = (isset($filters['origin_id']))?(is_null($filters['origin_id']))?null:$filters['origin_id']:null;
+		$lead_committee_id = (isset($filters['lead_committee_id']))?(is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id']:null;
+		$joint_committee_id = (isset($filters['joint_committee_id']))?(is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id']:null;
 		$agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 		// $lead_committee = $filters['lead_committee'];
 
@@ -68,7 +72,18 @@ class ForReferralController extends Controller
 			$wheres[] = ['agenda_date', $agenda_date];
 		}
 
-		$for_referrals = ForReferral::where($wheres)->paginate(10);
+		$for_referrals = ForReferral::where($wheres);
+		if ($lead_committee_id!=null) {
+			$for_referrals->whereHas('committees', function(Builder $query) use ($lead_committee_id) {
+				$query->where([['committee_for_referral.committee_id', $lead_committee_id],['committee_for_referral.lead_committee',true]]);
+			});
+		}
+		if ($joint_committee_id!=null) {
+			$for_referrals->whereHas('committees', function(Builder $query) use ($joint_committee_id) {
+				$query->where([['committee_for_referral.committee_id', $joint_committee_id],['committee_for_referral.joint_committee',true]]);
+			});
+		}
+		$for_referrals = $for_referrals->paginate(10);
 
 		$data = new ForReferralListResourceCollection($for_referrals);
 
