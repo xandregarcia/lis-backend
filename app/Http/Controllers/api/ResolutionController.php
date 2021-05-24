@@ -81,6 +81,7 @@ class ResolutionController extends Controller
             'bokal_id' => 'integer ',
             'date_passed' => 'date',
             'for_referral_id' => 'array',
+            'adopt' => 'integer',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -113,14 +114,23 @@ class ResolutionController extends Controller
             }
 
             $sync = [];
-
             $for_referrals = $data['for_referral_id'];
-            foreach ($for_referrals as $for_referral) {
-                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
-                $status->toQuery()->update([
-                    'approved' => true,
-                ]);
+            if(isset($data['adopt'])){
+                foreach ($for_referrals as $for_referral) {
+                    $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                    $status->toQuery()->update([
+                        'adopt' => true,
+                    ]);
+                }
+            }else{              
+                foreach ($for_referrals as $for_referral) {
+                    $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                    $status->toQuery()->update([
+                        'approved' => true,
+                    ]);
+                }
             }
+            
             
             $resolution->for_referral()->sync($for_referrals);
 

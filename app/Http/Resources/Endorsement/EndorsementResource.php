@@ -47,7 +47,7 @@ class EndorsementResource extends JsonResource
             'subject' => $subject,
             'date_endorsed' => $this->date_endorsed,
             'lead_committee' => $committees['lead_committee']['name'],
-            'joint_committees' => $committees['joint_committees'],
+            'joint_committees' => (is_null($committees['joint_committees']))?null:$committees['joint_committees'],
             'file' => $this->file,
             'view' => "http://sp.dts/".Storage::url($this->file),
         ];

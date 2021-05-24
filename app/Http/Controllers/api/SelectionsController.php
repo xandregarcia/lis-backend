@@ -133,6 +133,65 @@ class SelectionsController extends Controller
         return $this->jsonSuccessResponse($endorsements, $this->http_code_ok); 
     }
 
+    public function committeeReports()
+    {
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+        $wheres[] = ['second_reading',0];
+        $wheres[] = ['passed',0];
+
+        $reports = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'for_referral_id' => $report['for_referral_id'],
+                'subject' => $report['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($reports, $this->http_code_ok); 
+    }
+
+    public function adoptReports()
+    {
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+        $wheres[] = ['adopt',0];
+
+        $reports = CommunicationStatus::where($wheres)->where(function($query) {
+            $query->where('second_reading',1)->orWhere('passed',1);
+        })->with('for_referrals')->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'for_referral_id' => $report['for_referral_id'],
+                'subject' => $report['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($reports, $this->http_code_ok); 
+    }
+
+    public function resolutions()
+    {
+
+        $wheres = [];
+
+        $wheres[] = ['passed',1];
+        $wheres[] = ['approved',0];
+        $wheres[] = ['type',3];
+
+        $resolutions = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $resolutions = $resolutions->map(function ($resolution) {
+            return [
+                'for_referral_id' => $resolution['for_referral_id'],
+                'subject' => $resolution['for_referrals']['subject'],
+            ];
+        });
+
+        return $this->jsonSuccessResponse($resolutions, $this->http_code_ok); 
+    }
+
     public function ordinances()
     {
         $ordinances = Ordinance::all(['id','title']);

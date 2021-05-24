@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateForReferralCommitteeReportTable extends Migration
+class CreateCommitteeReportForReferralTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateForReferralCommitteeReportTable extends Migration
      */
     public function up()
     {
-        Schema::create('for_referral_committee_report', function (Blueprint $table) {
+        Schema::create('committee_report_for_referral', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('committee_report_id')->nullable();
             $table->foreign('committee_report_id')->references('id')->on('committee_reports');
@@ -30,6 +30,6 @@ class CreateForReferralCommitteeReportTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('for_referral_committee_report');
+        Schema::dropIfExists('committee_report_for_referral');
     }
 }

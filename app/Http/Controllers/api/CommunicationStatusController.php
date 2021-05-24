@@ -256,6 +256,45 @@ class CommunicationStatusController extends Controller
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
+    public function adoptReports(Request $request)
+    {
+
+        $filters = $request->all();
+        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+
+        $wheres = [];
+
+        if ($for_referral_id!=null) {
+			$wheres[] = ['for_referral_id', $for_referral_id];
+		}
+
+        $wheres[] = ['committee_report',1];
+        $wheres[] = ['adopt',0];
+
+        $comm_status = CommunicationStatus::where($wheres)->where(function($query) {
+            $query->where('second_reading',1)->orWhere('passed',1);
+        });
+
+        if ($subject!=null) {
+			$comm_status->whereHas('for_referrals', function(Builder $query) use ($subject) {
+				$query->where([['subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
+        if ($agenda_date!=null) {
+			$comm_status->whereHas('for_referrals', function(Builder $query) use ($agenda_date) {
+				$query->where([['agenda_date','LIKE', "%{$agenda_date}%"]]);
+			});
+		}
+    
+        $comm_status = $comm_status->paginate(10);
+        $data = new CommunicationStatusListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
+    }
+
     public function ordinances(Request $request)
     {
         $filters = $request->all();

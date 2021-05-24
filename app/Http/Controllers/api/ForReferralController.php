@@ -165,6 +165,7 @@ class ForReferralController extends Controller
 				'second_reading' => false,
 				'third_reading' => false,
 				'passed' => false,
+				'adopt' => false,
 				'approved' => false,
 				'furnished' => false,
 				'published' => false,

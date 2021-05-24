@@ -63,6 +63,9 @@ Route::prefix('selections')->group(function() {
     Route::get('ordinances', [SelectionsController::class, 'ordinances']);
     //
     Route::get('endorsements', [SelectionsController::class, 'endorsements']);
+    Route::get('committee_reports', [SelectionsController::class, 'committeeReports']);
+    Route::get('adopt_reports', [SelectionsController::class, 'adoptReports']);
+    Route::get('resolutions', [SelectionsController::class, 'resolutions']);
 });
 
 /**
@@ -72,7 +75,10 @@ Route::prefix('communication_status')->group(function () {
     Route::get('approve_refer', [CommunicationStatusController::class, 'approveRef']);
     Route::get('endorsements', [CommunicationStatusController::class, 'endorsements']);
     Route::get('committee_reports', [CommunicationStatusController::class, 'committeeReports']);
+    Route::get('adopt_reports', [CommunicationStatusController::class, 'adoptReports']);
     Route::get('resolutions', [CommunicationStatusController::class, 'resolutions']);
+    Route::get('second_readings', [CommunicationStatusController::class, 'secondReadings']);
+    Route::get('third_readings', [CommunicationStatusController::class, 'thirdReadings']);
     Route::get('ordinances', [CommunicationStatusController::class, 'ordinances']);
     Route::get('appropriation_ordinances', [CommunicationStatusController::class, 'appropriation']);
     Route::get('furnish_ordinance', [CommunicationStatusController::class, 'furnishOrdinance']);
