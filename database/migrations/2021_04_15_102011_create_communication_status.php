@@ -23,6 +23,7 @@ class CreateCommunicationStatus extends Migration
             $table->tinyInteger('second_reading')->nullable();
             $table->tinyInteger('third_reading')->nullable();
             $table->tinyInteger('passed')->nullable();
+            $table->tinyInteger('adopt')->nullable();
             $table->tinyInteger('approved')->nullable();
             $table->tinyInteger('furnished')->nullable();
             $table->tinyInteger('published')->nullable();

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
 use App\Models\Publication;
+use App\Models\CommunicationStatus;
 
 use App\Http\Resources\Publication\PublicationResource;
 use App\Http\Resources\Publication\PublicationListResourceCollection;
@@ -167,6 +168,11 @@ class PublicationController extends Controller
         $publication = new Publication;
 		$publication->fill($data);
         $publication->save();
+
+        $status = CommunicationStatus::where('for_referral_id',$publication->oridinances->for_referral_id)->get();
+        $status->toQuery()->update([
+            'published' => true,
+        ]);
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Succesfully published");
     }

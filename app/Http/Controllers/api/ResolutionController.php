@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Resolution;
@@ -41,14 +43,9 @@ class ResolutionController extends Controller
     {
 
         $filters = $request->all();
-        $bokal_id = (is_null($filters['bokal_id']))?null:$filters['bokal_id'];
         $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
 
         $wheres = [];
-
-        if ($bokal_id!=null) {
-            $wheres[] = ['bokal_id', $bokal_id];
-        }
 
         if ($date_passed!=null) {
             $wheres[] = ['date_passed', $date_passed];
@@ -80,45 +77,63 @@ class ResolutionController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
+            'resolution_no' => ['string', 'unique:resolutions'],
             'bokal_id' => 'integer ',
             'date_passed' => 'date',
+            'for_referral_id' => 'array',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
         $data = $validator->valid();
-        
-        $resolution = new Resolution;
-		$resolution->fill($data);
-        $resolution->save();
-
-        /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.resolutions');
-            $path = "{$folder}/{$resolution->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $resolution->file = $pdf;
+        try{
+            DB::beginTransaction();
+            $resolution = new Resolution;
+            $resolution->fill($data);
             $resolution->save();
+
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.resolutions');
+                $path = "{$folder}/{$resolution->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $resolution->file = $pdf;
+                $resolution->save();
+            }
+
+            $sync = [];
+
+            $for_referrals = $data['for_referral_id'];
+            foreach ($for_referrals as $for_referral) {
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $status->toQuery()->update([
+                    'approved' => true,
+                ]);
+            }
+            
+            $resolution->for_referral()->sync($for_referrals);
+
+            DB::commit();
+            
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully added");
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
         }
-
-        $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
-        $type = $status->first()->type;
-        $status->toQuery()->update([
-            'approved' => true,
-        ]);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully added");
     }
 
     /**
@@ -167,18 +182,20 @@ class ResolutionController extends Controller
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
         }        
-
-        $rules = [
-            'for_referral_id' => 'integer',
-            'bokal_id' => 'integer ',
-            'date_passed' => 'date',
-        ];
-
         $resolution = Resolution::find($id);
 
         if (is_null($resolution)) {
 			return $this->jsonErrorResourceNotFound();
         }
+
+        $rules = [
+            'resolution_no' => ['string', Rule::unique('resolutions')->ignore($resolution),],
+            'bokal_id' => 'integer ',
+            'date_passed' => 'date',
+            'for_referral_id' => 'array',
+            'pdf' => 'required|mimes:pdf|max:10000000'
+        ];
+
         
         $validator = Validator::make($request->all(), $rules);
 
@@ -187,24 +204,40 @@ class ResolutionController extends Controller
         }
 
         $data = $validator->valid();
-        $resolution->fill($data);
-        $resolution->save();
-
-         /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.resolutions');
-            $path = "{$folder}/{$resolution->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $resolution->file = $pdf;
+        try{
+            DB::beginTransaction();
+            $resolution->fill($data);
             $resolution->save();
-        }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully updated");        
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.resolutions');
+                $path = "{$folder}/{$resolution->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $resolution->file = $pdf;
+                $resolution->save();
+            }
+
+            $sync = [];
+
+            $for_referrals = $data['for_referral_id'];
+            
+            $resolution->for_referral()->sync($for_referrals);
+            DB::commit();
+            
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully updated");
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+        }    
     }
 
     /**

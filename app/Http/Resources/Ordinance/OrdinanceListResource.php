@@ -35,15 +35,18 @@ class OrdinanceListResource extends JsonResource
             ];
         });
 
+        $agenda_date = $this->for_referral->agenda_date;
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'amending' => $this->amending,
+            'first_reading' => $agenda_date,
             'date_endorsed' => (is_null($this->for_referral->endorsement))?"N/A":$this->for_referral->endorsement->date_endorsed,
             'meeting_date' => (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->meeting_date,
             'committee_report' => (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->agenda_date,
-            'second_reading' => (is_null($this->for_referral->second_reading))?null:$this->for_referral->second_reading->agenda_date,
-            'third_reading' => (is_null($this->for_referral->third_reading))?null:$this->for_referral->third_reading->agenda_date,
+            'second_reading' => (is_null($this->for_referral->second_reading))?$agenda_date:$this->for_referral->second_reading->agenda_date,
+            'third_reading' => (is_null($this->for_referral->third_reading))?$agenda_date:$this->for_referral->third_reading->agenda_date,
             'authors' => $authors,
             'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,

@@ -32,6 +32,22 @@ class ForReferralResource extends JsonResource
             ];
         });
 
+        if($this->comm_status->passed == 1 && $this->third_reading == null && $this->comm_status->type < 3){
+            $third_reading = $this->agenda_date;
+        }else if ($this->third_reading != null) {
+            $third_reading = $this->third_reading->agenda_date;
+        }else{
+            $third_reading = "N/A";   
+        }
+
+        if($this->comm_status->type < 3 && $this->second_reading ==null && $this->comm_status->passed == 1){
+            $second_reading = $this->agenda_date;
+        }else if ($this->second_reading != null) {
+            $second_reading = $this->second_reading->agenda_date;    
+        }else{
+            $second_reading = "N/A";
+        }
+
         return [
             'id' => $this->id,
             'subject' => $this->subject,
@@ -47,8 +63,8 @@ class ForReferralResource extends JsonResource
             'date_endorsed' => (is_null($this->endorsements))?"N/A":$this->endorsements->date_endorsed,
             'meeting_date' => (is_null($this->committee_reports))?"N/A":$this->committee_reports->meeting_date,
             'committee_report' => (is_null($this->committee_reports))?"N/A":$this->committee_reports->agenda_date,
-            'second_reading' => (is_null($this->second_reading))?$this->agenda_date:$this->second_reading->agenda_date,
-            'third_reading' => (is_null($this->third_reading))?$this->agenda_date:$this->third_reading->agenda_date,
+            'second_reading' => $second_reading,
+            'third_reading' => $third_reading,
             'file' => $this->file,
             'view' => "http://sp.dts/".Storage::url($this->file),
         ];

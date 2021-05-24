@@ -15,6 +15,7 @@ use App\Models\Publisher;
 use App\Models\Category;
 use App\Models\Committee;
 use App\Models\Ordinance;
+use App\Models\CommunicationStatus;
 
 class SelectionsController extends Controller
 {
@@ -112,6 +113,24 @@ class SelectionsController extends Controller
         });
 
         return $this->jsonSuccessResponse($bokals, $this->http_code_ok); 
+    }
+
+    public function endorsements()
+    {
+        $wheres = [];
+        $wheres[] = ['endorsement',1];
+        $wheres[] = ['committee_report',0];
+        $wheres[] = ['passed',0];
+
+        $endorsements = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $endorsements = $endorsements->map(function ($endorsement) {
+            return [
+                'for_referral_id' => $endorsement['for_referral_id'],
+                'subject' => $endorsement['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($endorsements, $this->http_code_ok); 
     }
 
     public function ordinances()

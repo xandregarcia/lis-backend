@@ -41,7 +41,7 @@ class EndorsementController extends Controller
 	public function index(Request $request)
 	{
 
-		// $filters = $request->all();
+		$filters = $request->all();
 		// $date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
 
 		$wheres = [];
@@ -76,7 +76,7 @@ class EndorsementController extends Controller
 	public function store(Request $request)
 	{   
 		$rules = [
-			'for_referral_id' => 'integer',
+			'for_referral_id' => 'array',
 			'date_endorsed' => 'date',
 			'pdf' => 'required|mimes:pdf|max:10000000'
 		];
@@ -92,6 +92,7 @@ class EndorsementController extends Controller
 		try {
 
 			DB::beginTransaction();
+
 			$endorsement = new Endorsement;
 			$endorsement->fill($data);
 			$endorsement->save();
@@ -110,14 +111,22 @@ class EndorsementController extends Controller
 				$endorsement->save();
 			}
 
-			$status = CommunicationStatus::where('for_referral_id',$endorsement->for_referral_id)->get();
-			$status->toQuery()->update([
-				'committee_report' => true,
-			]);
+			$sync = [];
+
+            $for_referrals = $data['for_referral_id'];
+            foreach ($for_referrals as $for_referral) {
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $status->toQuery()->update([
+                    'committee_report' => true,
+                ]);
+            }
+            
+            $endorsement->for_referral()->sync($for_referrals);
 
 			DB::commit();
 
 			return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully added");
+
 		} catch (\Exception $e) {
 
 			DB::rollBack();
@@ -176,7 +185,7 @@ class EndorsementController extends Controller
 		}
 
 		$rules = [
-			'for_referral_id' => 'integer',
+			'for_referral_id' => 'array',
 			'date_endorsed' => 'date'
 		];
 		
@@ -194,24 +203,40 @@ class EndorsementController extends Controller
 		}
 
 		$data = $validator->valid();
-		$endorsement->fill($data);
-		$endorsement->save();
+		try {
 
-		/**
-		 * Upload Attachment
-		 */
-		if (isset($data['pdf'])) {
-			$folder = config('folders.endorsements');
-			$path = "{$folder}/{$endorsement->id}";
-			// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-			$filename = $request->file('pdf')->getClientOriginalName();
-			$request->file('pdf')->storeAs("public/{$path}", $filename);
-			$pdf = "{$path}/{$filename}";
-			$endorsement->file = $pdf;
+			DB::beginTransaction();
+			$endorsement->fill($data);
 			$endorsement->save();
-		}
 
-		return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully updated");         
+			/**
+			 * Upload Attachment
+			 */
+			if (isset($data['pdf'])) {
+				$folder = config('folders.endorsements');
+				$path = "{$folder}/{$endorsement->id}";
+				// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+				$filename = $request->file('pdf')->getClientOriginalName();
+				$request->file('pdf')->storeAs("public/{$path}", $filename);
+				$pdf = "{$path}/{$filename}";
+				$endorsement->file = $pdf;
+				$endorsement->save();
+			}
+
+			$sync = [];
+            $for_referrals = $data['for_referral_id'];
+            $endorsement->for_referral()->sync($for_referrals);
+
+			DB::commit();
+
+			return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully updated");
+
+		} catch (\Exception $e) {
+
+			DB::rollBack();
+
+			return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+		}       
 	}
 
 	/**

@@ -61,6 +61,8 @@ Route::prefix('selections')->group(function() {
     Route::get('all_bokals', [SelectionsController::class, 'allBokals']);
     Route::get('active_bokals', [SelectionsController::class, 'activeBokals']);
     Route::get('ordinances', [SelectionsController::class, 'ordinances']);
+    //
+    Route::get('endorsements', [SelectionsController::class, 'endorsements']);
 });
 
 /**
@@ -323,7 +325,6 @@ Route::apiResources([
 ]);
 
 Route::prefix('publication')->group(function() {
-    Route::get('first_publication', [PublicationController::class, 'first_publication']);
     Route::get('second_publication', [PublicationController::class, 'second_publication']);
     Route::get('third_publication', [PublicationController::class, 'third_publication']);
 });

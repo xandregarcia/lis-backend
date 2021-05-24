@@ -19,6 +19,7 @@ class CommunicationStatus extends Model
         'second_reading',
         'third_reading',
         'passed',
+        'adopt',
         'approved',
         'furnished',
         'published',
@@ -30,6 +31,7 @@ class CommunicationStatus extends Model
         'committee_report' => 'boolean',
         'second_reading' => 'boolean',
         'third_reading' => 'boolean',
+        'adopt' => 'boolean',
         'approved' => 'boolean',
         'furnished' => 'boolean',
         'published' => 'boolean'

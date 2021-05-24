@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 use App\Customs\Messages;
 use App\Models\CommitteeReport;
@@ -99,7 +99,7 @@ class CommitteeReportController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
+            'for_referral_id' => 'array',
             'date_received' => 'date ',
             'agenda_date' => 'date',
             'remarks' => 'string',
@@ -115,38 +115,58 @@ class CommitteeReportController extends Controller
         }
 
         $data = $validator->valid();
-        
-        $committeeReport = new CommitteeReport;
-		$committeeReport->fill($data);
-        $committeeReport->save();
 
-        /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.committee_reports');
-            $path = "{$folder}/{$committeeReport->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $committeeReport->file = $pdf;
+        try{
+
+            DB::beginTransaction();
+
+            $committeeReport = new CommitteeReport;
+            $committeeReport->fill($data);
             $committeeReport->save();
-        }
-        $status = CommunicationStatus::where('for_referral_id',$committeeReport->for_referral_id)->get();
-        
-        $type = $status->first()->type;
 
-        if($type == 3) {
-            $status->toQuery()->update([
-                'passed' => true,
-            ]);
-        }else {
-            $status->toQuery()->update([
-                'second_reading' => true,
-            ]);
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.committee_reports');
+                $path = "{$folder}/{$committeeReport->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $committeeReport->file = $pdf;
+                $committeeReport->save();
+            }
+
+            $sync = [];
+
+            $for_referrals = $data['for_referral_id'];
+            foreach ($for_referrals as $for_referral) {
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $type = $status->first()->type;
+                if($type == 3) {
+                    $status->toQuery()->update([
+                        'passed' => true,
+                    ]);
+                }else {
+                    $status->toQuery()->update([
+                        'second_reading' => true,
+                    ]);
+                }
+            }
+            
+            $committeeReport->for_referral()->sync($for_referrals);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
         }
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
     }
 
     /**
@@ -197,11 +217,12 @@ class CommitteeReportController extends Controller
         }        
 
         $rules = [
-            'for_referral_id' => 'integer',
+            'for_referral_id' => 'array',
             'date_received' => 'date ',
             'agenda_date' => 'date',
             'remarks' => 'string',
-            'meeting_date' => 'date'
+            'meeting_date' => 'date',
+            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $committeeReport = CommitteeReport::find($id);
@@ -217,24 +238,42 @@ class CommitteeReportController extends Controller
         }
 
         $data = $validator->valid();
-        $committeeReport->fill($data);
-        $committeeReport->save();
+        try{
 
-         /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.committee_reports');
-            $path = "{$folder}/{$committeeReport->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $committeeReport->file = $pdf;
+            DB::beginTransaction();
+            $committeeReport->fill($data);
             $committeeReport->save();
-        }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully updated");        
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.committee_reports');
+                $path = "{$folder}/{$committeeReport->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $committeeReport->file = $pdf;
+                $committeeReport->save();
+            }
+
+            $sync = [];
+
+            $for_referrals = $data['for_referral_id'];
+            
+            $committeeReport->for_referral()->sync($for_referrals);
+
+            DB::commit();
+
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully updated");  
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+        }        
     }
 
     /**

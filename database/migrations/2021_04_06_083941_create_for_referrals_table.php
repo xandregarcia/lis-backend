@@ -22,6 +22,8 @@ class CreateForReferralsTable extends Migration
             $table->unsignedBigInteger('origin_id')->nullable();
             $table->foreign('origin_id')->references('id')->on('origins');
             $table->date('agenda_date')->nullable();
+            $table->tinyInteger('urgent')->nullable();
+            $table->date('due_date')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });

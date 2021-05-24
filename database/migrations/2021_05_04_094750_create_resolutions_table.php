@@ -15,8 +15,7 @@ class CreateResolutionsTable extends Migration
     {
         Schema::create('resolutions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('for_referral_id')->nullable();
-            $table->foreign('for_referral_id')->references('id')->on('for_referrals');
+            $table->string('resolution_no')->nullable();
             $table->unsignedBigInteger('bokal_id')->nullable();
             $table->foreign('bokal_id')->references('id')->on('bokals');
             $table->date('date_passed')->nullable();

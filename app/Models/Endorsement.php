@@ -17,7 +17,6 @@ class Endorsement extends Model
      * @var array
      */
     protected $fillable = [
-        'for_referral_id',
         'date_endorsed',
         'file'
     ];    
@@ -33,6 +32,6 @@ class Endorsement extends Model
 
     public function for_referral()
     {
-        return $this->belongsTo(ForReferral::class);
+        return $this->belongsToMany(ForReferral::class);
     }
 }

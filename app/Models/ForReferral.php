@@ -63,12 +63,12 @@ class ForReferral extends Model
 
     public function endorsements()
     {
-        return $this->hasOne(Endorsement::class);
+        return $this->belongsToMany(Endorsement::class);
     }
 
     public function committee_reports()
     {
-        return $this->hasOne(CommitteeReport::class);
+        return $this->belongsToMany(CommitteeReport::class);
     }
 
     public function second_reading()
@@ -83,7 +83,7 @@ class ForReferral extends Model
 
     public function resolutions()
     {
-        return $this->hasOne(Resolution::class);
+        return $this->belongsToMany(Resolution::class);
     }
 
     public function ordinances()

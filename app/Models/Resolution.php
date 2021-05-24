@@ -17,7 +17,7 @@ class Resolution extends Model
      * @var array
      */
     protected $fillable = [
-        'for_referral_id',
+        'resolution_no',
         'bokal_id',
         'date_passed',
         'file',
@@ -42,6 +42,6 @@ class Resolution extends Model
     public function for_referral()
     {
         // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(ForReferral::class);
+        return $this->belongsToMany(ForReferral::class);
     }
 }

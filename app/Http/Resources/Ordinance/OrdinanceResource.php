@@ -53,7 +53,7 @@ class OrdinanceResource extends JsonResource
             'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,
             'date_signed' => $this->date_signed,
-            'file' => env('APP_URL').Storage::url($this->file),
+            'view' => env('APP_URL').Storage::url($this->file),
         ];
     }
 }

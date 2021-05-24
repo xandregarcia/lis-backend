@@ -129,7 +129,7 @@ class ForReferralController extends Controller
 		$data = $validator->valid();
 
 		try {
-
+			
 			DB::beginTransaction();
 		
 			$for_referral = new ForReferral;
