@@ -47,6 +47,8 @@ class ForReferralResource extends JsonResource
         }else{
             $second_reading = "N/A";
         }
+        $endorsement = $this->endorsements->first();
+        $committee_report = $this->committee_reports->first();
 
         return [
             'id' => $this->id,
@@ -60,9 +62,9 @@ class ForReferralResource extends JsonResource
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee->id,
             'lead_committee_name' => (is_null($lead_committee))?null:$lead_committee->name,
             'joint_committees' => (is_null($joint_committee))?null:$joint_committee,
-            'date_endorsed' => (is_null($this->endorsements))?"N/A":$this->endorsements->date_endorsed,
-            'meeting_date' => (is_null($this->committee_reports))?"N/A":$this->committee_reports->meeting_date,
-            'committee_report' => (is_null($this->committee_reports))?"N/A":$this->committee_reports->agenda_date,
+            'date_endorsed' => (is_null($endorsement))?'N/A':$endorsement->date_endorsed,
+            'meeting_date' => (is_null($committee_report))?"N/A":$committee_report->meeting_date,
+            'committee_report' => (is_null($committee_report))?"N/A":$committee_report->agenda_date,
             'second_reading' => $second_reading,
             'third_reading' => $third_reading,
             'file' => $this->file,

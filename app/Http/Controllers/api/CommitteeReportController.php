@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Customs\Messages;
 use App\Models\CommitteeReport;
@@ -78,6 +79,44 @@ class CommitteeReportController extends Controller
         $data = new CommitteeReportListResourceCollection($committeeReports);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      
+    }
+
+    public function adoptReports(Request $request)
+    {
+
+        $filters = $request->all();
+        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+
+        $wheres = [];
+
+        if ($for_referral_id!=null) {
+			$wheres[] = ['for_referral_id', $for_referral_id];
+		}
+
+        $comm_status = CommitteeReport::where($wheres);
+        $comm_status = $comm_status->whereHas('for_referral.comm_status', function(Builder $query){
+            $query->where([['committee_report',1],['adopt',0]])->where(function ($query2) {
+                $query2->where('second_reading',1)->orWhere('passed',1);
+            });
+        });
+
+        // if ($subject!=null) {
+		// 	$comm_status->whereHas('for_referrals', function(Builder $query) use ($subject) {
+		// 		$query->where([['subject','LIKE', "%{$subject}%"]]);
+		// 	});
+		// }
+
+        // if ($agenda_date!=null) {
+		// 	$comm_status->whereHas('for_referrals', function(Builder $query) use ($agenda_date) {
+		// 		$query->where([['agenda_date','LIKE', "%{$agenda_date}%"]]);
+		// 	});
+		// }
+        $comm_status = $comm_status->paginate(10);
+        $data = new CommitteeReportListResourceCollection($comm_status);
+        
+        return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
 
     /**

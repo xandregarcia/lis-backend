@@ -194,7 +194,7 @@ class ForReferralController extends Controller
 					];
 				}
 			}
-
+			return $syncs;
 			$for_referral->committees()->sync($syncs);
 
 			DB::commit();

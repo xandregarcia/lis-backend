@@ -75,7 +75,7 @@ Route::prefix('communication_status')->group(function () {
     Route::get('approve_refer', [CommunicationStatusController::class, 'approveRef']);
     Route::get('endorsements', [CommunicationStatusController::class, 'endorsements']);
     Route::get('committee_reports', [CommunicationStatusController::class, 'committeeReports']);
-    Route::get('adopt_reports', [CommunicationStatusController::class, 'adoptReports']);
+    Route::get('adopt_reports', [CommitteeReportController::class, 'adoptReports']);
     Route::get('resolutions', [CommunicationStatusController::class, 'resolutions']);
     Route::get('second_readings', [CommunicationStatusController::class, 'secondReadings']);
     Route::get('third_readings', [CommunicationStatusController::class, 'thirdReadings']);

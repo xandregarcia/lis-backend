@@ -19,9 +19,10 @@ class CommitteeReportListResource extends JsonResource
     {
 
         $for_referrals = $this->for_referral; # All
-        $subject = $for_referrals->map(function ($for_referral) {
+        $communication = $for_referrals->map(function ($for_referral) {
             return[
-                'subject' => $for_referral['subject']
+                'subject' => $for_referral['subject'],
+                'for_referral_id'=> $for_referral['id']
             ];
         });
         $committees = $for_referrals->map(function ($for_referral) {
@@ -46,7 +47,7 @@ class CommitteeReportListResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'subject' => $subject,
+            'communication' => $communication,
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
             'lead_committee' => $committees['lead_committee']['name'],

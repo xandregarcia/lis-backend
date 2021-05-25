@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use App\Customs\Messages;
 use App\Models\Resolution;
 use App\Models\CommunicationStatus;
+use App\Models\CommitteeReport;
 
 use App\Http\Resources\Resolution\ResolutionResource;
 use App\Http\Resources\Resolution\ResolutionListResourceCollection;
@@ -81,8 +82,8 @@ class ResolutionController extends Controller
             'bokal_id' => 'integer ',
             'date_passed' => 'date',
             'for_referral_id' => 'array',
-            'adopt' => 'integer',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'pdf' => 'required|mimes:pdf|max:10000000',
+            'committee_report_id' => 'integer',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -113,26 +114,30 @@ class ResolutionController extends Controller
                 $resolution->save();
             }
 
-            $sync = [];
-            $for_referrals = $data['for_referral_id'];
-            if(isset($data['adopt'])){
-                foreach ($for_referrals as $for_referral) {
-                    $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+            $syncs = [];
+
+            if(isset($data['committee_report_id'])){
+                $id = $data['committee_report_id'];
+                $communications = CommitteeReport::find($id)->for_referral;
+                foreach ($communications as $communication) {
+                    $syncs[] = $communication['id'];
+                    $status = CommunicationStatus::where('for_referral_id',$communication['id'])->get();
                     $status->toQuery()->update([
                         'adopt' => true,
                     ]);
-                }
-            }else{              
+				}
+            }else{
+                $for_referrals = $data['for_referral_id'];            
                 foreach ($for_referrals as $for_referral) {
+                    $syncs[] = $for_referral;
                     $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
                     $status->toQuery()->update([
                         'approved' => true,
                     ]);
                 }
             }
-            
-            
-            $resolution->for_referral()->sync($for_referrals);
+
+            $resolution->for_referral()->sync($syncs);
 
             DB::commit();
             
@@ -200,6 +205,7 @@ class ResolutionController extends Controller
 
         $rules = [
             'resolution_no' => ['string', Rule::unique('resolutions')->ignore($resolution),],
+            'for_referral_id' => 'array',
             'bokal_id' => 'integer ',
             'date_passed' => 'date',
             'for_referral_id' => 'array',

@@ -44,7 +44,8 @@ class ResolutionListResource extends JsonResource
             'id' => $this->id,
             'resolution_no' => $this->resolution_no,
             'title' => $subject,
-            'author' => "Hon. ".$this->bokals->first_name." ".$this->bokals->middle_name." ".$this->bokals->last_name,
+            'author' => $this->bokals,
+            // 'author' => "Hon. ".$this->bokals->first_name." ".$this->bokals->middle_name." ".$this->bokals->last_name,
             'date_passed' => $this->date_passed,
             'date_created' => $this->created_at
         ];
