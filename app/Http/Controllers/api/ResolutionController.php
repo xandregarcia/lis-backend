@@ -79,6 +79,7 @@ class ResolutionController extends Controller
     {
         $rules = [
             'resolution_no' => ['string', 'unique:resolutions'],
+            'subject' => 'string ',
             'bokal_id' => 'integer ',
             'date_passed' => 'date',
             'for_referral_id' => 'array',
@@ -205,11 +206,12 @@ class ResolutionController extends Controller
 
         $rules = [
             'resolution_no' => ['string', Rule::unique('resolutions')->ignore($resolution),],
+            'subject' => 'string ',
             'for_referral_id' => 'array',
             'bokal_id' => 'integer ',
             'date_passed' => 'date',
             'for_referral_id' => 'array',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'pdf' => 'mimes:pdf|max:10000000'
         ];
 
         

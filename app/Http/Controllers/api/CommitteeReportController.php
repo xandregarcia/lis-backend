@@ -85,20 +85,20 @@ class CommitteeReportController extends Controller
     {
 
         $filters = $request->all();
-        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
-        $subject = (is_null($filters['subject']))?null:$filters['subject'];
-        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+        // $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
+        // $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        // $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 
         $wheres = [];
 
-        if ($for_referral_id!=null) {
-			$wheres[] = ['for_referral_id', $for_referral_id];
-		}
-
+        // if ($for_referral_id!=null) {
+		// 	$wheres[] = ['for_referral_id', $for_referral_id];
+		// }
+ 
         $comm_status = CommitteeReport::where($wheres);
         $comm_status = $comm_status->whereHas('for_referral.comm_status', function(Builder $query){
-            $query->where([['committee_report',1],['adopt',0]])->where(function ($query2) {
-                $query2->where('second_reading',1)->orWhere('passed',1);
+            $query->where('committee_report',1)->where('adopt',0)->where(function($query) {
+                $query->where('second_reading',1)->orWhere('passed',1);
             });
         });
 
@@ -177,10 +177,11 @@ class CommitteeReportController extends Controller
                 $committeeReport->save();
             }
 
-            $sync = [];
+            $syncs = [];
 
             $for_referrals = $data['for_referral_id'];
             foreach ($for_referrals as $for_referral) {
+                $syncs[] = $for_referral;
                 $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
                 $type = $status->first()->type;
                 if($type == 3) {
@@ -194,7 +195,7 @@ class CommitteeReportController extends Controller
                 }
             }
             
-            $committeeReport->for_referral()->sync($for_referrals);
+            $committeeReport->for_referral()->sync($syncs);
 
             DB::commit();
 
@@ -261,7 +262,7 @@ class CommitteeReportController extends Controller
             'agenda_date' => 'date',
             'remarks' => 'string',
             'meeting_date' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'pdf' => 'mimes:pdf|max:10000000'
         ];
 
         $committeeReport = CommitteeReport::find($id);
@@ -271,8 +272,9 @@ class CommitteeReportController extends Controller
         }
         
         $validator = Validator::make($request->all(), $rules);
-
+        
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
@@ -297,11 +299,25 @@ class CommitteeReportController extends Controller
                 $committeeReport->save();
             }
 
-            $sync = [];
+            $syncs = [];
 
             $for_referrals = $data['for_referral_id'];
+            foreach ($for_referrals as $for_referral) {
+                $syncs[] = $for_referral;
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $type = $status->first()->type;
+                if($type == 3) {
+                    $status->toQuery()->update([
+                        'passed' => true,
+                    ]);
+                }else {
+                    $status->toQuery()->update([
+                        'second_reading' => true,
+                    ]);
+                }
+            }
             
-            $committeeReport->for_referral()->sync($for_referrals);
+            $committeeReport->for_referral()->sync($syncs);
 
             DB::commit();
 

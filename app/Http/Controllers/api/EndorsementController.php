@@ -111,17 +111,18 @@ class EndorsementController extends Controller
 				$endorsement->save();
 			}
 
-			$sync = [];
+			$syncs = [];
 
             $for_referrals = $data['for_referral_id'];
             foreach ($for_referrals as $for_referral) {
+				$syncs[] = $for_referral;
                 $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
                 $status->toQuery()->update([
                     'committee_report' => true,
                 ]);
             }
             
-            $endorsement->for_referral()->sync($for_referrals);
+            $endorsement->for_referral()->sync($syncs);
 
 			DB::commit();
 
@@ -223,9 +224,16 @@ class EndorsementController extends Controller
 				$endorsement->save();
 			}
 
-			$sync = [];
-            $for_referrals = $data['for_referral_id'];
-            $endorsement->for_referral()->sync($for_referrals);
+			$syncs = [];
+			$for_referrals = $data['for_referral_id'];
+            foreach ($for_referrals as $for_referral) {
+				$syncs[] = $for_referral;
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $status->toQuery()->update([
+                    'committee_report' => true,
+                ]);
+            }
+            $endorsement->for_referral()->sync($syncs);
 
 			DB::commit();
 

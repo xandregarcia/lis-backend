@@ -17,9 +17,10 @@ class EndorsementListResource extends JsonResource
     public function toArray($request)
     {
         $for_referrals = $this->for_referral; # All
-        $subject = $for_referrals->map(function ($for_referral) {
+        $for_referral = $for_referrals->map(function ($for_referral) {
             return[
-                'subject' => $for_referral['subject']
+                'subject' => $for_referral['subject'],
+                'date_received' => $for_referral['date_received']
             ];
         });
         $committees = $for_referrals->map(function ($for_referral) {
@@ -44,7 +45,7 @@ class EndorsementListResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'subject' => $subject,
+            'for_referrals' => $for_referral,
             'date_endorsed' => $this->date_endorsed,
             'lead_committee' => $committees['lead_committee']['name'],
             'joint_committees' => (is_null($committees['joint_committees']))?'N/A':$committees['joint_committees'],

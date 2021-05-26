@@ -19,6 +19,7 @@ class CreateEndorsementsTable extends Migration
             $table->foreign('for_referral_id')->references('id')
             ->on('for_referrals')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->date('date_endorsed')->nullable();
+            $table->tinyInteger('archive')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });

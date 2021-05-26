@@ -19,6 +19,7 @@ class CreateSecondReadingsTable extends Migration
             $table->foreign('for_referral_id')->references('id')->on('for_referrals');
             $table->date('date_received')->nullable();
             $table->date('agenda_date')->nullable();
+            $table->tinyInteger('archive')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });

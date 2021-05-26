@@ -66,6 +66,11 @@ Route::prefix('selections')->group(function() {
     Route::get('committee_reports', [SelectionsController::class, 'committeeReports']);
     Route::get('adopt_reports', [SelectionsController::class, 'adoptReports']);
     Route::get('resolutions', [SelectionsController::class, 'resolutions']);
+    //
+    Route::get('all_endorsements', [SelectionsController::class, 'allEndorsements']);
+    Route::get('all_committee_reports', [SelectionsController::class, 'allCommitteeReports']);
+    Route::get('all_adopt_reports', [SelectionsController::class, 'allAdoptReports']);
+    Route::get('all_resolutions', [SelectionsController::class, 'allResolutions']);
 });
 
 /**

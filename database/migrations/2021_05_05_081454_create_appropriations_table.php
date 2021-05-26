@@ -19,6 +19,7 @@ class CreateAppropriationsTable extends Migration
             $table->foreign('for_referral_id')->references('id')->on('for_referrals');
             $table->string('title')->nullable();
             $table->date('date_passed')->nullable();
+            $table->tinyInteger('archive')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });

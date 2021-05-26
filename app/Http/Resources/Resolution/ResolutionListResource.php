@@ -15,9 +15,9 @@ class ResolutionListResource extends JsonResource
     public function toArray($request)
     {
         $for_referrals = $this->for_referral; # All
-        $subject = $for_referrals->map(function ($for_referral) {
+        $communications = $for_referrals->map(function ($for_referral) {
             return[
-                'subject' => $for_referral['subject']
+                'id' => $for_referral['id']
             ];
         });
         $committees = $for_referrals->map(function ($for_referral) {
@@ -43,8 +43,9 @@ class ResolutionListResource extends JsonResource
         return [
             'id' => $this->id,
             'resolution_no' => $this->resolution_no,
-            'title' => $subject,
-            'author' => $this->bokals,
+            'subject' => $this->subject,
+            'for_referrals' => $communications,
+            'author' => "Hon. " . $this->bokals->first_name. " " . $this->bokals->middle_name . " " . $this->bokals->last_name,
             // 'author' => "Hon. ".$this->bokals->first_name." ".$this->bokals->middle_name." ".$this->bokals->last_name,
             'date_passed' => $this->date_passed,
             'date_created' => $this->created_at

@@ -21,6 +21,7 @@ class CreateCommitteeReportsTable extends Migration
             $table->date('agenda_date')->nullable();
             $table->string('remarks')->nullable();
             $table->date('meeting_date')->nullable();
+            $table->tinyInteger('archive')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });

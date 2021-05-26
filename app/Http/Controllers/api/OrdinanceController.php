@@ -97,6 +97,7 @@ class OrdinanceController extends Controller
     {
         $rules = [
             'for_referral_id' => 'integer',
+            'ordinance_no' => ['string', 'unique:ordinances'],
             'title' => 'string',
             'amending' => 'integer',
             'date_passed' => 'date',
@@ -225,10 +226,17 @@ class OrdinanceController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
+        }
+
+        $ordinance = Ordinance::find($id);
+
+        if (is_null($ordinance)) {
+			return $this->jsonErrorResourceNotFound();
+        }
 
         $rules = [
             'for_referral_id' => 'integer',
+            'ordinance_no' => ['string', Rule::unique('ordinances')->ignore($ordinance),],
             'title' => 'string',
             'amending' => 'integer',
             'date_passed' => 'date',
@@ -236,12 +244,6 @@ class OrdinanceController extends Controller
             'authors' => 'array',
             'co_authors' => 'array',
         ];
-
-        $ordinance = Ordinance::find($id);
-
-        if (is_null($ordinance)) {
-			return $this->jsonErrorResourceNotFound();
-        }
         
         $validator = Validator::make($request->all(), $rules);
 

@@ -16,12 +16,11 @@ class CommitteeReportResource extends JsonResource
      */
     public function toArray($request)
     {
-
         $for_referrals = $this->for_referral; # All
-        $communication = $for_referrals->map(function ($for_referral) {
+        $communications = $for_referrals->map(function ($for_referral) {
             return[
+                'id' => $for_referral['id'],
                 'subject' => $for_referral['subject'],
-                'for_referral_id'=> $for_referral['id']
             ];
         });
         $committees = $for_referrals->map(function ($for_referral) {
@@ -46,7 +45,7 @@ class CommitteeReportResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'communication' => $communication,
+            'for_referrals' => $communications,
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
             'lead_committee' => $committees['lead_committee']['name'],

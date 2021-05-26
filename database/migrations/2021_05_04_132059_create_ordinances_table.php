@@ -17,6 +17,7 @@ class CreateOrdinancesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('for_referral_id')->nullable();
             $table->foreign('for_referral_id')->references('id')->on('for_referrals');
+            $table->string('ordinance_no')->nullable();
             $table->string('title')->nullable();
             $table->unsignedBigInteger('amending')->nullable();
             $table->foreign('amending')->references('id')->on('ordinances');

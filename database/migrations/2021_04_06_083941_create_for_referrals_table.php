@@ -24,6 +24,7 @@ class CreateForReferralsTable extends Migration
             $table->date('agenda_date')->nullable();
             $table->tinyInteger('urgent')->nullable();
             $table->date('due_date')->nullable();
+            $table->tinyInteger('archive')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });

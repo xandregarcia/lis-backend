@@ -18,6 +18,7 @@ class Resolution extends Model
      */
     protected $fillable = [
         'resolution_no',
+        'subject',
         'bokal_id',
         'date_passed',
         'file',

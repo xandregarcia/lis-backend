@@ -18,6 +18,7 @@ class Ordinance extends Model
      */
     protected $fillable = [
         'for_referral_id',
+        'ordinance_no',
         'title',
         'amending',
         'date_passed',
