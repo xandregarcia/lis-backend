@@ -4,6 +4,8 @@ namespace App\Http\Resources\Resolution;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use Illuminate\Support\Facades\Storage;
+
 class ResolutionResource extends JsonResource
 {
     /**
@@ -49,6 +51,8 @@ class ResolutionResource extends JsonResource
             'bokal_id' => $this->bokals->id,
             'author' => "Hon. " . $this->bokals->first_name. " " . $this->bokals->middle_name . " " . $this->bokals->last_name,
             'date_passed' => $this->date_passed,
+            'file' => $this->file,
+            'view' => "http://sp.dts/".Storage::url($this->file),
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Customs\Messages;
 use App\Models\ThirdReading;
@@ -55,14 +56,15 @@ class ThirdReadingController extends Controller
             $wheres[] = ['agenda_date', $agenda_date];
         }
 
-        $third_readings = ThirdReading::latest()->paginate(10);
+        $third_readings = ThirdReading::where($wheres);
 
         if ($subject!=null) {
-			$second_readings->whereHas('for_referral', function(Builder $query) use ($subject) {
+			$third_readings->whereHas('for_referral', function(Builder $query) use ($subject) {
 				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
 			});
 		}
 
+        $third_readings = $third_readings->latest()->paginate(10);
 
         $data = new ThirdReadingListResourceCollection($third_readings);
 
