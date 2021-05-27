@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 use App\Customs\Messages;
@@ -42,6 +43,7 @@ class SecondReadingController extends Controller
     {
 
         $filters = $request->all();
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
         $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 
@@ -55,7 +57,15 @@ class SecondReadingController extends Controller
             $wheres[] = ['agenda_date', $agenda_date];
         }
 
-        $second_readings = SecondReading::where($wheres)->paginate(10);
+        $second_readings = SecondReading::where($wheres);
+
+        if ($subject!=null) {
+			$second_readings->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
+        $second_readings = $second_readings->latest()->paginate(10);
 
         $data = new SecondReadingListResourceCollection($second_readings);
 

@@ -70,7 +70,7 @@ class CommitteeController extends Controller
 			});
 		}
 
-        $committees = $committees->paginate(10);
+        $committees = $committees->orderBy('id','desc')->paginate(10);
 
         $data = new CommitteeListResourceCollection($committees);
 

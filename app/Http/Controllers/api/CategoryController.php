@@ -48,7 +48,7 @@ class CategoryController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $categories = Category::where($wheres)->paginate(10);
+        $categories = Category::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new CategoryListResourceCollection($categories);
 

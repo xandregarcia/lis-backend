@@ -83,7 +83,7 @@ class ForReferralController extends Controller
 				$query->where([['committee_for_referral.committee_id', $joint_committee_id],['committee_for_referral.joint_committee',true]]);
 			});
 		}
-		$for_referrals = $for_referrals->paginate(10);
+		$for_referrals = $for_referrals->orderBy('id','desc')->paginate(10);
 
 		$data = new ForReferralListResourceCollection($for_referrals);
 

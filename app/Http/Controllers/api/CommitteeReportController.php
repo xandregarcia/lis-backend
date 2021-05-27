@@ -42,6 +42,7 @@ class CommitteeReportController extends Controller
     public function index(Request $request)
     {
         $filters = $request->all();
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
         $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
         $meeting_date = (is_null($filters['meeting_date']))?null:$filters['meeting_date'];
@@ -64,6 +65,12 @@ class CommitteeReportController extends Controller
 
         $committeeReports = CommitteeReport::where($wheres);
 
+        if ($subject!=null) {
+			$committeeReports->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
         if ($lead_committee_id!=null) {
 			$committeeReports->whereHas('committees', function(Builder $query) use ($lead_committee_id) {
 				$query->where([['committee_for_referral.committee_id', $lead_committee_id],['committee_for_referral.lead_committee',true]]);
@@ -75,7 +82,7 @@ class CommitteeReportController extends Controller
 			});
 		}
 
-        $committeeReports = $committeeReports->paginate(10);
+        $committeeReports = $committeeReports->latest()->paginate(10);
         $data = new CommitteeReportListResourceCollection($committeeReports);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);      

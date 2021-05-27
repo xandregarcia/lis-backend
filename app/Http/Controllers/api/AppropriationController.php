@@ -55,7 +55,7 @@ class AppropriationController extends Controller
             $wheres[] = ['date_passed',$date_passed];
         }
 
-        $appropriations = Appropriation::where($wheres)->paginate(10);
+        $appropriations = Appropriation::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new AppropriationListResourceCollection($appropriations);
 

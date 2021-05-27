@@ -48,7 +48,7 @@ class GroupController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $groups = Group::where($wheres)->paginate(10);
+        $groups = Group::where($wheres)->latest()->paginate(10);
 
         $data = new GroupListResourceCollection($groups);
 

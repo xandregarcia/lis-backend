@@ -48,7 +48,6 @@ class ResolutionResource extends JsonResource
             'for_referrals' => $communications,
             'bokal_id' => $this->bokals->id,
             'author' => "Hon. " . $this->bokals->first_name. " " . $this->bokals->middle_name . " " . $this->bokals->last_name,
-            // 'author' => "Hon. ".$this->bokals->first_name." ".$this->bokals->middle_name." ".$this->bokals->last_name,
             'date_passed' => $this->date_passed,
         ];
     }

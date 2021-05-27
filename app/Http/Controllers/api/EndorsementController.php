@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Customs\Messages;
 use App\Models\Endorsement;
@@ -42,15 +43,24 @@ class EndorsementController extends Controller
 	{
 
 		$filters = $request->all();
-		// $date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
+		$subject = (is_null($filters['subject']))?null:$filters['subject'];
+		$date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
 
 		$wheres = [];
 
-		// if ($date_endorsed!=null) {
-		//     $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
-		// }
+		if ($date_endorsed!=null) {
+		    $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
+		}
 
-		$endorsements = Endorsement::where($wheres)->paginate(10);
+		$endorsements = Endorsement::where($wheres);
+
+		if ($subject!=null) {
+			$endorsements->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
+		$endorsements = $endorsements->latest()->paginate(10);
 
 		$data = new EndorsementListResourceCollection($endorsements);
 

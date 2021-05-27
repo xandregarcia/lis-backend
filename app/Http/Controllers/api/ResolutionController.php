@@ -52,7 +52,7 @@ class ResolutionController extends Controller
             $wheres[] = ['date_passed', $date_passed];
         }
 
-        $resolutions = Resolution::where($wheres)->paginate(10);
+        $resolutions = Resolution::where($wheres)->orderBy('resolution_no','desc')->paginate(10);
 
         $data = new ResolutionListResourceCollection($resolutions);
 

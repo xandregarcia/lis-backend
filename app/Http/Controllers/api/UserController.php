@@ -39,7 +39,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $users = User::latest()->paginate(10);
 
         $data = new UserListResourceCollection($users);
 

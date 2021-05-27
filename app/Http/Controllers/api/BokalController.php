@@ -53,7 +53,7 @@ class BokalController extends Controller
         //     $wheres[] = ['active', $active];
         // }
 
-        $bokals = Bokal::where($wheres)->paginate(10);
+        $bokals = Bokal::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new BokalListResourceCollection($bokals);
 

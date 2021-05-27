@@ -61,7 +61,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
 
-        $comm_status= $comm_status->paginate(10);
+        $comm_status= $comm_status->orderBy('id')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
     }
@@ -98,7 +98,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
 
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -135,7 +135,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
 
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id','desc')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -174,7 +174,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
 
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id','desc')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -212,7 +212,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
     
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id','desc')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -250,7 +250,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
     
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id','desc')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -287,7 +287,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
     
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id','desc')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -324,7 +324,7 @@ class CommunicationStatusController extends Controller
 			});
 		}
     
-        $comm_status = $comm_status->paginate(10);
+        $comm_status = $comm_status->orderBy('id','desc')->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 

@@ -49,7 +49,7 @@ class PublisherController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $publishers = Publisher::where($wheres)->paginate(10);
+        $publishers = Publisher::where($wheres)->latest()->paginate(10);
 
         $data = new PublisherListResourceCollection($publishers);
 

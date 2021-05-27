@@ -47,7 +47,7 @@ class AgencyController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $agencies = Agency::where($wheres)->paginate(10);
+        $agencies = Agency::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new AgencyListResourceCollection($agencies);
 

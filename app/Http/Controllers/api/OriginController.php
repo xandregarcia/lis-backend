@@ -49,7 +49,7 @@ class OriginController extends Controller
             $wheres[] = ['name', 'LIKE', "%{$name}%"];
         }
 
-        $origins = Origin::where($wheres)->paginate(10);
+        $origins = Origin::where($wheres)->latest()->paginate(10);
 
         $data = new OriginListResourceCollection($origins);
 

@@ -41,6 +41,7 @@ class ThirdReadingController extends Controller
     {
 
         $filters = $request->all();
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
         $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 
@@ -54,7 +55,14 @@ class ThirdReadingController extends Controller
             $wheres[] = ['agenda_date', $agenda_date];
         }
 
-        $third_readings = ThirdReading::paginate(10);
+        $third_readings = ThirdReading::latest()->paginate(10);
+
+        if ($subject!=null) {
+			$second_readings->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
 
         $data = new ThirdReadingListResourceCollection($third_readings);
 
