@@ -18,11 +18,12 @@ class CreateOrdinancesTable extends Migration
             $table->unsignedBigInteger('for_referral_id')->nullable();
             $table->foreign('for_referral_id')->references('id')->on('for_referrals');
             $table->string('ordinance_no')->nullable();
-            $table->string('title')->nullable();
+            $table->string('title','1000')->nullable();
             $table->unsignedBigInteger('amending')->nullable();
             $table->foreign('amending')->references('id')->on('ordinances');
             $table->date('date_passed')->nullable();
             $table->date('date_signed')->nullable();
+            $table->tinyInteger('archive')->default('0');
             $table->string('file')->nullable();
             $table->timestamps();
         

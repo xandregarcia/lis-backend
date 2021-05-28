@@ -16,10 +16,11 @@ class CreateResolutionsTable extends Migration
         Schema::create('resolutions', function (Blueprint $table) {
             $table->id();
             $table->string('resolution_no')->nullable();
-            $table->string('subject')->nullable();
+            $table->string('subject','1000')->nullable();
             $table->unsignedBigInteger('bokal_id')->nullable();
             $table->foreign('bokal_id')->references('id')->on('bokals');
             $table->date('date_passed')->nullable();
+            $table->tinyInteger('archive')->default('0');
             $table->string('file')->nullable();
             $table->timestamps();
         });

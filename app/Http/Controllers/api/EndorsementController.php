@@ -43,10 +43,18 @@ class EndorsementController extends Controller
 	{
 
 		$filters = $request->all();
+		$id = (is_null($filters['id']))?null:$filters['id'];
 		$subject = (is_null($filters['subject']))?null:$filters['subject'];
+		$for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
 		$date_endorsed = (is_null($filters['date_endorsed']))?null:$filters['date_endorsed'];
+		$lead_committee_id = (is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id'];
+		$joint_committee_id = (is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id'];
 
 		$wheres = [];
+
+		if ($id!=null) {
+		    $wheres[] = ['id', 'LIKE', "%{$id}%"];
+		}
 
 		if ($date_endorsed!=null) {
 		    $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
@@ -57,6 +65,23 @@ class EndorsementController extends Controller
 		if ($subject!=null) {
 			$endorsements->whereHas('for_referral', function(Builder $query) use ($subject) {
 				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
+		if ($for_referral_id!=null) {
+			$endorsements->whereHas('for_referral', function(Builder $query) use ($for_referral_id) {
+				$query->where([['endorsement_for_referral.for_referral_id','LIKE', "%{$for_referral_id}%"]]);
+			});
+		}
+
+		if ($lead_committee_id!=null) {
+			$endorsements->whereHas('for_referral.committees', function(Builder $query) use ($lead_committee_id) {
+				$query->where([['committee_for_referral.committee_id', $lead_committee_id],['committee_for_referral.lead_committee',true]]);
+			});
+		}
+		if ($joint_committee_id!=null) {
+			$endorsements->whereHas('for_referral.committees', function(Builder $query) use ($joint_committee_id) {
+				$query->where([['committee_for_referral.committee_id', $joint_committee_id],['committee_for_referral.joint_committee',true]]);
 			});
 		}
 

@@ -160,15 +160,6 @@ class ForReferralController extends Controller
 			}
 			$status = new CommunicationStatus;
 			$status->fill([
-				'endorsement' => false,
-				'committee_report' => false,
-				'second_reading' => false,
-				'third_reading' => false,
-				'passed' => false,
-				'adopt' => false,
-				'approved' => false,
-				'furnished' => false,
-				'published' => false,
 				'type' => $type
 			]);
 
