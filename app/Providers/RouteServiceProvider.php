@@ -45,7 +45,7 @@ class RouteServiceProvider extends ServiceProvider
                     ->group(base_path('routes/api.php'));        
             }
             if (App::environment('staging', 'production')) {
-                Route::domain(env('APP_URL'))
+                Route::domain(env('BE_URL'))
                     ->middleware('api')
                     ->namespace($this->namespace)
                     ->group(base_path('routes/api.php'));          
