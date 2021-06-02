@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 use App\Customs\Messages;
 use App\Models\SecondReading;
+use App\Models\CommunicationStatus;
 
 use App\Http\Resources\SecondReading\SecondReadingResource;
 use App\Http\Resources\SecondReading\SecondReadingListResourceCollection;
@@ -67,7 +69,7 @@ class SecondReadingController extends Controller
             'for_referral_id' => 'integer',
             'date_received' => 'date',
             'agenda_date' => 'date',
-            'file' => 'string',
+            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -81,6 +83,25 @@ class SecondReadingController extends Controller
         $second_reading = new SecondReading;
 		$second_reading->fill($data);
         $second_reading->save();
+
+        /**
+         * Upload Attachment
+         */
+        if (isset($data['pdf'])) {
+            $folder = config('folders.second_reading');
+            $path = "{$folder}/{$committeeReport->id}";
+            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+            $filename = $request->file('pdf')->getClientOriginalName();
+            $request->file('pdf')->storeAs("public/{$path}", $filename);
+            $pdf = "{$path}/{$filename}";
+            $second_reading->file = $pdf;
+            $second_reading->save();
+        }
+
+        $status = CommunicationStatus::where('for_referral_id',$second_reading->for_referral_id)->get();
+        $status->toQuery()->update([
+            'third_reading' => true,
+        ]);
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
     }
@@ -136,7 +157,7 @@ class SecondReadingController extends Controller
             'for_referral_id' => 'integer',
             'date_received' => 'date',
             'agenda_date' => 'date',
-            'file' => 'string',
+            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $second_reading = SecondReading::find($id);
@@ -154,6 +175,20 @@ class SecondReadingController extends Controller
         $data = $validator->valid();
         $second_reading->fill($data);
         $second_reading->save();
+
+        /**
+         * Upload Attachment
+         */
+        if (isset($data['pdf'])) {
+            $folder = config('folders.second_reading');
+            $path = "{$folder}/{$committeeReport->id}";
+            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+            $filename = $request->file('pdf')->getClientOriginalName();
+            $request->file('pdf')->storeAs("public/{$path}", $filename);
+            $pdf = "{$path}/{$filename}";
+            $second_reading->file = $pdf;
+            $second_reading->save();
+        }
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
     }

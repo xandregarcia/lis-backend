@@ -53,7 +53,12 @@ class ForReferral extends Model
 
     public function comm_status()
     {
-        return $this->hasOne(CommunicationStatus::class, 'communication', 'id');
+        return $this->hasOne(CommunicationStatus::class);
+    }
+
+    public function endorsement()
+    {
+        return $this->hasOne(Endorsement::class);
     }
 
 }

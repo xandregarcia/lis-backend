@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Carbon\Carbon;
 
-class Committee extends Model
+class Endorsement extends Model
 {
     use HasFactory;
 
@@ -17,7 +17,9 @@ class Committee extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
+        'for_referral_id',
+        'date_referred',
+        'file'
     ];    
 
     /**
@@ -29,13 +31,9 @@ class Committee extends Model
         return Carbon::parse($value)->format('F j, Y h:i A');
     }
 
-    public function groups()
+    public function for_referral()
     {
-        return $this->belongsToMany(Group::class)->withPivot('chairman', 'vice_chairman', 'member');
-    }
-
-    public function for_referrals()
-    {
-        return $this->belongsToMany(ForReferral::class)->withPivot('lead_committee', 'joint_committee');
+        // return $this->belongsTo(Group::class,'group_id','id');
+        return $this->belongsTo(ForReferral::class);
     }
 }

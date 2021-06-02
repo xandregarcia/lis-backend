@@ -6,15 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 use App\Customs\Messages;
-use App\Models\ThirdReading;
+use App\Models\Endorsement;
 use App\Models\CommunicationStatus;
 
-use App\Http\Resources\ThirdReading\ThirdReadingResource;
-use App\Http\Resources\ThirdReading\ThirdReadingListResourceCollection;
+use App\Http\Resources\Endorsement\EndorsementResource;
+use App\Http\Resources\Endorsement\EndorsementListResourceCollection;
 
-class ThirdReadingController extends Controller
+class EndorsementController extends Controller
 {
 
     use Messages;
@@ -30,7 +31,7 @@ class ThirdReadingController extends Controller
         $this->http_code_ok = 200;
         $this->http_code_error = 500;
 
-	}
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,11 +40,11 @@ class ThirdReadingController extends Controller
      */
     public function index()
     {
-        $third_readings = ThirdReading::paginate(10);
+        $endorsements = Endorsement::paginate(10);
 
-        $data = new ThirdReadingListResourceCollection($third_readings);
+        $data = new EndorsementListResourceCollection($endorsements);
 
-        return $this->jsonSuccessResponse($data, $this->http_code_ok);      
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
 
     /**
@@ -65,9 +66,9 @@ class ThirdReadingController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'id' => 'string',
             'for_referral_id' => 'integer',
-            'date_received' => 'date',
-            'agenda_date' => 'date',
+            'date_referred' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
@@ -78,31 +79,30 @@ class ThirdReadingController extends Controller
         }
 
         $data = $validator->valid();
-        
-        $third_reading = new ThirdReading;
-		$third_reading->fill($data);
-        $third_reading->save();
+
+        $endorsement = new Endorsement;
+        $endorsement->fill($data);
+        $endorsement->save();
 
         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.third_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $folder = config('folders.endorsements');
+            $path = "{$folder}/{$endorsement->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $third_reading->file = $pdf;
-            $third_reading->save();
+            $endorsement->file = $pdf;
+            $endorsement->save();
         }
 
-        $status = CommunicationStatus::where('for_referral_id',$third_reading->for_referral_id)->get();
+        $status = CommunicationStatus::where('for_referral_id',$endorsement->for_referral_id)->get();
         $status->toQuery()->update([
-            'approve' => true,
+            'committee_report' => true,
         ]);
-
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Endorsement succesfully added");
     }
 
     /**
@@ -117,13 +117,13 @@ class ThirdReadingController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $third_reading = ThirdReading::find($id);
+        $endorsement = Endorsement::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($endorsement)) {
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new ThirdReadingResource($third_reading);
+		$data = new EndorsementResource($endorsement);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -150,21 +150,21 @@ class ThirdReadingController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
+        }
 
         $rules = [
+            'id' => 'string',
             'for_referral_id' => 'integer',
-            'date_received' => 'date',
-            'agenda_date' => 'date',
+            'date_referred' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $third_reading = ThirdReading::find($id);
+        $endorsement = Endorsement::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($endorsement)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -172,24 +172,24 @@ class ThirdReadingController extends Controller
         }
 
         $data = $validator->valid();
-        $third_reading->fill($data);
-        $third_reading->save();
+		$endorsement->fill($data);
+        $endorsement->save();
 
         /**
          * Upload Attachment
          */
         if (isset($data['pdf'])) {
-            $folder = config('folders.third_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $folder = config('folders.endorsements');
+            $path = "{$folder}/{$endorsement->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
             $pdf = "{$path}/{$filename}";
-            $third_reading->file = $pdf;
-            $third_reading->save();
+            $endorsement->file = $pdf;
+            $endorsement->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication info succesfully updated");         
     }
 
     /**
@@ -204,13 +204,13 @@ class ThirdReadingController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $third_reading = ThirdReading::find($id);
+        $endorsement = Endorsement::find($id);
 
-        if (is_null($third_reading)) {
+        if (is_null($endorsement)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $third_reading->delete();
+        $endorsement->delete();
 
         return $this->jsonDeleteSuccessResponse();         
     }
