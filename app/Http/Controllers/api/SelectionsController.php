@@ -194,7 +194,7 @@ class SelectionsController extends Controller
 
     public function ordinances()
     {
-        $ordinances = Ordinance::all(['id','title']);
+        $ordinances = Ordinance::all(['id','ordinance_no']);
         return $this->jsonSuccessResponse($ordinances, $this->http_code_ok); 
     }
 

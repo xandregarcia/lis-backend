@@ -21,9 +21,14 @@ class Resolution extends Model
         'subject',
         'bokal_id',
         'date_passed',
+        'archive',
         'file',
         
-    ];    
+    ];
+    
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value

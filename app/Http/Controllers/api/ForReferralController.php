@@ -72,7 +72,10 @@ class ForReferralController extends Controller
 			$wheres[] = ['agenda_date', $agenda_date];
 		}
 
+		$wheres[] = ['archive', 0];
+
 		$for_referrals = ForReferral::where($wheres);
+		
 		if ($lead_committee_id!=null) {
 			$for_referrals->whereHas('committees', function(Builder $query) use ($lead_committee_id) {
 				$query->where([['committee_for_referral.committee_id', $lead_committee_id],['committee_for_referral.lead_committee',true]]);

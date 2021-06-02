@@ -78,10 +78,14 @@ class OriginController extends Controller
             'name' => ['string', 'string', 'unique:origins'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Origin Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->error());
         }
 
         $data = $validator->valid();
@@ -149,11 +153,15 @@ class OriginController extends Controller
         $rules = [
             'name' => ['string', Rule::unique('origins')->ignore($origin),],
         ];
+
+        $customMessages = [
+            'name.unique' => 'Origin Name is already taken'
+        ];
  
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

@@ -102,10 +102,14 @@ class CommitteeController extends Controller
             'members' => 'array'
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Committee Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errrors());
         }        
 
         $data = $validator->valid();
@@ -216,11 +220,15 @@ class CommitteeController extends Controller
             'name' => ['string', Rule::unique('committees')->ignore($committee),],
             'groups' => 'array'
         ];
+
+        $customMessages = [
+            'name.unique' => 'Agency Name is already taken'
+        ];
         
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

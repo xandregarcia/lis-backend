@@ -78,10 +78,14 @@ class PublisherController extends Controller
             'name' => ['string', 'string', 'unique:publishers'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Publisher Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -150,10 +154,14 @@ class PublisherController extends Controller
             'name' => ['string', Rule::unique('publishers')->ignore($publisher),],
         ];
 
+        $customMessages = [
+            'name.unique' => 'Publisher Name is already taken'
+        ];
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

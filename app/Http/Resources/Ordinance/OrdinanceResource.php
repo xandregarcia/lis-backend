@@ -35,16 +35,18 @@ class OrdinanceResource extends JsonResource
         $co_authors = $co_authors->map(function ($co_author) {
             return [
                 'id' => $co_author['id'],
+                'name' => "Hon. " . $author['first_name']." ".$author['middle_name']." ".$author['last_name']
             ];
         });
 
         $agenda_date = $this->for_referral->agenda_date;
 
         return [
-            'ordinance_no' => $this->id,
+            'id' => $this->id,
+            'ordinance_no' => $this->ordinance_no,
             'title' => $this->title,
             'amending' => $this->amending,
-            'date_endorsed' => (is_null($this->for_referral->endorsement))?"N/a":$this->for_referral->endorsement->date_endorsed,
+            'date_endorsed' => (is_null($this->for_referral->endorsement))?"N/A":$this->for_referral->endorsement->date_endorsed,
             'meeting_date' => (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->meeting_date,
             'committee_report' => (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->agenda_date,
             'first_reading' => $agenda_date,

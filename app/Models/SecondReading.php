@@ -20,8 +20,13 @@ class SecondReading extends Model
         'for_referral_id',
         'date_received',
         'agenda_date',
+        'archive',
         'file'
-    ];    
+    ];
+
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value

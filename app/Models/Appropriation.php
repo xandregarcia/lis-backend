@@ -17,12 +17,18 @@ class Appropriation extends Model
      * @var array
      */
     protected $fillable = [
+        'appropriation_no',
         'for_referral_id',
         'title',
         'date_passed',
+        'archive',
         'file',
         
-    ];    
+    ];  
+    
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value

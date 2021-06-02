@@ -23,6 +23,7 @@ class OrdinanceListResource extends JsonResource
         $authors = $authors->map(function ($author) {
             return [
                 'id' => $author['id'],
+                'name' => 'Hon. '.$author['first_name'].' '.$author['middle_name'].' '.$author['last_name']
             ];
         });
 
@@ -32,6 +33,7 @@ class OrdinanceListResource extends JsonResource
         $co_authors = $co_authors->map(function ($co_author) {
             return [
                 'id' => $co_author['id'],
+                'name' => 'Hon. '.$author['first_name'].' '.$author['middle_name'].' '.$author['last_name']
             ];
         });
 
@@ -39,6 +41,7 @@ class OrdinanceListResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'ordinance_no' => $this->ordinance_no,
             'title' => $this->title,
             'amending' => $this->amending,
             'first_reading' => $agenda_date,

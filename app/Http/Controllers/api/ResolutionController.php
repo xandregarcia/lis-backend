@@ -44,13 +44,29 @@ class ResolutionController extends Controller
     {
 
         $filters = $request->all();
+        $resolution_no = (is_null($filters['resolution_no']))?null:$filters['resolution_no'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $bokal_id = (is_null($filters['bokal_id']))?null:$filters['bokal_id'];
         $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
 
         $wheres = [];
 
+        if ($resolution_no!=null) {
+            $wheres[] = ['resolution_no', $resolution_no];
+        }
+
+        if ($subject!=null) {
+            $wheres[] = ['subject', 'LIKE', "%{$subject}%"];
+        }
+
+        if ($bokal_id!=null) {
+            $wheres[] = ['bokal_id', $bokal_id];
+        }
         if ($date_passed!=null) {
             $wheres[] = ['date_passed', $date_passed];
         }
+
+        $wheres[] = ['archive', 0];
 
         $resolutions = Resolution::where($wheres)->orderBy('resolution_no','desc')->paginate(10);
 
@@ -87,11 +103,14 @@ class ResolutionController extends Controller
             'committee_report_id' => 'integer',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'resolution_no.unique' => 'Resolution Number is already taken'
+        ];
+        
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $validator->errors();
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -214,11 +233,14 @@ class ResolutionController extends Controller
             'pdf' => 'mimes:pdf|max:10000000'
         ];
 
-        
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'resolution_no.unique' => 'Resolution Number is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

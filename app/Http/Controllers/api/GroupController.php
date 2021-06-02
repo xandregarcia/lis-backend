@@ -79,10 +79,14 @@ class GroupController extends Controller
             'description' => 'string',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Group Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -151,11 +155,15 @@ class GroupController extends Controller
             'name' => ['string', Rule::unique('groups')->ignore($group),],
             'description' => 'string',
         ];
+
+        $customMessages = [
+            'name.unique' => 'Group Name is already taken'
+        ];
         
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

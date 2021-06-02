@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Customs\Messages;
 use App\Models\Ordinance;
@@ -43,16 +45,23 @@ class OrdinanceController extends Controller
     {
         $filters = $request->all();
         $id = (is_null($filters['id']))?null:$filters['id'];
+        $ordinance_no = (is_null($filters['ordinance_no']))?null:$filters['ordinance_no'];
         $title = (is_null($filters['title']))?null:$filters['title'];
         $amending = (is_null($filters['amending']))?null:$filters['amending'];
         $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
         $date_signed = (is_null($filters['date_signed']))?null:$filters['date_signed'];
+        $author = (is_null($filters['author']))?null:$filters['author'];
 
         $wheres = [];
 
         if($id!=null) {
             $wheres[] = ['id', 'LIKE', "%{$id}%"];
         }
+
+        if($ordinance_no!=null) {
+            $wheres[] = ['ordinance_no', 'LIKE', "%{$ordinance_no}%"];
+        }
+
 
         if($title!=null) {
             $wheres[] = ['title', 'LIKE', "%{$title}%"];
@@ -70,7 +79,17 @@ class OrdinanceController extends Controller
             $wheres[] = ['date_signed', $date_signed];
         }
 
-        $ordinances = Ordinance::where($wheres)->paginate(10);
+        $wheres[] = ['archive', 0];
+
+        $ordinances = Ordinance::where($wheres);
+
+        if ($author!=null) {
+			$ordinances->whereHas('bokals', function(Builder $query) use ($author) {
+				$query->where([['bokal_ordinance.bokal_id', $author],['bokal_ordinance.author',true]]);
+			});
+		}
+
+        $ordinances = $ordinances->orderBy('ordinance_no','desc')->paginate(10);
 
         $data = new OrdinanceListResourceCollection($ordinances);
 
@@ -107,11 +126,14 @@ class OrdinanceController extends Controller
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'ordinance_no.unique' => 'Ordinance Number is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $validator->errors();
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -174,6 +196,8 @@ class OrdinanceController extends Controller
         }catch (\Exception $e) {
 
             DB::rollBack();
+
+            return $e;
 
             return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
 
@@ -244,11 +268,15 @@ class OrdinanceController extends Controller
             'authors' => 'array',
             'co_authors' => 'array',
         ];
+
+        $customMessages = [
+            'ordinance_no.unique' => 'Ordinance Number is already taken'
+        ];
         
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -275,7 +303,6 @@ class OrdinanceController extends Controller
 
             // Sync in pivot table
             $authors = $data['authors'];
-            $co_authors = $data['co_authors'];
             $syncs = [];
 
             //authors
@@ -287,11 +314,14 @@ class OrdinanceController extends Controller
             }
 
             //co-authors
-            foreach ($co_authors as $co_author) {
-                $syncs[$co_author['id']] = [
-                    'author' => false,
-                    'co_author' =>true,
-                ];
+            if(isset($data['co_authors'])) {
+                $co_authors = $data['co_authors'];
+                foreach ($co_authors as $co_author) {
+                    $syncs[$co_author['id']] = [
+                        'author' => false,
+                        'co_author' =>true,
+                    ];
+                }
             }
 
             $ordinance->bokals()->sync($syncs);

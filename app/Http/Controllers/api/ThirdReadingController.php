@@ -42,11 +42,16 @@ class ThirdReadingController extends Controller
     {
 
         $filters = $request->all();
+        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
         $subject = (is_null($filters['subject']))?null:$filters['subject'];
         $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 
         $wheres = [];
+        
+        if ($for_referral_id!=null) {
+            $wheres[] = ['for_referral_id','LIKE', "%{$for_referral_id}%"];
+        }
 
         if ($date_received!=null) {
             $wheres[] = ['date_received', $date_received];
@@ -55,6 +60,8 @@ class ThirdReadingController extends Controller
         if ($agenda_date!=null) {
             $wheres[] = ['agenda_date', $agenda_date];
         }
+
+        $wheres[] = ['archive', 0];
 
         $third_readings = ThirdReading::where($wheres);
 

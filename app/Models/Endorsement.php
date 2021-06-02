@@ -18,8 +18,13 @@ class Endorsement extends Model
      */
     protected $fillable = [
         'date_endorsed',
+        'archive',
         'file'
-    ];    
+    ];
+
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value

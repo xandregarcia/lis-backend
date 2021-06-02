@@ -23,9 +23,14 @@ class Ordinance extends Model
         'amending',
         'date_passed',
         'date_signed',
+        'archive',
         'file',
         
-    ];    
+    ];
+
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value

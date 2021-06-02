@@ -26,6 +26,7 @@ use App\Http\Controllers\api\AppropriationController;
 
 //others
 use App\Http\Controllers\api\PublicationController;
+use App\Http\Controllers\api\ArchiveController;
 
 
 
@@ -85,13 +86,49 @@ Route::prefix('communication_status')->group(function () {
     Route::get('second_readings', [CommunicationStatusController::class, 'secondReadings']);
     Route::get('third_readings', [CommunicationStatusController::class, 'thirdReadings']);
     Route::get('ordinances', [CommunicationStatusController::class, 'ordinances']);
-    Route::get('appropriation_ordinances', [CommunicationStatusController::class, 'appropriation']);
+    Route::get('appropriation_ordinances', [CommunicationStatusController::class, 'appropriations']);
     Route::get('furnish_ordinance', [CommunicationStatusController::class, 'furnishOrdinance']);
     Route::get('furnish_resolution', [CommunicationStatusController::class, 'furnishResolution']);
     Route::get('publish', [CommunicationStatusController::class, 'publish']);
     Route::put('/approve/{id}', [CommunicationStatusController::class, 'approve']);
     Route::put('/refer/{id}', [CommunicationStatusController::class, 'refer']);
     Route::get('/{id}', [CommunicationStatusController::class, 'show']);
+});
+
+/**
+ * Archive
+ */
+Route::prefix('archive')->group(function () {
+    Route::put('for_referral/{id}', [ArchiveController::class, 'archiveForReferral']);
+    Route::put('endorsement/{id}', [ArchiveController::class, 'archiveEndorsement']);
+    Route::put('committee_report/{id}', [ArchiveController::class, 'archiveCommitteeReport']);
+    Route::put('resolution/{id}', [ArchiveController::class, 'archiveResolution']);
+    Route::put('second_reading/{id}', [ArchiveController::class, 'archiveSecondReading']);
+    Route::put('third_reading/{id}', [ArchiveController::class, 'archiveThirdReading']);
+    Route::put('ordinance/{id}', [ArchiveController::class, 'archiveOrdinance']);
+    Route::put('appropriation_ordinance/{id}', [ArchiveController::class, 'archiveAppropriation']);
+    Route::get('for_referrals', [ArchiveController::class, 'forReferrals']);
+    Route::get('endorsements', [ArchiveController::class, 'endorsements']);
+    Route::get('committee_reports', [ArchiveController::class, 'committeeReports']);
+    Route::get('resolutions', [ArchiveController::class, 'resolutions']);
+    Route::get('second_readings', [ArchiveController::class, 'secondReadings']);
+    Route::get('third_readings', [ArchiveController::class, 'thirdReadings']);
+    Route::get('ordinances', [ArchiveController::class, 'ordinances']);
+    Route::get('appropriation_ordinances', [ArchiveController::class, 'appropriations']);
+});
+
+/**
+ * Restore
+ */
+Route::prefix('restore')->group(function () {
+    Route::put('for_referral/{id}', [ArchiveController::class, 'restoreForReferral']);
+    Route::put('endorsements/{id}', [ArchiveController::class, 'restoreEndorsement']);
+    Route::put('committee_reports/{id}', [ArchiveController::class, 'restoreCommiteeReport']);
+    Route::put('resolutions/{id}', [ArchiveController::class, 'restoreResolution']);
+    Route::put('second_readings/{id}', [ArchiveController::class, 'restoreSecondReading']);
+    Route::put('third_readings/{id}', [ArchiveController::class, 'restoreThirdReading']);
+    Route::put('ordinances/{id}', [ArchiveController::class, 'restoreOrdinance']);
+    Route::put('appropriation_ordinances/{id}', [ArchiveController::class, 'restoreAppropriation']);
 });
 
 /**

@@ -21,8 +21,13 @@ class CommitteeReport extends Model
         'agenda_date',
         'remarks',
         'meeting_date',
+        'archive',
         'file'
-    ];    
+    ];
+
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Appropriation;
@@ -42,20 +43,27 @@ class AppropriationController extends Controller
     {
 
         $filters = $request->all();
+        $appropriation_no = (is_null($filters['appropriation_no']))?null:$filters['appropriation_no'];
         $title = (is_null($filters['title']))?null:$filters['title'];
         $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
 
         $wheres = [];
 
+        if ($appropriation_no!=null) {
+            $wheres[] = ['appropriation_no', 'LIKE', "%{$appropriation_no}%"];
+        }
+
         if ($title!=null) {
             $wheres[] = ['title', 'LIKE', "%{$title}%"];
         }
 
-        if ($title!=null) {
-            $wheres[] = ['date_passed',$date_passed];
+        if ($date_passed!=null) {
+            $wheres[] = ['date_passed','LIKE', "%{$date_passed}%"];
         }
 
-        $appropriations = Appropriation::where($wheres)->orderBy('id','desc')->paginate(10);
+        $wheres[] = ['archive', 0];
+
+        $appropriations = Appropriation::where($wheres)->orderBy('appropriation_no','desc')->paginate(10);
 
         $data = new AppropriationListResourceCollection($appropriations);
 
@@ -81,16 +89,21 @@ class AppropriationController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'appropriation_no' => ['string', 'unique:appropriations'],
             'for_referral_id' => 'integer',
             'title' => 'string',
             'date_passed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'appropriation_no.unique' => 'Appropriation Number is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);   
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -164,24 +177,29 @@ class AppropriationController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'for_referral_id' => 'integer',
-            'title' => 'string',
-            'date_passed' => 'date'
-        ];
-
+        }
+        
         $appropriation = Appropriation::find($id);
 
         if (is_null($appropriation)) {
 			return $this->jsonErrorResourceNotFound();
         }
         
-        $validator = Validator::make($request->all(), $rules);
+        $rules = [
+            'appropriation_no' => ['string', Rule::unique('appropriations')->ignore($appropriation),],
+            'for_referral_id' => 'integer',
+            'title' => 'string',
+            'date_passed' => 'date'
+        ];
+
+        $customMessages = [
+            'appropriation_no.unique' => 'Appropriation Number is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

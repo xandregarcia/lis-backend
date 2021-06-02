@@ -42,6 +42,7 @@ class CommitteeReportController extends Controller
     public function index(Request $request)
     {
         $filters = $request->all();
+        $id = (is_null($filters['id']))?null:$filters['id'];
         $subject = (is_null($filters['subject']))?null:$filters['subject'];
         $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
         $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
@@ -50,6 +51,10 @@ class CommitteeReportController extends Controller
 		$joint_committee_id = (is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id'];
 
         $wheres = [];
+
+        if ($id!=null) {
+            $wheres[] = ['id', 'LIKE', "%{$id}%"];
+        }
 
         if ($date_received!=null) {
             $wheres[] = ['date_received', $date_received];
@@ -63,6 +68,8 @@ class CommitteeReportController extends Controller
             $wheres[] = ['meeting_date', $meeting_date];
         }
 
+        $wheres[] = ['archive', 0];
+
         $committeeReports = CommitteeReport::where($wheres);
 
         if ($subject!=null) {
@@ -72,12 +79,12 @@ class CommitteeReportController extends Controller
 		}
 
         if ($lead_committee_id!=null) {
-			$committeeReports->whereHas('committees', function(Builder $query) use ($lead_committee_id) {
+			$committeeReports->whereHas('for_referral.committees', function(Builder $query) use ($lead_committee_id) {
 				$query->where([['committee_for_referral.committee_id', $lead_committee_id],['committee_for_referral.lead_committee',true]]);
 			});
 		}
 		if ($joint_committee_id!=null) {
-			$committeeReports->whereHas('committees', function(Builder $query) use ($joint_committee_id) {
+			$committeeReports->whereHas('for_referral.committees', function(Builder $query) use ($joint_committee_id) {
 				$query->where([['committee_for_referral.committee_id', $joint_committee_id],['committee_for_referral.joint_committee',true]]);
 			});
 		}
@@ -92,34 +99,29 @@ class CommitteeReportController extends Controller
     {
 
         $filters = $request->all();
-        // $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
-        // $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
         // $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
 
         $wheres = [];
-
-        // if ($for_referral_id!=null) {
-		// 	$wheres[] = ['for_referral_id', $for_referral_id];
-		// }
- 
         $comm_status = CommitteeReport::where($wheres);
+        if ($for_referral_id!=null) {
+			$comm_status->whereHas('for_referral', function(Builder $query) use ($for_referral_id) {
+				$query->where([['for_referrals.id','LIKE', "%{$for_referral_id}%"]]);
+			});
+		}
+
+        if ($subject!=null) {
+			$comm_status->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
         $comm_status = $comm_status->whereHas('for_referral.comm_status', function(Builder $query){
             $query->where('committee_report',1)->where('adopt',0)->where(function($query) {
                 $query->where('second_reading',1)->orWhere('passed',1);
             });
         });
 
-        // if ($subject!=null) {
-		// 	$comm_status->whereHas('for_referrals', function(Builder $query) use ($subject) {
-		// 		$query->where([['subject','LIKE', "%{$subject}%"]]);
-		// 	});
-		// }
-
-        // if ($agenda_date!=null) {
-		// 	$comm_status->whereHas('for_referrals', function(Builder $query) use ($agenda_date) {
-		// 		$query->where([['agenda_date','LIKE', "%{$agenda_date}%"]]);
-		// 	});
-		// }
         $comm_status = $comm_status->paginate(10);
         $data = new CommitteeReportListResourceCollection($comm_status);
         

@@ -17,7 +17,8 @@ class AppropriationListResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'appropriation_no' => $this->id,
+            'id' => $this->id,
+            'appropriation_no' => $this->appropriation_no,
             'for_referral_id' => $this->for_referral_id,
             'title' => $this->title,
             'date_passed' => $this->date_passed,

@@ -60,6 +60,8 @@ class EndorsementController extends Controller
 		    $wheres[] = ['date_endorsed', 'LIKE', "%{$date_endorsed}%"];
 		}
 
+		$wheres[] = ['archive', 0];
+
 		$endorsements = Endorsement::where($wheres);
 
 		if ($subject!=null) {

@@ -15,6 +15,7 @@ class CreateAppropriationsTable extends Migration
     {
         Schema::create('appropriations', function (Blueprint $table) {
             $table->id();
+            $table->string('appropriation_no')->nullable();
             $table->unsignedBigInteger('for_referral_id')->nullable();
             $table->foreign('for_referral_id')->references('id')->on('for_referrals');
             $table->string('title','1000')->nullable();
