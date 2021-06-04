@@ -121,7 +121,7 @@ class EndorsementController extends Controller
 		$validator = Validator::make($request->all(), $rules);
 
 		if ($validator->fails()) {
-			return $validator->errors();
+			// return $validator->errors();
 			return $this->jsonErrorDataValidation();
 		}
 

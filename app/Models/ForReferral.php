@@ -23,6 +23,7 @@ class ForReferral extends Model
         'origin_id',
         'agenda_date',
         'archive',
+        'urgent',
         'file'
     ];
 
@@ -32,7 +33,9 @@ class ForReferral extends Model
      * @var array
      */
     protected $casts = [
-        'archive' => 'boolean'
+        'archive' => 'boolean',
+        'urgent'=> 'boolean',
+        'date_received' => 'datetime:Y-m-d'
     ];
 
 

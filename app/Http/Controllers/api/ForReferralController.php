@@ -16,6 +16,8 @@ use App\Models\CommunicationStatus;
 use App\Http\Resources\ForReferral\ForReferralResource;
 use App\Http\Resources\ForReferral\ForReferralListResourceCollection;
 
+use Carbon\Carbon;
+
 class ForReferralController extends Controller
 {
 
@@ -86,6 +88,7 @@ class ForReferralController extends Controller
 				$query->where([['committee_for_referral.committee_id', $joint_committee_id],['committee_for_referral.joint_committee',true]]);
 			});
 		}
+
 		$for_referrals = $for_referrals->orderBy('id','desc')->paginate(10);
 
 		$data = new ForReferralListResourceCollection($for_referrals);
@@ -119,13 +122,14 @@ class ForReferralController extends Controller
 			'agenda_date' => 'date',
 			'lead_committee' => 'integer',
 			'joint_committees' => 'array',
+			'urget' => 'integer',
 			'pdf' => 'required|mimes:pdf|max:10000000'
 		];
 
 		$validator = Validator::make($request->all(), $rules);
 
 		if ($validator->fails()) {
-			// return $validator->errors();
+			return $validator->errors();
 			return $this->jsonErrorDataValidation();
 		}
 
@@ -138,6 +142,12 @@ class ForReferralController extends Controller
 			$for_referral = new ForReferral;
 			$for_referral->fill($data);
 			$for_referral->save();
+			$date_received = $data['date_received'];
+
+			$currentDateTime = Carbon::now();
+
+        	$newDateTime = Carbon::now()->addDays(5);
+			return $date_received->addDays(5);
 
 			/**
 			 * Upload Attachment
@@ -257,7 +267,8 @@ class ForReferralController extends Controller
 			'origin_id' => 'integer',
 			'agenda_date' => 'date',
 			'lead_committee' => 'integer',
-			'joint_committees' => 'array'
+			'joint_committees' => 'array',
+			'urget' => 'boolean',
 		];
 
 		$for_referral = ForReferral::find($id);

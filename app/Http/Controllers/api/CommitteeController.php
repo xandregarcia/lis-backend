@@ -101,7 +101,7 @@ class CommitteeController extends Controller
             'vice_chairman' => 'integer',
             'members' => 'array'
         ];
-
+        
         $customMessages = [
             'name.unique' => 'Committee Name is already taken'
         ];
@@ -113,7 +113,7 @@ class CommitteeController extends Controller
         }        
 
         $data = $validator->valid();
-        
+        // return $data;
         try {
 
             DB::beginTransaction();
@@ -121,8 +121,6 @@ class CommitteeController extends Controller
             $committee = new Committee;
             $committee->fill($data);
             $committee->save();
-
-            $members = $data['members'];
 
             // Sync in pivot table
             $syncs = [];
@@ -138,15 +136,19 @@ class CommitteeController extends Controller
                 "vice_chairman" => true,
                 "member" => false,
             ];
-
-            //members
+            
+            //member
+            $members = $data['members'];
+            // return $members['id'];   
             foreach ($members as $member) {
+                $here = $member;
                 $syncs[$member['id']] = [
-                    "chairman" => false,
-                    "vice_chairman" => false,
-                    "member" => true,
+                    'chairman' => false,
+                    'vice_chairman' =>false,
+                    'member' => true
                 ];
             }
+            // return $syncs;
 
             $committee->groups()->sync($syncs);
 
@@ -218,7 +220,9 @@ class CommitteeController extends Controller
 
         $rules = [
             'name' => ['string', Rule::unique('committees')->ignore($committee),],
-            'groups' => 'array'
+            'chairman' => 'integer',
+            'vice_chairman' => 'integer',
+            'members' => 'array'
         ];
 
         $customMessages = [

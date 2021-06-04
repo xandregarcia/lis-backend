@@ -115,7 +115,7 @@ class OrdinanceController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
+            'for_referral_id' => ['integer', 'unique:appropriations'],
             'ordinance_no' => ['string', 'unique:ordinances'],
             'title' => 'string',
             'amending' => 'integer',
@@ -127,7 +127,8 @@ class OrdinanceController extends Controller
         ];
 
         $customMessages = [
-            'ordinance_no.unique' => 'Ordinance Number is already taken'
+            'ordinance_no.unique' => 'Ordinance Number is already taken',
+            'for_referral_id.unique' => 'Ordinance is already existing'
         ];
 
         $validator = Validator::make($request->all(), $rules, $customMessages);

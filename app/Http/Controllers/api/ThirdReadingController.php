@@ -97,16 +97,20 @@ class ThirdReadingController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
+            'for_referral_id' => ['integer', 'unique:third_readings'],
             'date_received' => 'date',
             'agenda_date' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'for_referral_id.unique' => 'Third Reading is already existing'
+        ];
 
-        if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+        $validator = Validator::make($request->all(), $rules, $customMessages);
+
+        if ($validator->fails()) { 
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

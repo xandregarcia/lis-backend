@@ -90,14 +90,15 @@ class AppropriationController extends Controller
     {
         $rules = [
             'appropriation_no' => ['string', 'unique:appropriations'],
-            'for_referral_id' => 'integer',
+            'for_referral_id' => ['integer', 'unique:appropriations'],
             'title' => 'string',
             'date_passed' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $customMessages = [
-            'appropriation_no.unique' => 'Appropriation Number is already taken'
+            'appropriation_no.unique' => 'Appropriation Number is already taken',
+            'for_referral_id.unique' => 'Appropriation Ordinance is already existing'
         ];
 
         $validator = Validator::make($request->all(), $rules, $customMessages);   
