@@ -57,6 +57,7 @@ return [
             'host' => env('FTP_HOST'),
             'username' => env('FTP_USERNAME'),
             'password' => env('FTP_PASSWORD'),
+            'visibility' => 'public',            
             'permissions' => [
                 'file' => [
                     'public' => 0775,
@@ -66,8 +67,7 @@ return [
                     'public' => 0775,
                     'private' => 0700,
                 ],
-            ],            
-            'visibility' => 'public',
+            ],
         
             // Optional FTP Settings...
             // 'port' => 21,
