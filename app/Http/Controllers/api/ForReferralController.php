@@ -143,11 +143,7 @@ class ForReferralController extends Controller
 			$for_referral->fill($data);
 			$for_referral->save();
 			$date_received = $data['date_received'];
-
-			$currentDateTime = Carbon::now();
-
-        	$newDateTime = Carbon::now()->addDays(5);
-			return $date_received->addDays(5);
+        	$dueDate = Carbon::parse($date_received);
 
 			/**
 			 * Upload Attachment
@@ -166,11 +162,16 @@ class ForReferralController extends Controller
 			
 			if($data['category_id'] == 1) {
 				$type = 1;//Draft Ordinance
+				$dueDate = $dueDate->addDays(90);
 			}else if($data['category_id'] == 2) {
 				$type = 2;//Appropriation Ordinance
+				$dueDate = $dueDate->addDays(90);
 			}else {
 				$type = 3;//Resolution
+				$dueDate = $dueDate->addDays(30);
 			}
+			$for_referral->due_date = $dueDate;
+			$for_referral->save();
 			$status = new CommunicationStatus;
 			$status->fill([
 				'type' => $type
