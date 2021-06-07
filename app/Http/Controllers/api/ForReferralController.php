@@ -299,7 +299,7 @@ class ForReferralController extends Controller
 				$path = "{$folder}/{$for_referral->id}";
 				// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
 				$filename = $request->file('pdf')->getClientOriginalName();
-				$request->file('pdf')->storeAs("public/{$path}", $filename);
+				$request->file('pdf')->storePubliclyAs("public/{$path}", $filename);
 				$pdf = "{$path}/{$filename}";
 				$for_referral->file = $pdf;
 				$for_referral->save();
