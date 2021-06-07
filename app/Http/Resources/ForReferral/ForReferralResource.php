@@ -68,7 +68,7 @@ class ForReferralResource extends JsonResource
             'second_reading' => $second_reading,
             'third_reading' => $third_reading,
             'file' => $this->file,
-            'view' => "http://sp.dts/".Storage::url($this->file),
+            'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
 }
