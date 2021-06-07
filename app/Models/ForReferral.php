@@ -35,7 +35,7 @@ class ForReferral extends Model
     protected $casts = [
         'archive' => 'boolean',
         'urgent'=> 'boolean',
-        'date_received' => 'datetime:Y-m-d'
+        // 'date_received' => 'datetime:Y-m-d'
     ];
 
 
