@@ -50,7 +50,7 @@ class EndorsementResource extends JsonResource
             'lead_committee' => $committees['lead_committee']['name'],
             'joint_committees' => (is_null($committees['joint_committees']))?null:$committees['joint_committees'],
             'file' => $this->file,
-            'view' => "http://sp.dts/".Storage::url($this->file),
+            'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
 }

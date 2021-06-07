@@ -52,7 +52,7 @@ class ResolutionResource extends JsonResource
             'author' => "Hon. " . $this->bokals->first_name. " " . $this->bokals->middle_name . " " . $this->bokals->last_name,
             'date_passed' => $this->date_passed,
             'file' => $this->file,
-            'view' => "http://sp.dts/".Storage::url($this->file),
+            'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
 }
