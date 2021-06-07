@@ -35,7 +35,9 @@ class CommitteeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'chairman' => (is_null($chairman))?null:$chairman['id'],
+            'chairman_name' => (is_null($chairman))?null:$chairman['name'],
             'vice_chairman' => (is_null($vice_chairman))?null:$vice_chairman['id'],
+            'vice_chairman_name' => (is_null($vice_chairman))?null:$vice_chairman['name'],
             'members' => (is_null($members))?null:$members,
         ];
     }
