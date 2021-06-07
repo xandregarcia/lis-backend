@@ -59,7 +59,7 @@ return [
             'password' => env('FTP_PASSWORD'),
             'visibility' => 'public',            
             'permPublic' => 0775,
-            'directoryPermPublic' => 0775,
+            'directoryPerm' => 0775,
         
             // Optional FTP Settings...
             // 'port' => 21,
