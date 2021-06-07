@@ -154,8 +154,9 @@ class ForReferralController extends Controller
 				$path = "{$folder}/{$for_referral->id}";
 				// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
 				$filename = $request->file('pdf')->getClientOriginalName();
-				$request->file('pdf')->getDriver()->getAdapter()->setDirectoryPerm(775);
-				$request->file('pdf')->storeAs("public/{$path}", $filename);
+				$fs = Storage::disk('ftp');
+				$fs->getDriver()->getAdapter()->setDirectoryPerm(775);
+				$fs->storeAs("public/{$path}", $filename);
 				$pdf = "{$path}/{$filename}";
 				$for_referral->file = $pdf;
 				$for_referral->save();
