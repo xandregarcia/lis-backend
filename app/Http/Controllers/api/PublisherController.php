@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Publisher;
@@ -36,9 +37,19 @@ class PublisherController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $publishers = Publisher::paginate(10);
+
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+
+        $wheres = [];
+
+        if($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        $publishers = Publisher::where($wheres)->latest()->paginate(10);
 
         $data = new PublisherListResourceCollection($publishers);
 
@@ -64,14 +75,17 @@ class PublisherController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
-            'head' => 'string',
+            'name' => ['string', 'string', 'unique:publishers'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Publisher Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -128,30 +142,33 @@ class PublisherController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-            'head' => 'string',
-        ];
-
+        }
+        
         $publisher = Publisher::find($id);
 
         if (is_null($publisher)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
+        $rules = [
+            'name' => ['string', Rule::unique('publishers')->ignore($publisher),],
+        ];
+
+        $customMessages = [
+            'name.unique' => 'Publisher Name is already taken'
+        ];
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
         $publisher->fill($data);
         $publisher->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Publisher info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Publisher succesfully updated");        
     }
 
     /**

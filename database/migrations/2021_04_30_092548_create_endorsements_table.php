@@ -18,7 +18,8 @@ class CreateEndorsementsTable extends Migration
             $table->unsignedBigInteger('for_referral_id')->nullable();
             $table->foreign('for_referral_id')->references('id')
             ->on('for_referrals')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->date('date_referred')->nullable();
+            $table->date('date_endorsed')->nullable();
+            $table->tinyInteger('archive')->default('0');
             $table->string('file')->nullable();
             $table->timestamps();
         });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 
 use App\Customs\Messages;
@@ -38,7 +39,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $users = User::latest()->paginate(10);
 
         $data = new UserListResourceCollection($users);
 
@@ -137,21 +138,21 @@ class UserController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'firstname' => 'string',
-            'middlename' => 'string',
-            'lastname' => 'string',
-            'email' => ['string', 'email', 'unique:users'],
-            'group_id' => 'integer',
-        ];
+        }
 
         $user = User::find($id);
 
         if (is_null($user)) {
 			return $this->jsonErrorResourceNotFound();
         }
+
+        $rules = [
+            'firstname' => 'string',
+            'middlename' => 'string',
+            'lastname' => 'string',
+            'email' => ['string', 'email', Rule::unique('users')->ignore($user)],
+            'group_id' => 'integer',
+        ];
         
         $validator = Validator::make($request->all(), $rules);
 

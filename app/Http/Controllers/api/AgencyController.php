@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Agency;
@@ -36,9 +37,17 @@ class AgencyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $agencies = Agency::paginate(10);
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+
+        $wheres = [];
+        if ($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        $agencies = Agency::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new AgencyListResourceCollection($agencies);
 
@@ -64,13 +73,17 @@ class AgencyController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'unique:agencies'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Agency Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -127,29 +140,33 @@ class AgencyController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-        ];
+        }
 
         $agency = Agency::find($id);
 
         if (is_null($agency)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
-        $validator = Validator::make($request->all(), $rules);
+
+        $rules = [
+            'name' => ['string', Rule::unique('agencies')->ignore($agency),]
+        ];
+
+        $customMessages = [
+            'name.unique' => 'Agency Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
         $agency->fill($data);
         $agency->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Agency info succesfully updated");      
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Agency succesfully updated");      
     }
 
     /**

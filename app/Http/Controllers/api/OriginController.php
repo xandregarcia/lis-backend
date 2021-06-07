@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Origin;
@@ -36,9 +37,19 @@ class OriginController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $origins = Origin::paginate(10);
+
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+
+        $wheres = [];
+
+        if($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        $origins = Origin::where($wheres)->latest()->paginate(10);
 
         $data = new OriginListResourceCollection($origins);
 
@@ -64,13 +75,17 @@ class OriginController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'string', 'unique:origins'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Origin Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->error());
         }
 
         $data = $validator->valid();
@@ -127,29 +142,33 @@ class OriginController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-        ];
-
+        }
+        
         $origin = Origin::find($id);
 
         if (is_null($origin)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
-        $validator = Validator::make($request->all(), $rules);
+
+        $rules = [
+            'name' => ['string', Rule::unique('origins')->ignore($origin),],
+        ];
+
+        $customMessages = [
+            'name.unique' => 'Origin Name is already taken'
+        ];
+ 
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
         $origin->fill($data);
         $origin->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin info succesfully updated");  
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin succesfully updated");  
     }
 
     /**

@@ -18,11 +18,17 @@ class Resolution extends Model
      */
     protected $fillable = [
         'resolution_no',
-        'author',
+        'subject',
+        'bokal_id',
         'date_passed',
+        'archive',
         'file',
         
-    ];    
+    ];
+    
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value
@@ -36,12 +42,12 @@ class Resolution extends Model
     public function bokals()
     {
         // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(Bokal::class);
+        return $this->belongsTo(Bokal::class,'bokal_id','id');
     }
 
     public function for_referral()
     {
         // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(ForReferral::class);
+        return $this->belongsToMany(ForReferral::class);
     }
 }

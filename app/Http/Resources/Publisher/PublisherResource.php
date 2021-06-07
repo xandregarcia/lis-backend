@@ -17,7 +17,6 @@ class PublisherResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'head' => $this->head,
         ];
     }
 }

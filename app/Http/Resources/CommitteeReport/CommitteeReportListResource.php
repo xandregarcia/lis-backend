@@ -18,31 +18,42 @@ class CommitteeReportListResource extends JsonResource
     public function toArray($request)
     {
 
-        $committees = $this->for_referral->committees; # All
-        $lead_committee = $committees->filter(function ($committee) {
-            return $committee->pivot->lead_committee === 1;
-        })->values()->first();
-        $joint_committees = $committees->filter(function ($committee) {
-            return $committee->pivot->joint_committee === 1;
-        })->values();
-        $joint_committees = $joint_committees->map(function ($joint_committee) {
-            return [
-                'id' => $joint_committee['id'],
-                'name' => $joint_committee['name'],
+        $for_referrals = $this->for_referral; # All
+        $communications = $for_referrals->map(function ($for_referral) {
+            return[
+                'id' => $for_referral['id'],
+                'subject' => $for_referral['subject'],
             ];
         });
-
+        $committees = $for_referrals->map(function ($for_referral) {
+            $committees = $for_referral->committees;
+            $lead_committee = $committees->filter(function ($committee) {
+                return $committee->pivot->lead_committee === 1;
+            })->values()->first();
+            $joint_committees = $committees->filter(function ($committee) {
+                return $committee->pivot->joint_committee === 1;
+            })->values();
+            $joint_committees = $joint_committees->map(function ($joint_committee) {
+                return [
+                    'id' => $joint_committee['id'],
+                    'name' => $joint_committee['name'],
+                ];
+            });
+            return [
+                'lead_committee' => $lead_committee,
+                'joint_committees' => $joint_committees
+            ];
+        })->first();
 
         return [
             'id' => $this->id,
-            'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
+            'for_referrals' => $communications,
             'date_received' => $this->date_received,
-            'date_agenda' => $this->agenda_date,
-            'lead_committee' => (is_null($lead_committee))?null:$lead_committee,
-            'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
+            'agenda_date' => $this->agenda_date,
+            'lead_committee' => $committees['lead_committee']['name'],
+            'joint_committees' => (is_null($committees['joint_committees']))?'N/A':$committees['joint_committees'],
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
-            'file' => env('APP_URL').Storage::url($this->file),
             'date_created' => $this->created_at,
         ];
     }

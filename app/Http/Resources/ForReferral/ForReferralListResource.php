@@ -34,13 +34,12 @@ class ForReferralListResource extends JsonResource
         return [
             'id' => $this->id,
             'subject' => $this->subject,
-            'receiving_date' => $this->receiving_date,
-            'category' => (is_null($this->category))?null:$this->category->name,
-            'origin' => (is_null($this->origin))?null:$this->origin->name,
+            'date_received' => $this->date_received,
+            'category' => (is_null($this->category))?null:$this->category,
+            'origin' => (is_null($this->origin))?null:$this->origin,
             'agenda_date' => $this->agenda_date,
             'lead_committee' => (is_null($lead_committee))?null:$lead_committee,
             'joint_committees' => (is_null($joint_committees))?null:$joint_committees,
-            'file' => env('APP_URL').Storage::url($this->file),
             'date_created' => $this->created_at
         ];
     }

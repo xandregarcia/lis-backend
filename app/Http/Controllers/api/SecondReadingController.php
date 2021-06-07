@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 use App\Customs\Messages;
@@ -38,9 +39,40 @@ class SecondReadingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $second_readings = SecondReading::paginate(10);
+
+        $filters = $request->all();
+        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+
+        $wheres = [];
+
+        if ($for_referral_id!=null) {
+            $wheres[] = ['for_referral_id','LIKE', "%{$for_referral_id}%"];
+        }
+
+        if ($date_received!=null) {
+            $wheres[] = ['date_received', $date_received];
+        }
+
+        if ($agenda_date!=null) {
+            $wheres[] = ['agenda_date', $agenda_date];
+        }
+
+        $wheres[] = ['archive', 0];
+
+        $second_readings = SecondReading::where($wheres);
+
+        if ($subject!=null) {
+			$second_readings->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
+        $second_readings = $second_readings->latest()->paginate(10);
 
         $data = new SecondReadingListResourceCollection($second_readings);
 
@@ -66,16 +98,20 @@ class SecondReadingController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
+            'for_referral_id' => ['integer', 'unique:second_readings'],
             'date_received' => 'date',
             'agenda_date' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'for_referral_id.unique' => 'Second Reading is already existing'
+        ];
 
-        if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+        $validator = Validator::make($request->all(), $rules, $customMessages);
+
+        if ($validator->fails()) { 
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -89,7 +125,7 @@ class SecondReadingController extends Controller
          */
         if (isset($data['pdf'])) {
             $folder = config('folders.second_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $path = "{$folder}/{$second_reading->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
@@ -103,7 +139,7 @@ class SecondReadingController extends Controller
             'third_reading' => true,
         ]);
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Second Reading succesfully added");
     }
 
     /**
@@ -157,7 +193,6 @@ class SecondReadingController extends Controller
             'for_referral_id' => 'integer',
             'date_received' => 'date',
             'agenda_date' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $second_reading = SecondReading::find($id);
@@ -181,7 +216,7 @@ class SecondReadingController extends Controller
          */
         if (isset($data['pdf'])) {
             $folder = config('folders.second_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $path = "{$folder}/{$second_reading->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
@@ -190,7 +225,7 @@ class SecondReadingController extends Controller
             $second_reading->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Second Reading succesfully updated");        
     }
 
     /**

@@ -36,9 +36,24 @@ class BokalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bokals = Bokal::paginate(10);
+
+        // $filters = $request->all();
+        // $name = (is_null($filters['name']))?null:$filters['name'];
+        // $active = (is_null($filters['active']))?null:$filters['active'];
+
+        $wheres = [];
+
+        // if ($name!=null) {
+        //     $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        // }
+
+        // if ($active!=null) {
+        //     $wheres[] = ['active', $active];
+        // }
+
+        $bokals = Bokal::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new BokalListResourceCollection($bokals);
 
@@ -64,7 +79,9 @@ class BokalController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'first_name' => 'string',
+            'middle_name' => 'string',
+            'last_name' => 'string',
             'active' => 'boolean',
         ];
 
@@ -132,7 +149,9 @@ class BokalController extends Controller
         }        
 
         $rules = [
-            'name' => 'string',
+            'first_name' => 'string',
+            'middle_name' => 'string',
+            'last_name' => 'string',
             'active' => 'boolean',
         ];
 
@@ -152,7 +171,7 @@ class BokalController extends Controller
         $bokal->fill($data);
         $bokal->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Bokal Member info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Bokal Member succesfully updated");        
     }
 
     /**

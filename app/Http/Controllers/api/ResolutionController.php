@@ -5,9 +5,14 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+
 use App\Customs\Messages;
-use App\Models\Resolutions;
+use App\Models\Resolution;
 use App\Models\CommunicationStatus;
+use App\Models\CommitteeReport;
 
 use App\Http\Resources\Resolution\ResolutionResource;
 use App\Http\Resources\Resolution\ResolutionListResourceCollection;
@@ -35,9 +40,35 @@ class ResolutionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $resolutions = Resolution::paginate(10);
+
+        $filters = $request->all();
+        $resolution_no = (is_null($filters['resolution_no']))?null:$filters['resolution_no'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $bokal_id = (is_null($filters['bokal_id']))?null:$filters['bokal_id'];
+        $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
+
+        $wheres = [];
+
+        if ($resolution_no!=null) {
+            $wheres[] = ['resolution_no', $resolution_no];
+        }
+
+        if ($subject!=null) {
+            $wheres[] = ['subject', 'LIKE', "%{$subject}%"];
+        }
+
+        if ($bokal_id!=null) {
+            $wheres[] = ['bokal_id', $bokal_id];
+        }
+        if ($date_passed!=null) {
+            $wheres[] = ['date_passed', $date_passed];
+        }
+
+        $wheres[] = ['archive', 0];
+
+        $resolutions = Resolution::where($wheres)->orderBy('resolution_no','desc')->paginate(10);
 
         $data = new ResolutionListResourceCollection($resolutions);
 
@@ -63,44 +94,81 @@ class ResolutionController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
-            'author' => 'integer ',
+            'resolution_no' => ['string', 'unique:resolutions'],
+            'subject' => 'string ',
+            'bokal_id' => 'integer ',
             'date_passed' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
+            'for_referral_id' => 'array',
+            'pdf' => 'required|mimes:pdf|max:10000000',
+            'committee_report_id' => 'integer',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'resolution_no.unique' => 'Resolution Number is already taken'
+        ];
+        
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
-        
-        $resolution = new Resolution;
-		$resolution->fill($data);
-        $resolution->save();
-
-        /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.resolutions');
-            $path = "{$folder}/{$resolution->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $resolution->file = $pdf;
+        try{
+            DB::beginTransaction();
+            $resolution = new Resolution;
+            $resolution->fill($data);
             $resolution->save();
-        }
 
-        // $status = CommunicationStatus::where('for_referral_id',$resolution->for_referral_id)->get();
-        // $type = $status->first()->type;
-        // $status->toQuery()->update([
-        //     'passed' => true,
-        // ]);
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.resolutions');
+                $path = "{$folder}/{$resolution->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $resolution->file = $pdf;
+                $resolution->save();
+            }
+
+            $syncs = [];
+
+            if(isset($data['committee_report_id'])){
+                $id = $data['committee_report_id'];
+                $communications = CommitteeReport::find($id)->for_referral;
+                foreach ($communications as $communication) {
+                    $syncs[] = $communication['id'];
+                    $status = CommunicationStatus::where('for_referral_id',$communication['id'])->get();
+                    $status->toQuery()->update([
+                        'adopt' => true,
+                    ]);
+				}
+            }else{
+                $for_referrals = $data['for_referral_id'];            
+                foreach ($for_referrals as $for_referral) {
+                    $syncs[] = $for_referral;
+                    $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                    $status->toQuery()->update([
+                        'approved' => true,
+                    ]);
+                }
+            }
+
+            $resolution->for_referral()->sync($syncs);
+
+            DB::commit();
+            
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully added");
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+        }
     }
 
     /**
@@ -149,45 +217,67 @@ class ResolutionController extends Controller
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
         }        
-
-        $rules = [
-            'for_referral_id' => 'integer',
-            'author' => 'integer ',
-            'date_passed' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
-        ];
-
         $resolution = Resolution::find($id);
 
         if (is_null($resolution)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
-        $validator = Validator::make($request->all(), $rules);
+
+        $rules = [
+            'resolution_no' => ['string', Rule::unique('resolutions')->ignore($resolution),],
+            'subject' => 'string ',
+            'for_referral_id' => 'array',
+            'bokal_id' => 'integer ',
+            'date_passed' => 'date',
+            'for_referral_id' => 'array',
+            'pdf' => 'mimes:pdf|max:10000000'
+        ];
+
+        $customMessages = [
+            'resolution_no.unique' => 'Resolution Number is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
-        $resolution->fill($data);
-        $resolution->save();
-
-         /**
-         * Upload Attachment
-         */
-        if (isset($data['pdf'])) {
-            $folder = config('folders.resolutions');
-            $path = "{$folder}/{$resolution->id}";
-            // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
-            $filename = $request->file('pdf')->getClientOriginalName();
-            $request->file('pdf')->storeAs("public/{$path}", $filename);
-            $pdf = "{$path}/{$filename}";
-            $resolution->file = $pdf;
+        try{
+            DB::beginTransaction();
+            $resolution->fill($data);
             $resolution->save();
-        }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+            /**
+             * Upload Attachment
+             */
+            if (isset($data['pdf'])) {
+                $folder = config('folders.resolutions');
+                $path = "{$folder}/{$resolution->id}";
+                // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
+                $filename = $request->file('pdf')->getClientOriginalName();
+                $request->file('pdf')->storeAs("public/{$path}", $filename);
+                $pdf = "{$path}/{$filename}";
+                $resolution->file = $pdf;
+                $resolution->save();
+            }
+
+            $sync = [];
+
+            $for_referrals = $data['for_referral_id'];
+            
+            $resolution->for_referral()->sync($for_referrals);
+            DB::commit();
+            
+            return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully updated");
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $this->jsonFailedResponse(null, $this->http_code_error, $e->getMessage());
+        }    
     }
 
     /**
@@ -202,13 +292,13 @@ class ResolutionController extends Controller
             return $this->jsonErrorInvalidParameters();
         }
 
-        $resolutions = CommitteeReport::find($id);
+        $resolution = Resolution::find($id);
 
-        if (is_null($resolutions)) {
+        if (is_null($resolution)) {
 			return $this->jsonErrorResourceNotFound();
         }  
 
-        $resolutions->delete();
+        $resolution->delete();
 
         return $this->jsonDeleteSuccessResponse();         
     }

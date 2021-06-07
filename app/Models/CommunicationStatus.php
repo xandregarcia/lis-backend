@@ -13,20 +13,28 @@ class CommunicationStatus extends Model
     public $table = 'communication_status';
 
     protected $fillable = [
-        'approve',
+        'for_referral_id',
         'endorsement',
         'committee_report',
         'second_reading',
         'third_reading',
+        'passed',
+        'adopt',
+        'approved',
+        'furnished',
+        'published',
         'type'
     ];
 
     protected $casts = [
-        'approve' => 'boolean',
         'endorsement' => 'boolean',
         'committee_report' => 'boolean',
         'second_reading' => 'boolean',
-        'third_reading' => 'boolean'
+        'third_reading' => 'boolean',
+        'adopt' => 'boolean',
+        'approved' => 'boolean',
+        'furnished' => 'boolean',
+        'published' => 'boolean'
     ];
 
     public function for_referrals()

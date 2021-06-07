@@ -15,13 +15,16 @@ class CreateForReferralsTable extends Migration
     {
         Schema::create('for_referrals', function (Blueprint $table) {
             $table->id();
-            $table->string('subject')->nullable();
-            $table->date('receiving_date')->nullable();
+            $table->string('subject','1000')->nullable();
+            $table->date('date_received')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories');
             $table->unsignedBigInteger('origin_id')->nullable();
             $table->foreign('origin_id')->references('id')->on('origins');
             $table->date('agenda_date')->nullable();
+            $table->tinyInteger('urgent')->nullable();
+            $table->date('due_date')->nullable();
+            $table->tinyInteger('archive')->default('0');
             $table->string('file')->nullable();
             $table->timestamps();
         });

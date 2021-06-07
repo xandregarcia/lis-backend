@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Group;
@@ -35,9 +36,19 @@ class GroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $groups = Group::paginate(10);
+
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+
+        $wheres = [];
+
+        if ($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        $groups = Group::where($wheres)->latest()->paginate(10);
 
         $data = new GroupListResourceCollection($groups);
 
@@ -64,14 +75,18 @@ class GroupController extends Controller
     {
 
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'string', 'unique:agencies'],
             'description' => 'string',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Group Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -128,30 +143,34 @@ class GroupController extends Controller
     {
         if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
             return $this->jsonErrorInvalidParameters();
-        }        
-
-        $rules = [
-            'name' => 'string',
-            'description' => 'string',
-        ];
+        }
 
         $group = Group::find($id);
 
         if (is_null($group)) {
 			return $this->jsonErrorResourceNotFound();
         }
+
+        $rules = [
+            'name' => ['string', Rule::unique('groups')->ignore($group),],
+            'description' => 'string',
+        ];
+
+        $customMessages = [
+            'name.unique' => 'Group Name is already taken'
+        ];
         
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
         $group->fill($data);
         $group->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully updated");        
     }
 
     /**

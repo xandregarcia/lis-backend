@@ -17,13 +17,17 @@ class CommitteeReport extends Model
      * @var array
      */
     protected $fillable = [
-        'for_referral_id',
         'date_received',
         'agenda_date',
         'remarks',
         'meeting_date',
+        'archive',
         'file'
-    ];    
+    ];
+
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value
@@ -37,6 +41,6 @@ class CommitteeReport extends Model
     public function for_referral()
     {
         // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(ForReferral::class);
+        return $this->belongsToMany(ForReferral::class);
     }
 }

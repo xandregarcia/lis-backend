@@ -14,6 +14,8 @@ use App\Models\Origin;
 use App\Models\Publisher;
 use App\Models\Category;
 use App\Models\Committee;
+use App\Models\Ordinance;
+use App\Models\CommunicationStatus;
 
 class SelectionsController extends Controller
 {
@@ -85,14 +87,188 @@ class SelectionsController extends Controller
 
     public function allBokals()
     {
-        $bokals = Bokal::all(['id','name']);
+        $all = Bokal::all();
+
+        $bokals = $all->map(function($bokal) {
+            $row = [
+                "id" => $bokal->id,
+                "name" => "Hon. {$bokal->first_name} {$bokal->middle_name} {$bokal->last_name}",
+            ];
+            return $row;
+        });
+
         return $this->jsonSuccessResponse($bokals, $this->http_code_ok); 
     }
 
     public function activeBokals()
     {
-        $bokals = Bokal::where('active',1)->get(['id','name']);
+        $all = Bokal::where('active',1)->get();
+
+        $bokals = $all->map(function($bokal) {
+            $row = [
+                "id" => $bokal->id,
+                "name" => "Hon. {$bokal->first_name} {$bokal->middle_name} {$bokal->last_name}",
+            ];
+            return $row;
+        });
+
         return $this->jsonSuccessResponse($bokals, $this->http_code_ok); 
+    }
+
+    public function endorsements()
+    {
+        $wheres = [];
+        $wheres[] = ['endorsement',1];
+        $wheres[] = ['committee_report',0];
+        $wheres[] = ['passed',0];
+
+        $endorsements = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $endorsements = $endorsements->map(function ($endorsement) {
+            return [
+                'id' => $endorsement['for_referral_id'],
+                'subject' => $endorsement['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($endorsements, $this->http_code_ok); 
+    }
+
+    public function committeeReports()
+    {
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+        $wheres[] = ['second_reading',0];
+        $wheres[] = ['passed',0];
+
+        $reports = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'id' => $report['for_referral_id'],
+                'subject' => $report['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($reports, $this->http_code_ok); 
+    }
+
+    public function adoptReports()
+    {
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+        $wheres[] = ['adopt',0];
+
+        $reports = CommunicationStatus::where($wheres)->where(function($query) {
+            $query->where('second_reading',1)->orWhere('passed',1);
+        })->with('for_referrals')->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'id' => $report['for_referral_id'],
+                'subject' => $report['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($reports, $this->http_code_ok); 
+    }
+
+    public function resolutions()
+    {
+
+        $wheres = [];
+
+        $wheres[] = ['passed',1];
+        $wheres[] = ['approved',0];
+        $wheres[] = ['type',3];
+
+        $resolutions = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $resolutions = $resolutions->map(function ($resolution) {
+            return [
+                'id' => $resolution['for_referral_id'],
+                'subject' => $resolution['for_referrals']['subject'],
+            ];
+        });
+
+        return $this->jsonSuccessResponse($resolutions, $this->http_code_ok); 
+    }
+
+    public function ordinances()
+    {
+        $ordinances = Ordinance::all(['id','ordinance_no']);
+        return $this->jsonSuccessResponse($ordinances, $this->http_code_ok); 
+    }
+
+    //all referrals
+    public function allEndorsements()
+    {
+        $wheres = [];
+        $wheres[] = ['endorsement',1];
+
+        $endorsements = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $endorsements = $endorsements->map(function ($endorsement) {
+            return [
+                'id' => $endorsement['for_referral_id'],
+                'subject' => $endorsement['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($endorsements, $this->http_code_ok); 
+    }
+
+    public function allCommitteeReports()
+    {
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+
+        $reports = CommunicationStatus::where($wheres)->with('for_referrals')->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'id' => $report['for_referral_id'],
+                'subject' => $report['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($reports, $this->http_code_ok); 
+    }
+
+    public function allAdoptReports()
+    {
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+
+        $reports = CommunicationStatus::where($wheres)->where(function($query) {
+            $query->where('second_reading',1)->orWhere('passed',1);
+        })->get();
+        $reports = $reports->map(function ($report) {
+            return [
+                'id' => $report['for_referral_id'],
+                'subject' => $report['for_referrals']['subject'],
+            ];
+        });
+        
+        return $this->jsonSuccessResponse($reports, $this->http_code_ok); 
+    }
+
+    public function allResolutions()
+    {
+
+        $wheres = [];
+
+        $wheres[] = ['committee_report',1];
+
+        $resolutions = CommunicationStatus::where($wheres)->with('for_referrals')->where(function($query) {
+            $query->where('second_reading',1)->orWhere('passed',1);
+        })->get();
+        $resolutions = $resolutions->map(function ($resolution) {
+            return [
+                'id' => $resolution['for_referral_id'],
+                'subject' => $resolution['for_referrals']['subject'],
+            ];
+        });
+
+        return $this->jsonSuccessResponse($resolutions, $this->http_code_ok); 
     }
 
 }

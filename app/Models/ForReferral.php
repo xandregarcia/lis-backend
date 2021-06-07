@@ -18,12 +18,26 @@ class ForReferral extends Model
      */
     protected $fillable = [
         'subject',
-        'receiving_date',
+        'date_received',
         'category_id',
         'origin_id',
         'agenda_date',
+        'archive',
+        'urgent',
         'file'
-    ];    
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'archive' => 'boolean',
+        'urgent'=> 'boolean',
+        // 'date_received' => 'datetime:Y-m-d'
+    ];
+
 
     /**
      * @param $value
@@ -51,14 +65,44 @@ class ForReferral extends Model
         return $this->belongsToMany(Committee::class)->withPivot('lead_committee', 'joint_committee');
     }
 
+    public function endorsements()
+    {
+        return $this->belongsToMany(Endorsement::class);
+    }
+
+    public function committee_reports()
+    {
+        return $this->belongsToMany(CommitteeReport::class);
+    }
+
+    public function second_reading()
+    {
+        return $this->hasOne(SecondReading::class);
+    }
+
+    public function third_reading()
+    {
+        return $this->hasOne(ThirdReading::class);
+    }
+
+    public function resolutions()
+    {
+        return $this->belongsToMany(Resolution::class);
+    }
+
+    public function ordinances()
+    {
+        return $this->hasOne(Ordinance::class);
+    }
+
+    public function appropriations()
+    {
+        return $this->hasOne(Appropriation::class);
+    }
+
     public function comm_status()
     {
         return $this->hasOne(CommunicationStatus::class);
-    }
-
-    public function endorsement()
-    {
-        return $this->hasOne(Endorsement::class);
     }
 
 }

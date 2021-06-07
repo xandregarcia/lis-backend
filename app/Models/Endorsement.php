@@ -17,10 +17,14 @@ class Endorsement extends Model
      * @var array
      */
     protected $fillable = [
-        'for_referral_id',
-        'date_referred',
+        'date_endorsed',
+        'archive',
         'file'
-    ];    
+    ];
+
+    protected $casts = [
+        'archive' => 'boolean'
+    ];
 
     /**
      * @param $value
@@ -33,7 +37,6 @@ class Endorsement extends Model
 
     public function for_referral()
     {
-        // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsTo(ForReferral::class);
+        return $this->belongsToMany(ForReferral::class);
     }
 }

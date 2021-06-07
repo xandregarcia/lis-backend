@@ -16,7 +16,7 @@ class CreateCommitteeForReferralTable extends Migration
         Schema::create('committee_for_referral', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('for_referral_id')->nullable();
-            $table->foreign('for_referral_id')->references('id')->on('for_referrals');
+            $table->foreign('for_referral_id')->references('id')->on('for_referrals')->constrained()->onDelete('cascade');;
             $table->unsignedBigInteger('committee_id')->nullable();
             $table->foreign('committee_id')->references('id')->on('committees');
             $table->tinyInteger('lead_committee')->nullable();

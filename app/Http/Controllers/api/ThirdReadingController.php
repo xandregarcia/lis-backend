@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Customs\Messages;
 use App\Models\ThirdReading;
@@ -37,9 +38,40 @@ class ThirdReadingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $third_readings = ThirdReading::paginate(10);
+
+        $filters = $request->all();
+        $for_referral_id = (is_null($filters['for_referral_id']))?null:$filters['for_referral_id'];
+        $subject = (is_null($filters['subject']))?null:$filters['subject'];
+        $date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
+        $agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
+
+        $wheres = [];
+        
+        if ($for_referral_id!=null) {
+            $wheres[] = ['for_referral_id','LIKE', "%{$for_referral_id}%"];
+        }
+
+        if ($date_received!=null) {
+            $wheres[] = ['date_received', $date_received];
+        }
+
+        if ($agenda_date!=null) {
+            $wheres[] = ['agenda_date', $agenda_date];
+        }
+
+        $wheres[] = ['archive', 0];
+
+        $third_readings = ThirdReading::where($wheres);
+
+        if ($subject!=null) {
+			$third_readings->whereHas('for_referral', function(Builder $query) use ($subject) {
+				$query->where([['for_referrals.subject','LIKE', "%{$subject}%"]]);
+			});
+		}
+
+        $third_readings = $third_readings->latest()->paginate(10);
 
         $data = new ThirdReadingListResourceCollection($third_readings);
 
@@ -65,16 +97,20 @@ class ThirdReadingController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'for_referral_id' => 'integer',
+            'for_referral_id' => ['integer', 'unique:third_readings'],
             'date_received' => 'date',
             'agenda_date' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'for_referral_id.unique' => 'Third Reading is already existing'
+        ];
 
-        if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+        $validator = Validator::make($request->all(), $rules, $customMessages);
+
+        if ($validator->fails()) { 
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -88,7 +124,7 @@ class ThirdReadingController extends Controller
          */
         if (isset($data['pdf'])) {
             $folder = config('folders.third_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $path = "{$folder}/{$third_reading->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
@@ -99,10 +135,10 @@ class ThirdReadingController extends Controller
 
         $status = CommunicationStatus::where('for_referral_id',$third_reading->for_referral_id)->get();
         $status->toQuery()->update([
-            'approve' => true,
+            'passed' => true,
         ]);
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group succesfully added");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading succesfully added");
     }
 
     /**
@@ -156,7 +192,6 @@ class ThirdReadingController extends Controller
             'for_referral_id' => 'integer',
             'date_received' => 'date',
             'agenda_date' => 'date',
-            'pdf' => 'required|mimes:pdf|max:10000000'
         ];
 
         $third_reading = ThirdReading::find($id);
@@ -168,6 +203,7 @@ class ThirdReadingController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
@@ -180,7 +216,7 @@ class ThirdReadingController extends Controller
          */
         if (isset($data['pdf'])) {
             $folder = config('folders.third_reading');
-            $path = "{$folder}/{$committeeReport->id}";
+            $path = "{$folder}/{$third_reading->id}";
             // $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
             $filename = $request->file('pdf')->getClientOriginalName();
             $request->file('pdf')->storeAs("public/{$path}", $filename);
@@ -189,7 +225,7 @@ class ThirdReadingController extends Controller
             $third_reading->save();
         }
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Group info succesfully updated");        
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Third Reading succesfully updated");        
     }
 
     /**

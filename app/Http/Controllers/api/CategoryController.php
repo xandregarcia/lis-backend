@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 use App\Customs\Messages;
 use App\Models\Category;
@@ -35,9 +36,19 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::paginate(10);
+
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+
+        $wheres = [];
+
+        if ($name!=null) {
+            $wheres[] = ['name', 'LIKE', "%{$name}%"];
+        }
+
+        $categories = Category::where($wheres)->orderBy('id','desc')->paginate(10);
 
         $data = new CategoryListResourceCollection($categories);
 
@@ -63,13 +74,17 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'string',
+            'name' => ['string', 'unique:categories'],
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $customMessages = [
+            'name.unique' => 'Category Name is already taken'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -128,16 +143,16 @@ class CategoryController extends Controller
             return $this->jsonErrorInvalidParameters();
         }        
 
-        $rules = [
-            'name' => 'string',
-        ];
-
         $category = Category::find($id);
-
+        
         if (is_null($category)) {
 			return $this->jsonErrorResourceNotFound();
         }
-        
+
+        $rules = [
+            'name' => ['string', Rule::unique('categories')->ignore($category),]
+        ];
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -148,7 +163,7 @@ class CategoryController extends Controller
         $category->fill($data);
         $category->save();
 
-        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Category info succesfully updated");
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Category succesfully updated");
     }
 
     /**

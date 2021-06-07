@@ -16,7 +16,7 @@ class CreateCommitteeGroupTable extends Migration
         Schema::create('committee_group', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('group_id')->nullable();
-            $table->foreign('group_id')->references('id')->on('groups');
+            $table->foreign('group_id')->references('id')->on('groups')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('committee_id')->nullable();
             $table->foreign('committee_id')->references('id')->on('committees');
             $table->tinyInteger('chairman')->nullable();
