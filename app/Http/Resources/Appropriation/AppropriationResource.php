@@ -23,7 +23,7 @@ class AppropriationResource extends JsonResource
             'title' => $this->title,
             'date_passed' => $this->date_passed,
             'file' => $this->file,
-            'view' => "http://sp.dts/".Storage::url($this->file),
+            'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
 }

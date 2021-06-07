@@ -53,7 +53,7 @@ class CommitteeReportResource extends JsonResource
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,
             'file' => $this->file,
-            'view' => "http://sp.dts/".Storage::url($this->file),
+            'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
 }

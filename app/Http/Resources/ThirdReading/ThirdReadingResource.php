@@ -22,7 +22,7 @@ class ThirdReadingResource extends JsonResource
             'subject' => (is_null($this->for_referral))?null:$this->for_referral->subject,
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
-            'view' => env('APP_URL').Storage::url($this->file),
+            'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
 }
