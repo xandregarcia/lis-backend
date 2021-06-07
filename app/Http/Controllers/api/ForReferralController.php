@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 use App\Customs\Messages;
 use App\Models\ForReferral;
@@ -153,6 +154,7 @@ class ForReferralController extends Controller
 				$path = "{$folder}/{$for_referral->id}";
 				// $filename = Str::random(20).".".$request->file('pdf')->getClientOriginalExtension();
 				$filename = $request->file('pdf')->getClientOriginalName();
+				$request->file('pdf')->getDriver()->getAdapter()->setDirectoryPerm(775);
 				$request->file('pdf')->storeAs("public/{$path}", $filename);
 				$pdf = "{$path}/{$filename}";
 				$for_referral->file = $pdf;
