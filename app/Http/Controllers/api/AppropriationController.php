@@ -125,11 +125,13 @@ class AppropriationController extends Controller
             $appropriation->file = $pdf;
             $appropriation->save();
         }
-
-        $status = CommunicationStatus::where('for_referral_id',$appropriation->for_referral_id)->get();
-        $status->toQuery()->update([
-            'approved' => true,
-        ]);
+        if(isset($data['for_referral_id'])){
+            $for_referral_id = $data['for_referral_id'];
+            $status = CommunicationStatus::where('for_referral_id',$for_referral_id)->get();
+            $status->toQuery()->update([
+                'approved' => true,
+            ]);
+        }
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Appropriation Ordinance succesfully added");
     }
 
@@ -219,6 +221,14 @@ class AppropriationController extends Controller
             $pdf = "{$path}/{$filename}";
             $appropriation->file = $pdf;
             $appropriation->save();
+        }
+
+        if(isset($data['for_referral_id'])){
+            $for_referral_id = $data['for_referral_id'];
+            $status = CommunicationStatus::where('for_referral_id',$for_referral_id)->get();
+            $status->toQuery()->update([
+                'approved' => true,
+            ]);
         }
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Appropriation Ordinance succesfully updated");        
