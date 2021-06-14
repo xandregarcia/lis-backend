@@ -146,7 +146,7 @@ class ResolutionController extends Controller
                         'adopt' => true,
                     ]);
 				}
-            }else{
+            }else if(isset($data['for_referral_id'])){
                 $for_referrals = $data['for_referral_id'];            
                 foreach ($for_referrals as $for_referral) {
                     $syncs[] = $for_referral;
@@ -263,11 +263,20 @@ class ResolutionController extends Controller
                 $resolution->save();
             }
 
-            $sync = [];
+            $syncs = [];
 
-            $for_referrals = $data['for_referral_id'];
+            if(isset($data['for_referral_id'])){
+                $for_referrals = $data['for_referral_id'];            
+                foreach ($for_referrals as $for_referral) {
+                    $syncs[] = $for_referral;
+                    $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                    $status->toQuery()->update([
+                        'approved' => true,
+                    ]);
+                }
+            }
             
-            $resolution->for_referral()->sync($for_referrals);
+            $resolution->for_referral()->sync($syncs);
             DB::commit();
             
             return $this->jsonSuccessResponse(null, $this->http_code_ok, "Resolution succesfully updated");

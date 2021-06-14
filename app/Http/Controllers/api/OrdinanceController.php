@@ -158,11 +158,13 @@ class OrdinanceController extends Controller
                 $ordinance->file = $pdf;
                 $ordinance->save();
             }
-
-            $status = CommunicationStatus::where('for_referral_id',$ordinance->for_referral_id)->get();
-            $status->toQuery()->update([
-                'approved' => true,
-            ]);
+            if(isset($data['for_referral_id'])){
+                $for_referral = $data['for_referral_id']; 
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $status->toQuery()->update([
+                    'approved' => true,
+                ]);
+            }
 
             // Sync in pivot table
             $authors = $data['authors'];
@@ -300,6 +302,14 @@ class OrdinanceController extends Controller
                 $pdf = "{$path}/{$filename}";
                 $ordinance->file = $pdf;
                 $ordinance->save();
+            }
+            
+            if(isset($data['for_referral_id'])){
+                $for_referral = $data['for_referral_id']; 
+                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+                $status->toQuery()->update([
+                    'approved' => true,
+                ]);
             }
 
             // Sync in pivot table
