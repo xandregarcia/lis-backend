@@ -372,9 +372,9 @@ Route::apiResources([
     'except' => ['index']
 ]);
 
-Route::prefix('publication')->group(function() {
-    Route::get('second_publication', [PublicationController::class, 'second_publication']);
-    Route::get('third_publication', [PublicationController::class, 'third_publication']);
+Route::prefix('publications')->group(function() {
+    Route::get('second_publications', [PublicationController::class, 'second_publication']);
+    Route::get('third_publications', [PublicationController::class, 'third_publication']);
 });
 
 /**
@@ -387,7 +387,7 @@ Route::apiResources([
 ]);
 
 Route::apiResources([
-    'publications' => PublicationController::class,
+    'publication' => PublicationController::class,
 ],[
     'except' => ['index']
 ]);

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
 use App\Models\Publication;
+use App\Models\Ordinance;
 use App\Models\CommunicationStatus;
 
 use App\Http\Resources\Publication\PublicationResource;
@@ -53,7 +54,7 @@ class PublicationController extends Controller
             $wheres[] = ['first_publication',$first_publication];
         }
 
-        $publications = Publication::whereNotNull('first_publication')->where($wheres)->paginate(10);
+        $publications = Publication::whereNotNull('first_publication')->whereNull('second_publication')->where($wheres)->paginate(10);
 
         $data = new PublicationListResourceCollection($publications);
 
@@ -86,7 +87,7 @@ class PublicationController extends Controller
             $wheres[] = ['second_publication',$second_publication];
         }
 
-        $publications = Publication::whereNotNull('second_publication')->where($wheres)->paginate(10);
+        $publications = Publication::whereNotNull('second_publication')->whereNull('third_publication')->where($wheres)->paginate(10);
 
         $data = new PublicationListResourceCollection($publications);
 
@@ -160,6 +161,7 @@ class PublicationController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            return $validator->errors();
             return $this->jsonErrorDataValidation();
         }
 
@@ -168,8 +170,8 @@ class PublicationController extends Controller
         $publication = new Publication;
 		$publication->fill($data);
         $publication->save();
-
-        $status = CommunicationStatus::where('for_referral_id',$publication->oridinances->for_referral_id)->get();
+        $for_referral_id = Ordinance::find( $data['ordinance_id'])->for_referral_id;
+        $status = CommunicationStatus::where('for_referral_id',$for_referral_id)->get();
         $status->toQuery()->update([
             'published' => true,
         ]);
@@ -195,7 +197,7 @@ class PublicationController extends Controller
 			return $this->jsonErrorResourceNotFound();
         }
 
-		$data = new PublisherResource($publication);
+		$data = new PublicationResource($publication);
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);
     }
@@ -247,7 +249,6 @@ class PublicationController extends Controller
         $data = $validator->valid();
         $publication->fill($data);
         $publication->save();
-
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Published Ordinance successfully updated");        
     }
 

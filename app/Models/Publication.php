@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\Carbon;
+
 class Publication extends Model
 {
     use HasFactory;
@@ -33,11 +35,11 @@ class Publication extends Model
 
     public function publishers()
     {
-        return $this->belongsTo(Publisher::class);
+        return $this->belongsTo(Publisher::class,'publisher_id','id');
     }
 
     public function ordinances()
     {
-        return $this->belongsTo(Ordinance::class);
+        return $this->belongsTo(Ordinance::class,'ordinance_id','id');
     }
 }

@@ -151,7 +151,7 @@ class OriginController extends Controller
         }
 
         $rules = [
-            'name' => ['string', Rule::unique('origins')->ignore($origin),],
+            'name' => ['string', Rule::unique('origins')->ignore($origin)],
         ];
 
         $customMessages = [
@@ -167,7 +167,7 @@ class OriginController extends Controller
         $data = $validator->valid();
         $origin->fill($data);
         $origin->save();
-
+        // return $origin;
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Origin succesfully updated");  
     }
 

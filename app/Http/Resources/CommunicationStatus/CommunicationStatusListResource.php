@@ -24,8 +24,9 @@ class CommunicationStatusListResource extends JsonResource
             'committee_report' => $report,
             // 'date_received' => (is_null($this->for_referrals))?null:$this->for_referrals->date_received,
             // 'resolution_no' => (is_null($this->for_referrals->resolutions))?null:$this->for_referrals->resolutions->id,
-            // 'ordianance_no' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->id,
-            // 'title' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->title,
+            'ordinance_id' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->id,
+            'ordinance_no' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->ordinance_no,
+            'title' => (is_null($this->for_referrals->ordinances))?null:$this->for_referrals->ordinances->title,
             'date_created' => $this->created_at,
         ];
     }
