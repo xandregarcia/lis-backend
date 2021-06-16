@@ -19,7 +19,6 @@ class CommitteeReport extends Model
     protected $fillable = [
         'date_received',
         'agenda_date',
-        'remarks',
         'meeting_date',
         'archive',
         'file'
@@ -41,6 +40,6 @@ class CommitteeReport extends Model
     public function for_referral()
     {
         // return $this->belongsTo(Group::class,'group_id','id');
-        return $this->belongsToMany(ForReferral::class);
+        return $this->belongsToMany(ForReferral::class)->withPivot('remarks');
     }
 }
