@@ -202,7 +202,6 @@ class ForReferralController extends Controller
 				}
 			}
 			$for_referral->committees()->sync($syncs);
-
 			DB::commit();
 
 			return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully added");
@@ -328,7 +327,7 @@ class ForReferralController extends Controller
 			}
 
 			$for_referral->committees()->sync($syncs);
-
+			
 			DB::commit();
 
 			return $this->jsonSuccessResponse(null, $this->http_code_ok, "Communication succesfully updated");
