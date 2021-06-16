@@ -48,7 +48,7 @@ class CommitteeReportResource extends JsonResource
             'for_referrals' => $communications,
             'date_received' => $this->date_received,
             'agenda_date' => $this->agenda_date,
-            'lead_committee' => $committees['lead_committee']['name'],
+            'lead_committee' => (is_null($committees['lead_committee']))?'N/A':$committees['lead_committee']['name'],
             'joint_committees' => (is_null($committees['joint_committees']))?'N/A':$committees['joint_committees'],
             'remarks' => $this->remarks,
             'meeting_date' => $this->meeting_date,

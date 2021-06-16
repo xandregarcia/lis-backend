@@ -333,7 +333,7 @@ class CommunicationStatusController extends Controller
     public function publish(Request $request)
     {
     
-        $comm_status = CommunicationStatus::where('approved',1)->where('type',1)->where('pubished',0)->paginate(10);
+        $comm_status = CommunicationStatus::where('approved',1)->where('type',1)->where('published',0)->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 

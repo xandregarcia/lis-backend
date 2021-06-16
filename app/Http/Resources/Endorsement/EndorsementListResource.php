@@ -47,8 +47,6 @@ class EndorsementListResource extends JsonResource
             'id' => $this->id,
             'for_referrals' => $for_referral,
             'date_endorsed' => $this->date_endorsed,
-            'lead_committee' => $committees['lead_committee']['name'],
-            'joint_committees' => (is_null($committees['joint_committees']))?'N/A':$committees['joint_committees'],
             'date_created' => $this->created_at
         ];
     }
