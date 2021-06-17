@@ -39,23 +39,39 @@ class OrdinanceResource extends JsonResource
             ];
         });
 
-        $agenda_date = $this->for_referral->agenda_date;
+        if(is_null($this->for_referral)) {
+            $agenda_date = 'N/A';
+            $date_endorsed = 'N/A';
+            $meeting_date = 'N/A';
+            $committee_report = 'N/A';
+            $first_reading = 'N/A';
+            $second_reading = 'N/A';
+            $third_reading = 'N/A';
+        } else {
+            $agenda_date = $this->for_referral->agenda_date;
+            $date_endorsed = (is_null($this->for_referral->endorsement))?"N/A":$this->for_referral->endorsement->date_endorsed;
+            $meeting_date = (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->meeting_date;
+            $committee_report = (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->agenda_date;
+            $first_reading = $agenda_date;
+            $second_reading = (is_null($this->for_referral->second_reading))?$agenda_date:$this->for_referral->second_reading->agenda_date;
+            $third_reading = (is_null($this->for_referral->endorsement))?$agenda_date:$this->for_referral->third_reading->agenda_date;
+        }
 
         return [
             'id' => $this->id,
             'ordinance_no' => $this->ordinance_no,
             'title' => $this->title,
             'amending' => $this->amending,
-            'date_endorsed' => (is_null($this->for_referral->endorsement))?"N/A":$this->for_referral->endorsement->date_endorsed,
-            'meeting_date' => (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->meeting_date,
-            'committee_report' => (is_null($this->for_referral->committee_report))?"N/A":$this->for_referral->committee_report->agenda_date,
+            'date_endorsed' => $date_endorsed,
+            'meeting_date' => $meeting_date,
+            'committee_report' => $committee_report,
             'first_reading' => $agenda_date,
-            'second_reading' => (is_null($this->for_referral->second_reading))?$agenda_date:$this->for_referral->second_reading->agenda_date,
-            'third_reading' => (is_null($this->for_referral->endorsement))?$agenda_date:$this->for_referral->third_reading->agenda_date,
+            'second_reading' => $second_reading,
+            'third_reading' => $third_reading,
             'authors' => $authors,
             'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,
-            'date_signed' => $this->date_signed,
+            'date_signed' => (is_null($this->date_signed))?'N/A':$this->date_signed,
             'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }

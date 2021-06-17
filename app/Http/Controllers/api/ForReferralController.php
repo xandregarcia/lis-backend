@@ -53,7 +53,6 @@ class ForReferralController extends Controller
 		$lead_committee_id = (is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id'];
 		$joint_committee_id = (is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id'];
 		$agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
-		// $lead_committee = $filters['lead_committee'];
 
 		$wheres = [];
 		if ($id!=null) {
