@@ -71,7 +71,7 @@ class OrdinanceResource extends JsonResource
             'authors' => $authors,
             'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,
-            'date_signed' => (is_null($this->date_signed))?'N/A':$this->date_signed,
+            'date_signed' => (is_null($this->date_signed))?null:$this->date_signed,
             'view' => env('STORAGE_URL').Storage::url($this->file),
         ];
     }
