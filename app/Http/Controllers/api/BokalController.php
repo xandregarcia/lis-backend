@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 use App\Customs\Messages;
+use Illuminate\Support\Facades\DB;
 use App\Models\Bokal;
 
 use App\Http\Resources\Bokal\BokalResource;
@@ -39,21 +40,23 @@ class BokalController extends Controller
     public function index(Request $request)
     {
 
-        // $filters = $request->all();
-        // $name = (is_null($filters['name']))?null:$filters['name'];
-        // $active = (is_null($filters['active']))?null:$filters['active'];
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+        $active = (is_null($filters['active']))?null:$filters['active'];
 
         $wheres = [];
 
-        // if ($name!=null) {
-        //     $wheres[] = ['name', 'LIKE', "%{$name}%"];
-        // }
+        if ($active!=null) {
+            $wheres[] = ['active', $active];
+        }
 
-        // if ($active!=null) {
-        //     $wheres[] = ['active', $active];
-        // }
-
-        $bokals = Bokal::where($wheres)->orderBy('id','desc')->paginate(10);
+        $bokals = Bokal::select('*',DB::raw("CONCAT('Hon.',' ',`first_name`,' ',`middle_name`,' ', `last_name`) as full_name"))->where($wheres);
+        
+        if ($name!=null) {
+            $bokals->having('full_name', 'LIKE', "%{$name}%");
+        }
+        
+        $bokals = $bokals->orderBy('id','desc')->paginate(10);
 
         $data = new BokalListResourceCollection($bokals);
 

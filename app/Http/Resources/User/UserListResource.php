@@ -17,7 +17,7 @@ class UserListResource extends JsonResource
         
         return [
             'id' => $this->id,
-            'name' => $this->firstname ." ". $this->middlename ." ". $this->lastname,
+            'name' => $this->full_name,
             'email' => $this->email,
             'group_id' => (is_null($this->group))?null:$this->group->id,
             'group_name' => (is_null($this->group))?null:$this->group->name,
