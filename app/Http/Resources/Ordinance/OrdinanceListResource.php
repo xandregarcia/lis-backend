@@ -52,14 +52,19 @@ class OrdinanceListResource extends JsonResource
         }
 
         $publication = (is_null($this->publication))?null:$this->publication;
-        $status = $this->for_referral->comm_status;
+        $status = (is_null($this->for_referral))?null:$this->for_referral->comm_status;
         if(is_null($publication)){
-            if($status->published == 1) {
+            if($status != null){
+                if($status->published == 1) {
+                    $date_publised = 'N/A';
+                    $publisher = 'N/A';
+                }else {
+                    $date_publised = 'For Publication';
+                    $publisher = 'For Publication';
+                }
+            }else {
                 $date_publised = 'N/A';
                 $publisher = 'N/A';
-            }else {
-                $date_publised = 'For Publication';
-                $publisher = 'For Publication';
             }
         }else{
             $date_publised = $publication->first_publication;
