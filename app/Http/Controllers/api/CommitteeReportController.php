@@ -150,7 +150,7 @@ class CommitteeReportController extends Controller
             'for_referral_id' => 'array',
             'date_received' => 'date ',
             'agenda_date' => 'date',
-            'remarks' => 'string',
+            'remarks' => 'array',
             'meeting_date' => 'date',
             'pdf' => 'required|mimes:pdf|max:10000000'
         ];

@@ -27,6 +27,7 @@ use App\Http\Controllers\api\AppropriationController;
 //others
 use App\Http\Controllers\api\PublicationController;
 use App\Http\Controllers\api\ArchiveController;
+use App\Http\Controllers\api\ReportController;
 
 
 
@@ -129,6 +130,15 @@ Route::prefix('restore')->group(function () {
     Route::put('third_readings/{id}', [ArchiveController::class, 'restoreThirdReading']);
     Route::put('ordinances/{id}', [ArchiveController::class, 'restoreOrdinance']);
     Route::put('appropriation_ordinances/{id}', [ArchiveController::class, 'restoreAppropriation']);
+});
+
+/**
+ * Report
+ */
+Route::prefix('reports')->group(function () {
+    Route::get('iso6', [ReportController::class, 'iso6']);
+    Route::get('iso7', [ReportController::class, 'iso7']);
+    Route::get('iso11', [ReportController::class, 'iso11']);
 });
 
 /**

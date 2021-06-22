@@ -71,7 +71,7 @@ class ForReferral extends Model
 
     public function committee_reports()
     {
-        return $this->belongsToMany(CommitteeReport::class);
+        return $this->belongsToMany(CommitteeReport::class)->withPivot('remarks');
     }
 
     public function second_reading()

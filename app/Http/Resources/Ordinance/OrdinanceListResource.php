@@ -14,7 +14,6 @@ class OrdinanceListResource extends JsonResource
      */
     public function toArray($request)
     {
-
         $bokals = $this->bokals()->get();
 
         $authors = $bokals->filter(function ($bokal) {
@@ -51,6 +50,21 @@ class OrdinanceListResource extends JsonResource
             $second_reading = (is_null($this->for_referral->second_reading))?$agenda_date:$this->for_referral->second_reading->agenda_date;
             $third_reading = (is_null($this->for_referral->third_reading))?$agenda_date:$this->for_referral->third_reading->agenda_date;
         }
+
+        $publication = (is_null($this->publication))?null:$this->publication;
+        $status = $this->for_referral->comm_status;
+        if(is_null($publication)){
+            if($status->published == 1) {
+                $date_publised = 'N/A';
+                $publisher = 'N/A';
+            }else {
+                $date_publised = 'For Publication';
+                $publisher = 'For Publication';
+            }
+        }else{
+            $date_publised = $publication->first_publication;
+            $publisher = $publication->publishers->name;
+        }
         
 
         return [
@@ -68,6 +82,8 @@ class OrdinanceListResource extends JsonResource
             'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,
             'date_signed' => (is_null($this->date_signed))?null:$this->date_signed,
+            'date_published' => $date_publised,
+            'publisher' => $publisher,
             'date_created' => $this->created_at
         ];
     }
