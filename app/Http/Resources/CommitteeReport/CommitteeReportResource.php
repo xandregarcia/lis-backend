@@ -42,6 +42,12 @@ class CommitteeReportResource extends JsonResource
                 'joint_committees' => $joint_committees
             ];
         })->first();
+        $remarks = $this->for_referral()->get(['remarks']);
+        $remarks = $remarks->map(function ($remark) {
+            return [
+                $remark['remarks']
+            ];
+        });
 
         return [
             'id' => $this->id,
@@ -50,7 +56,7 @@ class CommitteeReportResource extends JsonResource
             'agenda_date' => $this->agenda_date,
             'lead_committee' => (is_null($committees['lead_committee']))?'N/A':$committees['lead_committee']['name'],
             'joint_committees' => (is_null($committees['joint_committees']))?'N/A':$committees['joint_committees'],
-            'remarks' => $this->remarks,
+            'remarks' => $remarks,
             'meeting_date' => $this->meeting_date,
             'file' => $this->file,
             'view' => env('STORAGE_URL').Storage::url($this->file),

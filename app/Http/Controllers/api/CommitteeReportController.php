@@ -159,7 +159,7 @@ class CommitteeReportController extends Controller
 
         if ($validator->fails()) {
             // return $validator->errors();
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();
@@ -187,11 +187,15 @@ class CommitteeReportController extends Controller
             }
 
             $syncs = [];
-
+            $here = [];
             $for_referrals = $data['for_referral_id'];
-            foreach ($for_referrals as $for_referral) {
-                $syncs[] = $for_referral;
-                $status = CommunicationStatus::where('for_referral_id',$for_referral)->get();
+            $remarks = $data['remarks'];
+            $count = count($data['for_referral_id']);
+            for ( $i=0; $i<$count; $i++) {
+                $syncs[$for_referrals[$i]] = [
+                    'remarks' => $remarks[$i]
+                ];
+                $status = CommunicationStatus::where('for_referral_id',$for_referrals[$i])->get();
                 $type = $status->first()->type;
                 if($type == 3) {
                     $status->toQuery()->update([
@@ -203,9 +207,8 @@ class CommitteeReportController extends Controller
                     ]);
                 }
             }
-            
             $committeeReport->for_referral()->sync($syncs);
-
+            // return $syncs;
             DB::commit();
 
             return $this->jsonSuccessResponse(null, $this->http_code_ok, "Committee Report succesfully added");
