@@ -91,9 +91,10 @@ Route::prefix('communication_status')->group(function () {
     Route::get('furnish_ordinance', [CommunicationStatusController::class, 'furnishOrdinance']);
     Route::get('furnish_resolution', [CommunicationStatusController::class, 'furnishResolution']);
     Route::get('publish', [CommunicationStatusController::class, 'publish']);
-    Route::put('/approve/{id}', [CommunicationStatusController::class, 'approve']);
-    Route::put('/refer/{id}', [CommunicationStatusController::class, 'refer']);
-    Route::get('/{id}', [CommunicationStatusController::class, 'show']);
+    Route::put('furnished/{id}', [CommunicationStatusController::class, 'furnished']);
+    Route::put('not_for_publication/{id}', [CommunicationStatusController::class, 'notForPublication']);
+    Route::put('approve/{id}', [CommunicationStatusController::class, 'approve']);
+    Route::put('refer/{id}', [CommunicationStatusController::class, 'refer']);
 });
 
 /**

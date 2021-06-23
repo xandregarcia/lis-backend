@@ -21,9 +21,12 @@ class PublicationResource extends JsonResource
             'title' => (is_null($this->ordinances))?null:$this->ordinances->title,
             'publisher_id' => $this->publisher_id,
             'publisher_name' => (is_null($this->publishers))?null:$this->publishers->name,
-            'first_publication' => (is_null($this->first_publication))?null:$this->first_publication,
-            'second_publication' => (is_null($this->second_publication))?null:$this->second_publication,
-            'third_publication' => (is_null($this->third_publication))?null:$this->third_publication,
+            'first_from' => (is_null($this->first_from))?null:$this->first_from,
+            'first_to' => (is_null($this->first_to))?null:$this->first_to,
+            'second_from' => (is_null($this->second_from))?null:$this->second_from,
+            'second_to' => (is_null($this->second_to))?null:$this->second_to,
+            'third_from' => (is_null($this->third_from))?null:$this->third_from,
+            'third_to' => (is_null($this->third_to))?null:$this->third_to,
         ];
     }
 }

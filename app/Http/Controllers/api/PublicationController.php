@@ -51,10 +51,10 @@ class PublicationController extends Controller
         }
 
         if($first_publication!=null) {
-            $wheres[] = ['first_publication',$first_publication];
+            $wheres[] = ['first_from',$first_publication];
         }
 
-        $publications = Publication::whereNotNull('first_publication')->whereNull('second_publication')->where($wheres)->paginate(10);
+        $publications = Publication::whereNotNull('first_from')->whereNull('second_from')->where($wheres)->paginate(10);
 
         $data = new PublicationListResourceCollection($publications);
 
@@ -80,14 +80,14 @@ class PublicationController extends Controller
         }
 
         if($first_publication!=null) {
-            $wheres[] = ['first_publication',$first_publication];
+            $wheres[] = ['first_from',$first_publication];
         }
 
         if($second_publication!=null) {
-            $wheres[] = ['second_publication',$second_publication];
+            $wheres[] = ['second_from',$second_publication];
         }
 
-        $publications = Publication::whereNotNull('second_publication')->whereNull('third_publication')->where($wheres)->paginate(10);
+        $publications = Publication::whereNotNull('second_from')->whereNull('third_from')->where($wheres)->paginate(10);
 
         $data = new PublicationListResourceCollection($publications);
 
@@ -114,18 +114,18 @@ class PublicationController extends Controller
         }
 
         if($first_publication!=null) {
-            $wheres[] = ['first_publication',$first_publication];
+            $wheres[] = ['first_from',$first_publication];
         }
 
         if($second_publication!=null) {
-            $wheres[] = ['second_publication',$second_publication];
+            $wheres[] = ['second_from',$second_publication];
         }
 
         if($third_publication!=null) {
-            $wheres[] = ['third_publication',$third_publication];
+            $wheres[] = ['third_from',$third_publication];
         }
 
-        $publications = Publication::whereNotNull('third_publication')->where($wheres)->paginate(10);
+        $publications = Publication::whereNotNull('third_from')->where($wheres)->paginate(10);
 
         $data = new PublicationListResourceCollection($publications);
 
@@ -153,9 +153,12 @@ class PublicationController extends Controller
         $rules = [
             'ordinance_id' => 'integer',
             'publisher_id' => 'integer',
-            'first_publication' => 'date',
-            'second_publication' => 'date',
-            'third_publication' => 'date',
+            'first_from' => 'date',
+            'first_to' => 'date',
+            'second_from' => 'date',
+            'second_to' => 'date',
+            'third_from' => 'date',
+            'third_to' => 'date',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -229,9 +232,12 @@ class PublicationController extends Controller
         $rules = [
             'ordinance_id' => 'integer',
             'publisher_id' => 'integer',
-            'first_publication' => 'date',
-            'second_publication' => 'date',
-            'third_publication' => 'date',
+            'first_from' => 'date',
+            'first_to' => 'date',
+            'second_from' => 'date',
+            'second_to' => 'date',
+            'third_from' => 'date',
+            'third_to' => 'date',
         ];
 
         $publication = Publication::find($id);
@@ -243,7 +249,7 @@ class PublicationController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->jsonErrorDataValidation();
+            return $this->jsonErrorDataValidation($validator->errors());
         }
 
         $data = $validator->valid();

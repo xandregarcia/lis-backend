@@ -19,9 +19,12 @@ class Publication extends Model
     protected $fillable = [
         'ordinance_id',
         'publisher_id',
-        'first_publication',
-        'second_publication',
-        'third_publication',
+        'first_from',
+        'first_to',
+        'second_from',
+        'second_to',
+        'third_from',
+        'third_to',
     ];    
 
     /**
