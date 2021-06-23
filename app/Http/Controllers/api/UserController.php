@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 use App\Customs\Messages;
 use App\Models\User;
@@ -37,9 +38,31 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(10);
+
+        $filters = $request->all();
+        $name = (is_null($filters['name']))?null:$filters['name'];
+        $group_id = (is_null($filters['group_id']))?null:$filters['group_id'];
+        $email = (is_null($filters['email']))?null:$filters['email'];
+
+        $wheres = [];
+
+        if ($group_id!=null) {
+            $wheres[] = ['group_id', $group_id];
+        }
+
+        if ($email!=null) {
+            $wheres[] = ['email', 'LIKE', "%{$email}%"];
+        }
+
+        $users = User::select('*',DB::raw("CONCAT(`firstname`,' ',`middlename`,' ', `lastname`) as full_name"))->where($wheres);
+
+        if ($name!=null) {
+            $users->having('full_name', 'LIKE', "%{$name}%");
+        }
+        
+        $users = $users->latest()->paginate(10);
 
         $data = new UserListResourceCollection($users);
 

@@ -75,7 +75,7 @@ class GroupController extends Controller
     {
 
         $rules = [
-            'name' => ['string', 'string', 'unique:agencies'],
+            'name' => ['string', 'string', 'unique:groups'],
             'description' => 'string',
         ];
 

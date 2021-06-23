@@ -25,7 +25,7 @@ class AlterCommitteeReportsForReferralTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('committee_report_for_referral', function (Blueprint $table) {
             //
         });
     }

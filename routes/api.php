@@ -27,6 +27,7 @@ use App\Http\Controllers\api\AppropriationController;
 //others
 use App\Http\Controllers\api\PublicationController;
 use App\Http\Controllers\api\ArchiveController;
+use App\Http\Controllers\api\ReportController;
 
 
 
@@ -90,9 +91,10 @@ Route::prefix('communication_status')->group(function () {
     Route::get('furnish_ordinance', [CommunicationStatusController::class, 'furnishOrdinance']);
     Route::get('furnish_resolution', [CommunicationStatusController::class, 'furnishResolution']);
     Route::get('publish', [CommunicationStatusController::class, 'publish']);
-    Route::put('/approve/{id}', [CommunicationStatusController::class, 'approve']);
-    Route::put('/refer/{id}', [CommunicationStatusController::class, 'refer']);
-    Route::get('/{id}', [CommunicationStatusController::class, 'show']);
+    Route::put('furnished/{id}', [CommunicationStatusController::class, 'furnished']);
+    Route::put('not_for_publication/{id}', [CommunicationStatusController::class, 'notForPublication']);
+    Route::put('approve/{id}', [CommunicationStatusController::class, 'approve']);
+    Route::put('refer/{id}', [CommunicationStatusController::class, 'refer']);
 });
 
 /**
@@ -129,6 +131,15 @@ Route::prefix('restore')->group(function () {
     Route::put('third_readings/{id}', [ArchiveController::class, 'restoreThirdReading']);
     Route::put('ordinances/{id}', [ArchiveController::class, 'restoreOrdinance']);
     Route::put('appropriation_ordinances/{id}', [ArchiveController::class, 'restoreAppropriation']);
+});
+
+/**
+ * Report
+ */
+Route::prefix('reports')->group(function () {
+    Route::get('iso6', [ReportController::class, 'iso6']);
+    Route::get('iso7', [ReportController::class, 'iso7']);
+    Route::get('iso11', [ReportController::class, 'iso11']);
 });
 
 /**

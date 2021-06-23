@@ -51,6 +51,7 @@ class OrdinanceController extends Controller
         $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
         $date_signed = (is_null($filters['date_signed']))?null:$filters['date_signed'];
         $author = (is_null($filters['author']))?null:$filters['author'];
+        $co_author = (is_null($filters['co_author']))?null:$filters['co_author'];
 
         $wheres = [];
 
@@ -86,6 +87,12 @@ class OrdinanceController extends Controller
         if ($author!=null) {
 			$ordinances->whereHas('bokals', function(Builder $query) use ($author) {
 				$query->where([['bokal_ordinance.bokal_id', $author],['bokal_ordinance.author',true]]);
+			});
+		}
+
+        if ($co_author!=null) {
+			$ordinances->whereHas('bokals', function(Builder $query) use ($co_author) {
+				$query->where([['bokal_ordinance.bokal_id', $co_author],['bokal_ordinance.co_author',true]]);
 			});
 		}
 

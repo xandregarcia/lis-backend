@@ -56,4 +56,9 @@ class Ordinance extends Model
         // return $this->belongsTo(Group::class,'group_id','id');
         return $this->belongsTo(ForReferral::class);
     }
+
+    public function publication()
+    {
+        return $this->hasOne(Publication::class,'ordinance_id','id');
+    }
 }

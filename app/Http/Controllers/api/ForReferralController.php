@@ -47,13 +47,12 @@ class ForReferralController extends Controller
 		// return $filters;
 		$id = (is_null($filters['id']))?null:$filters['id'];
 		$subject = (is_null($filters['subject']))?null:$filters['subject'];
-		$date_received = (is_null($filters['date_received']))?$filters['date_received']:null;
+		$date_received = (is_null($filters['date_received']))?null:$filters['date_received'];
 		$category_id = (is_null($filters['category_id']))?null:$filters['category_id'];
 		$origin_id = (is_null($filters['origin_id']))?null:$filters['origin_id'];
 		$lead_committee_id = (is_null($filters['lead_committee_id']))?null:$filters['lead_committee_id'];
 		$joint_committee_id = (is_null($filters['joint_committee_id']))?null:$filters['joint_committee_id'];
 		$agenda_date = (is_null($filters['agenda_date']))?null:$filters['agenda_date'];
-		// $lead_committee = $filters['lead_committee'];
 
 		$wheres = [];
 		if ($id!=null) {
@@ -72,9 +71,8 @@ class ForReferralController extends Controller
 			$wheres[] = ['origin_id', $origin_id];
 		}
 		if ($agenda_date!=null) {
-			$wheres[] = ['agenda_date', $agenda_date];
+			$wheres[] = ['agenda_date', 'LIKE', "%{$agenda_date}%"];
 		}
-
 		$wheres[] = ['archive', 0];
 
 		$for_referrals = ForReferral::where($wheres);

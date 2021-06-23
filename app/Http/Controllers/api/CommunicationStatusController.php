@@ -332,8 +332,27 @@ class CommunicationStatusController extends Controller
 
     public function publish(Request $request)
     {
-    
-        $comm_status = CommunicationStatus::where('approved',1)->where('type',1)->where('published',0)->paginate(10);
+        $filters = $request->all();
+        $ordinance_no = (is_null($filters['ordinance_no']))?null:$filters['ordinance_no'];
+        $title = (is_null($filters['title']))?null:$filters['title'];
+        $wheres[] = ['approved',1];
+        $wheres[] = ['published',0];
+        $wheres[] = ['type',1];
+        $comm_status = CommunicationStatus::where($wheres);
+        
+        if ($ordinance_no!=null) {
+			$comm_status->whereHas('for_referrals.ordinances', function(Builder $query) use ($ordinance_no) {
+				$query->where([['ordinance_no','LIKE', "%{$ordinance_no}%"]]);
+			});
+		}
+
+        if ($title!=null) {
+			$comm_status->whereHas('for_referrals.ordinances', function(Builder $query) use ($title) {
+				$query->where([['title','LIKE', "%{$title}%"]]);
+			});
+		}
+
+        $comm_status = $comm_status->paginate(10);
         $data = new CommunicationStatusListResourceCollection($comm_status);
         
         return $this->jsonSuccessResponse($data, $this->http_code_ok); 
@@ -411,5 +430,61 @@ class CommunicationStatusController extends Controller
         $comm_status->save();
 
         return $this->jsonSuccessResponse(null, $this->http_code_ok, "Successfully referred");        
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function notForPublication(Request $request, $id)
+    {
+        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+            return $this->jsonErrorInvalidParameters();
+        }
+        
+        $comm_status = CommunicationStatus::find($id);
+
+        if (is_null($comm_status)) {
+			return $this->jsonErrorResourceNotFound();
+        }
+        
+        $comm_status->fill([
+            'published' => true,
+        ]);
+
+        $comm_status->save();
+
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Success");        
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function furnished(Request $request, $id)
+    {
+        if (filter_var($id, FILTER_VALIDATE_INT) === false ) {
+            return $this->jsonErrorInvalidParameters();
+        }
+        
+        $comm_status = CommunicationStatus::find($id);
+
+        if (is_null($comm_status)) {
+			return $this->jsonErrorResourceNotFound();
+        }
+        
+        $comm_status->fill([
+            'furnished' => true,
+        ]);
+
+        $comm_status->save();
+
+        return $this->jsonSuccessResponse(null, $this->http_code_ok, "Success");        
     }
 }
