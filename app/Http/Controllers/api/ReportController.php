@@ -85,7 +85,6 @@ class ReportController extends Controller
 
         $data = new ReportListResourceCollection($iso7);
 
-
         return $this->jsonSuccessResponse($data, $this->http_code_ok);        
     }
 
