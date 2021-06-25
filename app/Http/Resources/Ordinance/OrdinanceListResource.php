@@ -67,7 +67,7 @@ class OrdinanceListResource extends JsonResource
                 $publisher = 'N/A';
             }
         }else{
-            $date_publised = $publication->first_publication;
+            $date_publised = $publication->first_to;
             $publisher = $publication->publishers->name;
         }
         
@@ -77,6 +77,7 @@ class OrdinanceListResource extends JsonResource
             'ordinance_no' => $this->ordinance_no,
             'title' => $this->title,
             'amending' => $this->amending,
+            'agenda_date' => $agenda_date,
             'first_reading' => $agenda_date,
             'date_endorsed' => $date_endorsed,
             'meeting_date' => $meeting_date,

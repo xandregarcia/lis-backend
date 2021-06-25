@@ -42,7 +42,7 @@ class ReportController extends Controller
         $wheres = [];
 
         if ($subject!=null) {
-			$wheres[] = ['subject', $subject];
+			$wheres[] = ['subject', 'LIKE',  "%{$subject}%"];
 		}
 
         if ($agenda_date!=null) {
@@ -70,7 +70,7 @@ class ReportController extends Controller
         $wheres = [];
 
         if ($subject!=null) {
-			$wheres[] = ['subject', $subject];
+			$wheres[] = ['subject', 'LIKE',  "%{$subject}%"];
 		}
 
         if ($agenda_date!=null) {
@@ -97,7 +97,7 @@ class ReportController extends Controller
         $wheres = [];
 
         if ($title!=null) {
-			$wheres[] = ['title', $title];
+			$wheres[] = ['title', 'LIKE',  "%{$title}%"];
 		}
 
         if ($date_passed!=null) {
