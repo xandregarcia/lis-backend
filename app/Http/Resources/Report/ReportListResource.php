@@ -16,7 +16,6 @@ class ReportListResource extends JsonResource
     {
         $status = $this->comm_status;
         if(is_null($this->endorsements->first())) {
-            
             if($status->passed == 1) {
                 $endorsement = "N/A";
             }else{
