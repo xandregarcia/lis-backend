@@ -32,7 +32,7 @@ class OrdinanceListResource extends JsonResource
         $co_authors = $co_authors->map(function ($co_author) {
             return [
                 'id' => $co_author['id'],
-                'name' => 'Hon. '.$author['first_name'].' '.$author['middle_name'].' '.$author['last_name']
+                'name' => 'Hon. '.$co_author['first_name'].' '.$co_author['middle_name'].' '.$co_author['last_name']
             ];
         });
         if(is_null($this->for_referral)){
@@ -56,18 +56,27 @@ class OrdinanceListResource extends JsonResource
         if(is_null($publication)){
             if($status != null){
                 if($status->published == 1) {
-                    $date_publised = 'N/A';
+                    $first_publication = 'N/A';
+                    $second_publication = null;
+                    $third_publication = null;
                     $publisher = 'N/A';
                 }else {
-                    $date_publised = 'For Publication';
+                    $first_publication = 'For Publication';
+                    $second_publication = null;
+                    $third_publication = null;
                     $publisher = 'For Publication';
                 }
             }else {
-                $date_publised = 'N/A';
+                $first_publication = 'N/A';
+                $second_publication = null;
+                $third_publication = null;
                 $publisher = 'N/A';
+                
             }
         }else{
-            $date_publised = $publication->first_publication;
+            $first_publication = $publication->first_to . ' to ' . $publication->first_from;
+            $second_publication = (is_null($publication->second_to))?null:$publication->second_to . ' to ' . $publication->second_from;
+            $third_publication = (is_null($publication->third_to))?null:$publication->third_to . ' to ' . $publication->third_from;
             $publisher = $publication->publishers->name;
         }
         
@@ -77,6 +86,7 @@ class OrdinanceListResource extends JsonResource
             'ordinance_no' => $this->ordinance_no,
             'title' => $this->title,
             'amending' => $this->amending,
+            'agenda_date' => $agenda_date,
             'first_reading' => $agenda_date,
             'date_endorsed' => $date_endorsed,
             'meeting_date' => $meeting_date,
@@ -87,7 +97,9 @@ class OrdinanceListResource extends JsonResource
             'co_authors' => $co_authors,
             'date_passed' => $this->date_passed,
             'date_signed' => (is_null($this->date_signed))?null:$this->date_signed,
-            'date_published' => $date_publised,
+            'first_publication' => $first_publication,
+            'second_publication' => $second_publication,
+            'third_publication' => $third_publication,
             'publisher' => $publisher,
             'date_created' => $this->created_at
         ];

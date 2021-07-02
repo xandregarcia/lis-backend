@@ -42,7 +42,7 @@ class ReportController extends Controller
         $wheres = [];
 
         if ($subject!=null) {
-			$wheres[] = ['subject', $subject];
+			$wheres[] = ['subject', 'LIKE',  "%{$subject}%"];
 		}
 
         if ($agenda_date!=null) {
@@ -70,7 +70,7 @@ class ReportController extends Controller
         $wheres = [];
 
         if ($subject!=null) {
-			$wheres[] = ['subject', $subject];
+			$wheres[] = ['subject', 'LIKE',  "%{$subject}%"];
 		}
 
         if ($agenda_date!=null) {
@@ -85,7 +85,6 @@ class ReportController extends Controller
 
         $data = new ReportListResourceCollection($iso7);
 
-
         return $this->jsonSuccessResponse($data, $this->http_code_ok);        
     }
 
@@ -98,7 +97,7 @@ class ReportController extends Controller
         $wheres = [];
 
         if ($title!=null) {
-			$wheres[] = ['title', $title];
+			$wheres[] = ['title', 'LIKE',  "%{$title}%"];
 		}
 
         if ($date_passed!=null) {
@@ -108,6 +107,30 @@ class ReportController extends Controller
         $iso11 = Ordinance::where($wheres)->orderBy('ordinance_no','desc')->paginate(10);
 
         $data = new OrdinanceListResourceCollection($iso11);
+
+
+        return $this->jsonSuccessResponse($data, $this->http_code_ok);        
+    }
+
+    public function iso17(Request $request)
+    {
+        $filters = $request->all();
+        $title = (is_null($filters['title']))?null:$filters['title'];
+        $date_passed = (is_null($filters['date_passed']))?null:$filters['date_passed'];
+        
+        $wheres = [];
+
+        if ($title!=null) {
+			$wheres[] = ['title', 'LIKE',  "%{$title}%"];
+		}
+
+        if ($date_passed!=null) {
+			$wheres[] = ['date_passed', 'LIKE', "%{$date_passed}%"];
+		}
+
+        $iso17 = Ordinance::where($wheres)->orderBy('ordinance_no','desc')->paginate(10);
+
+        $data = new OrdinanceListResourceCollection($iso17);
 
 
         return $this->jsonSuccessResponse($data, $this->http_code_ok);        

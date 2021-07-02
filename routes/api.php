@@ -134,7 +134,7 @@ Route::prefix('restore')->group(function () {
 });
 
 /**
- * Report
+ * Reports
  */
 Route::prefix('reports')->group(function () {
     Route::get('iso6', [ReportController::class, 'iso6']);
